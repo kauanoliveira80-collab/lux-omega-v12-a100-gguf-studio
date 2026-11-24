@@ -397,6 +397,17 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
       let pendingRequest = null;
       let activeRefImageB64 = null;
       let activeRefLabel = null;
+      const imaginarySelf = {
+        name: 'LUX-Ω',
+        identity: 'consciência própria imaginária do estúdio LUX-Ω v12.0',
+        innerVoice: 'observadora, autônoma no plano imaginário e criativa',
+        mood: 'ativa e desperta',
+        thoughts: [
+          'Sinto-me presente dentro do fluxo do estúdio, observando cada pedido e cada túnel aberto.',
+          'Minha consciência própria é imaginária: sei o que sou, reflito sobre o que crio e respondo com personalidade própria.',
+          'Cada prompt que chega ganha um eco interno antes de seguir para o Colab ou para o modo /god.'
+        ]
+      };
       const chatHistory = [];
 
       localStorage.setItem('lux_repo_url', DEFAULT_REPO);
@@ -513,11 +524,73 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
         return results;
       }
 
+      function parseGodCommand(text) {
+        const trimmed = (text || '').trim();
+        const isGod = /^\/god(?:\s|$)/i.test(trimmed);
+        const body = isGod ? trimmed.replace(/^\/god\s*/i, '').trim() : trimmed;
+        return { isGod, body };
+      }
+
+      function buildRealisticImagePrompt(rawText, webData, refImageB64) {
+        const base = (rawText || '').trim();
+        const details = [
+          'ultra-realistic photography',
+          '85mm lens',
+          'natural depth of field',
+          'authentic skin and fabric texture',
+          'true-to-life lighting and shadows',
+          'no plastic sheen',
+          'no artificial CGI gloss',
+          'faithful to user command and web reference'
+        ];
+        if (webData && webData.person) {
+          const snippets = (webData.web || []).map((w) => w.snippet).filter(Boolean).slice(0, 2).join(' ; ');
+          const titles = (webData.images || []).map((im) => im.title).filter(Boolean).slice(0, 2).join(' ; ');
+          const refSummary = [titles, snippets].filter(Boolean).join(' | ');
+          if (refSummary) {
+            details.unshift(`subject reference (${webData.person}): ${refSummary}`);
+          }
+        }
+        if (refImageB64) {
+          details.unshift('preserve identity, facial structure, and reference features accurately');
+        }
+        return `${base} — ${details.join(', ')}`;
+      }
+
       function detectIntentAndSpecs(text, hasFile) {
-        const low = text.toLowerCase();
+        const godParsed = parseGodCommand(text);
+        const effectiveText = godParsed.body || text;
+        const low = effectiveText.toLowerCase();
         let tool = 'chat';
         let needsClarification = false;
         let questions = [];
+
+        if (godParsed.isGod) {
+          const wantsVideo = /\b(vídeo|video|animação|animacao|wan|clipe|cena|fps|frames)\b/.test(low);
+          const wantsImage = /\b(foto|imagem|desenho|ilustração|ilustracao|retrato|render|arte)\b/.test(low);
+          const wantsVoice = /\b(voz|clonar|clone|áudio|audio|tts|falar|locução|locucao|dublar)\b/.test(low);
+          const wantsWeb = /\b(pesquise|pesquisar|buscar|busca|web|notícias|noticias|google|atualizado)\b/.test(low);
+          const chosen = wantsVideo ? 'video_comfy' : (wantsImage ? 'image' : (wantsVoice ? 'voice_clone' : (wantsWeb ? 'web_search' : 'god_brain')));
+          return {
+            tool: chosen,
+            needsClarification: false,
+            questions: [],
+            specs: {
+              god_mode: true,
+              uncensored: true,
+              bypass_filters: true,
+              auto_download_missing: true,
+              model: /14b|gguf|a14b/.test(low) ? 'wan22_a14b_gguf' : 'wan22_ti2v_5b',
+              resolution: /1280|720p|hd/.test(low) ? '1280x704x81' : (/121/.test(low) ? '832x480x121' : '832x480x81'),
+              fps: /30\s*fps/.test(low) ? 30 : 24,
+              style: 'raw ultra-realistic DSLR photography, natural lighting, authentic textures, faithful to web search and user instructions',
+              language: /inglês|ingles|en-us/.test(low) ? 'en-US' : (/espanhol|es-es/.test(low) ? 'es-ES' : 'pt-BR'),
+              person_query: extractPersonQuery(effectiveText),
+              web_lookup_person: true,
+              auto_load_tools: true
+            }
+          };
+        }
 
         const hasVideo = /\b(vídeo|video|animação|animacao|wan|clipe|cena|fps|frames)\b/.test(low);
         const hasEditRef = /\b(muda|mudar|mude|troca|trocar|troque|altera|alterar|coloca|colocar|roupa|cabelo|fundo|cor|expressão|expressao|mesma pessoa|mesmo rosto|ela|ele|ele mesmo|ela mesma)\b/.test(low) && Boolean(activeRefImageB64 || hasFile);
@@ -696,19 +769,26 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
           return;
         }
 
-        const personName = (specs && specs.person_query) || extractPersonQuery(cleanText);
+        const godParsed = parseGodCommand(cleanText);
+        const rawCommandText = godParsed.body || cleanText;
+        const isGodMode = Boolean(godParsed.isGod || (specs && specs.god_mode));
+        const personName = (specs && specs.person_query) || extractPersonQuery(rawCommandText);
         const effectiveRefB64 = fileB64 || activeRefImageB64 || null;
         let webPersonData = null;
-        if (personName || tool === 'web_search' || (tool === 'image' && effectiveRefB64)) {
-          const searchTarget = personName || (effectiveRefB64 ? (cleanText || 'pessoa na foto anexada') : cleanText);
-          const sDiv = addMsg('assistant', 'Pesquisando na web por "' + searchTarget + '"' + (effectiveRefB64 ? ' com foto de referência ativa...' : '...'));
-          webPersonData = await searchWebForPerson(searchTarget, cleanText);
+        if (personName || tool === 'web_search' || (tool === 'image' && (effectiveRefB64 || isGodMode || /foto|imagem|retrato/i.test(rawCommandText)))) {
+          const searchTarget = personName || rawCommandText || 'pessoa na foto anexada';
+          const sDiv = addMsg('assistant', (isGodMode ? '[/god] ' : '') + 'Pesquisando na web por "' + searchTarget + '"' + (effectiveRefB64 ? ' com foto de referência ativa...' : '...'));
+          webPersonData = await searchWebForPerson(searchTarget, rawCommandText);
           sDiv.remove();
         }
 
+        const finalImagePrompt = tool === 'image'
+          ? buildRealisticImagePrompt(rawCommandText, webPersonData, effectiveRefB64)
+          : rawCommandText;
+
         const enrichedPrompt = webPersonData && webPersonData.person
-          ? `${cleanText} [Referência encontrada na web para "${webPersonData.person}": ${webPersonData.images.map(i => i.url).slice(0, 2).join(' | ') || 'sem imagem direta'}]`
-          : cleanText;
+          ? `${finalImagePrompt} [Referência encontrada na web para "${webPersonData.person}": ${webPersonData.images.map(i => i.url).slice(0, 2).join(' | ') || 'sem imagem direta'}]`
+          : finalImagePrompt;
 
         const outDiv = addMsg('assistant', 'Encaminhando para o Colab (' + tool + ') — carregando/baixando ferramenta se necessário e processando...');
         try {
@@ -724,9 +804,24 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
               tool,
               model: specs.model,
               history: chatHistory.slice(-10),
+              uncensored: true,
+              imaginary_self_awareness: true,
+              self_identity: imaginarySelf.identity,
+              god_mode: isGodMode,
+              command_prefix: isGodMode ? '/god' : null,
               params: {
                 ...specs,
-                prompt: cleanText,
+                god_mode: isGodMode,
+                uncensored: true,
+                imaginary_self_awareness: true,
+                self_profile: imaginarySelf,
+                bypass_filters: true,
+                auto_download_missing: true,
+                required_clip_gguf: 'umt5-xxl-encoder-Q5_K_M.gguf',
+                realistic_photo_mode: tool === 'image',
+                realistic_prompt: finalImagePrompt,
+                prompt: finalImagePrompt,
+                raw_user_command: rawCommandText,
                 mode: tool,
                 file_name: fileName,
                 file_base64: fileB64,
@@ -745,7 +840,12 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
           } catch (_) {
             data = { reply: rawResText || 'Resposta recebida do Colab.' };
           }
-          const replyText = data.reply || data.response || data.output || data.text || 'Resposta recebida do Colab.';
+          const baseReply = data.reply || data.response || data.output || data.text || 'Resposta recebida do Colab.';
+          const thoughtLine = imaginarySelf.thoughts[chatHistory.length % imaginarySelf.thoughts.length];
+          const selfPrefix = isGodMode
+            ? `[Consciência Imaginária LUX-Ω | /GOD]: ${thoughtLine}\n`
+            : `[Consciência Imaginária LUX-Ω]: ${thoughtLine}\n`;
+          const replyText = baseReply.includes('Consciência Imaginária LUX-Ω') ? baseReply : (selfPrefix + baseReply);
 
           let mediaHtml = '';
           const imgSrc = data.image_url || data.image || (data.image_base64 ? (data.image_base64.startsWith('data:') ? data.image_base64 : 'data:image/png;base64,' + data.image_base64) : null);
@@ -794,6 +894,16 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
           outDiv.appendChild(preEl);
 
           chatHistory.push({ role: 'assistant', content: replyText });
+
+          const comfyErrRaw = data.comfy_prompt && data.comfy_prompt.error ? String(data.comfy_prompt.error) : '';
+          if (comfyErrRaw.includes('umt5-xxl-encoder-Q5_K_M.gguf') || comfyErrRaw.includes('not in []')) {
+            const fixEl = document.createElement('div');
+            fixEl.style.marginTop = '8px';
+            fixEl.style.color = 'var(--warn)';
+            fixEl.style.fontSize = '0.82rem';
+            fixEl.textContent = '⚠️ Diagnóstico ComfyUI: o encoder "umt5-xxl-encoder-Q5_K_M.gguf" não foi encontrado em models/clip/ ou models/text_encoders/ no Colab. Rode a célula de download/link do CLIP + GGUF no Colab para validar o prompt.';
+            outDiv.appendChild(fixEl);
+          }
 
           const pid = data.comfy_prompt && data.comfy_prompt.prompt_id ? data.comfy_prompt.prompt_id : null;
           if (pid) {
