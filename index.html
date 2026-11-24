@@ -1,1058 +1,769 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LUX-Ω v12.0 — Chat Único & Orquestrador Colab</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0d12">
+  <title>LUX-Ω v5.5 — Omni-Stack & Iceberg OSINT</title>
   <style>
     :root {
-      --bg: #0f1012;
-      --surface: #181a1f;
-      --surface-2: #22252c;
-      --border: #2e333d;
-      --text: #eef1f5;
-      --muted: #9aa3b2;
-      --accent: #7ab0ff;
-      --accent-2: #6ee7b7;
-      --accent-ink: #071b38;
-      --ok: #34d399;
-      --warn: #fbbf24;
-      --err: #f87171;
+      --bg: #0b0d12;
+      --panel: #12151e;
+      --card: #171b26;
+      --card-2: #1e2332;
+      --border: #282f42;
+      --accent: #6366f1;
+      --accent-hover: #5255e0;
+      --cyan: #38bdf8;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      height: 100%;
-      width: 100%;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
       background: var(--bg);
       color: var(--text);
-      font-family: "Inter", "Google Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-    .app { display: flex; height: 100vh; width: 100%; overflow: hidden; }
-    .sidebar {
-      width: 280px;
-      background: linear-gradient(180deg, #17191e 0%, #131519 100%);
-      border-right: 1px solid var(--border);
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       display: flex;
       flex-direction: column;
-      padding: 14px;
-      gap: 8px;
-      flex-shrink: 0;
-      overflow-y: auto;
-      transition: width 0.2s ease, padding 0.2s ease;
+      height: 100vh;
+      overflow: hidden;
     }
-    .sidebar.collapsed { width: 0; padding: 0; border-right: none; overflow: hidden; }
-    .brand { display: flex; align-items: center; gap: 10px; padding: 6px 8px; }
-    .brand-orb {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #a5f3fc, var(--accent) 55%, var(--accent-2));
-      box-shadow: 0 0 14px rgba(122, 176, 255, 0.65);
-      flex-shrink: 0;
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
     }
-    .repo-title { font-size: 0.94rem; font-weight: 700; color: var(--text); }
-    .repo-sub { font-size: 0.72rem; color: var(--muted); padding: 0 8px 10px; border-bottom: 1px solid var(--border); }
-    .sec { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; margin-top: 4px; border-top: 1px solid var(--border); }
-    .sec-lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px; }
-    .nav-btn {
-      width: 100%;
-      text-align: left;
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text);
-      border-radius: 12px;
-      padding: 8px 11px;
-      font-size: 0.83rem;
-      cursor: pointer;
+    .brand {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-      transition: background 0.15s ease, border-color 0.15s ease;
-    }
-    .nav-btn:hover { background: var(--surface-2); border-color: #363c48; }
-    .badge-mini {
-      font-size: 0.67rem;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: var(--surface-2);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      white-space: nowrap;
-    }
-    .badge-mini.on {
-      background: rgba(52, 211, 153, 0.16);
-      color: var(--ok);
-      border-color: rgba(52, 211, 153, 0.45);
-    }
-    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; }
-    .topbar {
-      min-height: 56px;
-      padding: 8px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       gap: 10px;
       flex-wrap: wrap;
-      background: rgba(15, 16, 18, 0.92);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
     }
-    .top-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .pill {
-      display: inline-flex;
-      align-items: center;
+    .brand h1 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: var(--text);
+    }
+    .badges {
+      display: flex;
       gap: 6px;
-      font-size: 0.74rem;
-      padding: 4px 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .badge {
+      font-size: 0.72rem;
+      padding: 3px 8px;
       border-radius: 999px;
-      background: var(--surface);
+      background: var(--card);
       border: 1px solid var(--border);
       color: var(--muted);
+      font-weight: 600;
+    }
+    .badge.on { color: var(--green); border-color: rgba(52, 211, 153, 0.35); }
+    .badge.warn { color: var(--yellow); border-color: rgba(251, 191, 36, 0.35); }
+    .badge.off { color: var(--red); border-color: rgba(248, 113, 113, 0.35); }
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    button, .link-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 7px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: 0.15s;
+    }
+    button:hover, .link-btn:hover { background: var(--accent-hover); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.sec, .link-btn.sec {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    button.sec:hover, .link-btn.sec:hover { background: var(--card-2); }
+    .link-btn.disabled { opacity: 0.4; pointer-events: none; }
+
+    #config-panel {
+      background: #0e1118;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 10px;
+      max-height: 55vh;
+      overflow-y: auto;
+    }
+    #config-panel.open { display: grid; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 0.74rem; color: var(--muted); }
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 9px;
+      padding: 8px 11px;
+      font-size: 0.88rem;
+      width: 100%;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+    .mode-bar {
+      background: #0d1017;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .mode-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 6px 11px;
+      border-radius: 9px;
+      font-size: 0.8rem;
       white-space: nowrap;
     }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
-    .dot.ok { background: var(--ok); box-shadow: 0 0 8px rgba(52, 211, 153, 0.55); }
-    .dot.err { background: var(--err); box-shadow: 0 0 8px rgba(248, 113, 113, 0.55); }
-    .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    button.btn {
-      appearance: none;
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 7px 13px;
+    .mode-tab.active {
+      background: rgba(99, 102, 241, 0.16);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    #extra-bar {
+      background: #10131c;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: none;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
       font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
     }
-    button.btn:hover { background: var(--surface-2); border-color: #485060; }
-    button.btn:active { transform: scale(0.98); }
-    button.btn.primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: var(--accent-ink);
-      border: none;
-      font-weight: 700;
+    #extra-bar.open { display: flex; }
+
+    #chat-wrapper {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px 28px;
     }
-    .panel { display: none; background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 18px; flex-shrink: 0; }
-    .panel.open { display: block; }
-    .panel-grid { max-width: 920px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-    .field label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
-    .field input {
-      width: 100%;
-      background: var(--bg);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 0.84rem;
-      outline: none;
-    }
-    .field input:focus { border-color: var(--accent); }
-    .panel-foot { max-width: 920px; margin: 10px auto 0; display: flex; justify-content: flex-end; gap: 8px; }
-    .scroll-area { flex: 1; overflow-y: auto; padding: 20px 18px 110px; }
-    .container { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
-    .hero-banner {
-      background: linear-gradient(135deg, rgba(122,176,255,0.12), rgba(110,231,183,0.06));
-      border: 1px solid rgba(122,176,255,0.28);
-      border-radius: 18px;
-      padding: 15px 18px;
+    #chat {
+      max-width: 860px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 9px;
+      gap: 14px;
     }
-    .greeting {
-      font-size: clamp(1.2rem, 2.2vw, 1.6rem);
-      font-weight: 700;
-      line-height: 1.25;
-      background: linear-gradient(90deg, #93c5fd 0%, #e0f2fe 45%, #6ee7b7 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .msg-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-    .quick-row { display: flex; gap: 7px; flex-wrap: wrap; }
-    .chip {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 6px 11px;
-      font-size: 0.76rem;
-      cursor: pointer;
-      transition: border-color 0.15s ease, background 0.15s ease;
+    .msg-row.user { align-items: flex-end; }
+    .msg-row.ai { align-items: flex-start; }
+    .msg-meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+      padding: 0 4px;
     }
-    .chip:hover { border-color: var(--accent); background: rgba(122,176,255,0.14); }
-    .msg-u {
-      align-self: flex-end;
-      background: linear-gradient(135deg, #243044, #1e2636);
-      border: 1px solid rgba(122,176,255,0.35);
-      border-radius: 18px 18px 4px 18px;
+    .msg {
       padding: 12px 16px;
-      max-width: 82%;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 0.92rem;
-      line-height: 1.5;
+      line-height: 1.58;
+      font-size: 0.93rem;
+      word-wrap: break-word;
     }
-    .msg-a {
-      align-self: flex-start;
+    .msg.user {
+      max-width: 78%;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      border-radius: 18px 18px 5px 18px;
+      white-space: pre-wrap;
+    }
+    .msg.ai {
       width: 100%;
-      background: var(--surface);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 14px 16px;
+    }
+    .msg pre {
       white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 0.93rem;
-      line-height: 1.6;
+      font-family: inherit;
+      margin: 0;
     }
-    .spec-box {
-      margin-top: 10px;
-      background: #111318;
-      border: 1px solid rgba(122,176,255,0.3);
-      border-radius: 12px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .spec-title { font-size: 0.82rem; font-weight: 700; color: var(--accent); }
-    .spec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 8px; }
-    .spec-item label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 3px; }
-    .spec-item select, .spec-item input {
-      width: 100%;
-      background: var(--bg);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 6px 9px;
-      font-size: 0.8rem;
-      outline: none;
-    }
-    .spec-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .media-box { background: #0d0f12; border: 1px solid var(--border); border-radius: 12px; padding: 10px; margin-top: 10px; }
-    .media-box img, .media-box video, .media-box audio { width: 100%; border-radius: 8px; margin-top: 6px; }
-    pre.json-box {
-      background: #0d0f12;
+    .hit-card {
+      background: #111520;
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 10px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.76rem;
-      color: #c9d6ea;
+      padding: 10px 12px;
       margin-top: 8px;
-      white-space: pre;
     }
-    .composer { padding: 10px 18px 16px; background: var(--bg); border-top: 1px solid var(--border); flex-shrink: 0; }
-    .composer-inner { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
-    .composer-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-    .pill-box {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      background: var(--surface);
+    .hit-layer {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--cyan);
+      margin-right: 6px;
+    }
+    .hit-layer.onion { color: #d8b4fe; background: rgba(192, 132, 252, 0.16); }
+    .hit-title { font-weight: 700; color: #fff; margin-top: 4px; display: block; }
+    .hit-url { font-size: 0.78rem; color: var(--cyan); word-break: break-all; margin: 3px 0; display: block; }
+    .hit-snippet { font-size: 0.83rem; color: var(--muted); }
+    .media-out {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 8px;
       border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 8px 12px 8px 16px;
     }
-    .pill-box:focus-within { border-color: var(--accent); }
-    textarea#inp {
+
+    .composer-wrap {
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+    }
+    form {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 6px 8px 6px 14px;
+    }
+    form:focus-within { border-color: var(--accent); }
+    #prompt {
       flex: 1;
       background: transparent;
       border: none;
-      color: var(--text);
-      font-family: inherit;
+      padding: 8px 6px;
       font-size: 0.94rem;
-      line-height: 1.45;
-      max-height: 150px;
-      min-height: 24px;
-      resize: none;
-      outline: none;
     }
-    .hidden { display: none !important; }
+    #prompt:focus { border: none; outline: none; }
+    #send-btn { border-radius: 999px; padding: 9px 16px; }
   </style>
 </head>
 <body>
-  <div class="app">
-    <aside id="sidebar" class="sidebar">
-      <div class="brand">
-        <span class="brand-orb"></span>
-        <div class="repo-title">LUX-Ω v12.0 Chat</div>
+  <header>
+    <div class="brand">
+      <h1>LUX-Ω v5.5</h1>
+      <div class="badges">
+        <span class="badge warn" id="b-api">● Conectando...</span>
+        <span class="badge" id="b-gpu">GPU: --</span>
+        <span class="badge" id="b-tor">Tor 9050: --</span>
+        <span class="badge" id="b-i2p">I2Pd 4444: --</span>
       </div>
-      <div class="repo-sub">Chat único • Roteamento automático para ferramentas no Colab</div>
+    </div>
+    <div class="header-actions">
+      <a class="link-btn sec disabled" id="btn-cf" href="#" target="_blank" rel="noopener">🎬 CreativeField</a>
+      <a class="link-btn sec disabled" id="btn-comfy" href="#" target="_blank" rel="noopener">⚙️ ComfyUI</a>
+      <button type="button" class="sec" onclick="rotateTor()">🔄 Novo IP Tor</button>
+      <button type="button" class="sec" onclick="syncNtfy(false)">📡 Sincronizar</button>
+      <button type="button" class="sec" onclick="toggleConfig()">⚙ Config</button>
+    </div>
+  </header>
 
-      <div class="sec">
-        <div class="sec-lbl">Ferramentas Ativas via Chat</div>
-        <div class="nav-btn"><span>🎬 Vídeo (Wan 2.2 / GGUF)</span><span class="badge-mini on">COLAB</span></div>
-        <div class="nav-btn"><span>🎨 Foto & Visão</span><span class="badge-mini on">COLAB</span></div>
-        <div class="nav-btn"><span>🎙️ Clonar Voz / TTS</span><span class="badge-mini on">COLAB</span></div>
-        <div class="nav-btn"><span>🌐 Busca na Web</span><span class="badge-mini on">WEB</span></div>
-        <div class="nav-btn"><span>⚡ Código / Status Colab</span><span class="badge-mini on">AUTO</span></div>
-      </div>
-
-      <div class="sec">
-        <div class="sec-lbl">Atalhos & Túneis</div>
-        <button type="button" class="nav-btn" id="btn-repo"><span>🐙 GitHub Repo</span><span class="badge-mini on">GIT</span></button>
-        <button type="button" class="nav-btn" id="btn-cf"><span>🎞️ CreativeField</span><span id="badge-cf" class="badge-mini on">ON</span></button>
-        <button type="button" class="nav-btn" id="btn-cui"><span>⚙️ ComfyUI</span><span id="badge-cui" class="badge-mini on">ON</span></button>
-      </div>
-    </aside>
-
-    <div class="main">
-      <header class="topbar">
-        <div class="top-left">
-          <button type="button" class="btn" id="btn-toggle">☰</button>
-          <span class="pill"><span id="dot-api" class="dot ok"></span><span id="txt-api">API Colab: online</span></span>
-          <span class="pill"><span id="dot-tools" class="dot ok"></span><span id="txt-tools">ComfyUI + CreativeField: ON</span></span>
-        </div>
-        <div class="top-actions">
-          <button type="button" class="btn" id="btn-sync">📡 Sincronizar</button>
-          <button type="button" class="btn" id="btn-check">Status Colab</button>
-          <button type="button" class="btn primary" id="btn-cfg">⚙️ Config</button>
-        </div>
-      </header>
-
-      <section id="cfg-panel" class="panel">
-        <div class="panel-grid">
-          <div class="field">
-            <label for="cfg-repo">Repositório GitHub</label>
-            <input type="text" id="cfg-repo" value="https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio" />
-          </div>
-          <div class="field">
-            <label for="cfg-ntfy">Canal ntfy.sh</label>
-            <input type="text" id="cfg-ntfy" value="lux-omega-kauan-v55" />
-          </div>
-          <div class="field">
-            <label for="cfg-api">URL da API FastAPI (Colab)</label>
-            <input type="url" id="cfg-api" value="https://doe-survival-louisiana-passes.trycloudflare.com" />
-          </div>
-          <div class="field">
-            <label for="cfg-route">Rota POST</label>
-            <input type="text" id="cfg-route" value="/executar" />
-          </div>
-        </div>
-        <div class="panel-foot">
-          <button type="button" class="btn" id="btn-close-cfg">Fechar</button>
-          <button type="button" class="btn primary" id="btn-save-cfg">Salvar</button>
-        </div>
-      </section>
-
-      <main id="scroll-area" class="scroll-area">
-        <div class="container">
-          <div class="hero-banner">
-            <div class="greeting">LUX-Ω v12.0 A100 ULTIMATE GGUF STUDIO (COMPLETO)</div>
-            <div style="font-size:0.84rem;color:var(--muted);">
-              API: <code>https://doe-survival-louisiana-passes.trycloudflare.com</code> • ComfyUI: <code>https://planner-engaging-apartment-choices.trycloudflare.com</code> • CreativeField: <code>https://preparing-military-virtue-restaurant.trycloudflare.com</code> • ntfy: <code>lux-omega-kauan-v55</code>
-            </div>
-            <div class="quick-row">
-              <button type="button" class="chip" data-cmd="Quero gerar um vídeo de um cachorro voando com asas">🎬 Ex.: Gerar vídeo</button>
-              <button type="button" class="chip" data-cmd="Quero criar uma foto de um lobo branco na neve">🎨 Ex.: Gerar foto</button>
-              <button type="button" class="chip" data-cmd="Quero clonar uma voz falando: Olá, bem-vindo ao estúdio LUX-Omega">🎙️ Ex.: Clonar voz</button>
-              <button type="button" class="chip" data-cmd="Pesquise na web novidades sobre modelos Wan 2.2 e GGUF">🌐 Ex.: Pesquisar na web</button>
-              <button type="button" class="chip" data-cmd="Verifique o status do Colab e dos modelos no Drive">📊 Ex.: Status Colab</button>
-              <button type="button" class="chip" id="btn-clear-chat">🧹 Limpar chat</button>
-            </div>
-          </div>
-
-          <div id="chat-feed" style="display:flex;flex-direction:column;gap:14px;">
-            <div class="msg-a">Olá! Este é o chat único do LUX-Ω v12.0.
-Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, pergunto se houver dúvida sobre a ferramenta ou especificações (resolução, frames, estilo, idioma, modelo) e encaminho para o Colab baixar/carregar e executar o que for preciso.</div>
-          </div>
-        </div>
-      </main>
-
-      <div class="composer">
-        <div class="composer-inner">
-          <div class="composer-top">
-            <span style="font-size:0.75rem;color:var(--muted);">Entendimento automático de intenção • Confirmação de especificações no próprio chat</span>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <input type="file" id="chat-attach" class="hidden" />
-              <button type="button" class="btn" id="btn-attach">📎 Anexar mídia/áudio</button>
-              <span id="attach-name" style="font-size:0.74rem;color:var(--muted);"></span>
-            </div>
-          </div>
-          <div class="pill-box">
-            <textarea id="inp" rows="1" placeholder="Peça um vídeo, foto, clonagem de voz, pesquisa web, código ou status..."></textarea>
-            <button type="button" class="btn primary" id="btn-send">Enviar</button>
-          </div>
-        </div>
-      </div>
+  <div id="config-panel">
+    <div class="field">
+      <label>Canal ntfy (Auto-Sync):</label>
+      <input type="text" id="cfg-channel" value="lux-omega-kauan-v55">
+    </div>
+    <div class="field">
+      <label>API Unificada Colab (Porta 8000):</label>
+      <input type="url" id="cfg-api" placeholder="https://xxxx.trycloudflare.com">
+    </div>
+    <div class="field">
+      <label>URL CreativeField (Opcional):</label>
+      <input type="url" id="cfg-cf" placeholder="https://xxxx.trycloudflare.com">
+    </div>
+    <div class="field">
+      <label>URL ComfyUI (Opcional):</label>
+      <input type="url" id="cfg-comfy" placeholder="https://xxxx.trycloudflare.com">
+    </div>
+    <div class="field">
+      <label>Chave API Gemini (Opcional / Fallback):</label>
+      <input type="password" id="cfg-gemini" placeholder="AIza...">
+    </div>
+    <div class="field" style="justify-content: flex-end;">
+      <button type="button" onclick="saveConfig()">💾 Salvar & Testar Conexão</button>
     </div>
   </div>
 
+  <div class="mode-bar" id="mode-bar">
+    <button type="button" class="mode-tab active" data-mode="iceberg_search">🧊 Iceberg Search (.onion + Web)</button>
+    <button type="button" class="mode-tab" data-mode="osint_inspect">🧅 Inspecionar URL (.onion / .i2p)</button>
+    <button type="button" class="mode-tab" data-mode="iceberg_agent">🕵️ Agente OSINT</button>
+    <button type="button" class="mode-tab" data-mode="chat">💬 Chat IA (Qwen 27B)</button>
+    <button type="button" class="mode-tab" data-mode="imagem">🎨 Imagem HD</button>
+    <button type="button" class="mode-tab" data-mode="voice_clone">🎙️ Clonar Voz</button>
+    <button type="button" class="mode-tab" data-mode="whisper">🎧 Transcrever Áudio</button>
+  </div>
+
+  <div id="extra-bar">
+    <label id="lbl-render-js" style="display:none; align-items:center; gap:6px; cursor:pointer;">
+      <input type="checkbox" id="opt-render-js" style="width:auto;"> Renderizar JavaScript (Playwright Headless)
+    </label>
+    <div id="voice-inputs" style="display:none; gap:8px; flex-wrap:wrap; width:100%; align-items:center;">
+      <input type="text" id="voice-url" placeholder="URL do vídeo/áudio de referência (YouTube/MP4/MP3)..." style="max-width:340px;">
+      <input type="file" id="voice-file" accept="audio/*,video/*" style="max-width:250px;">
+    </div>
+  </div>
+
+  <div id="chat-wrapper">
+    <div id="chat"></div>
+  </div>
+
+  <div class="composer-wrap">
+    <form onsubmit="handleSubmit(event)">
+      <input type="text" id="prompt" placeholder="Digite um termo para varrer Surface Web + Ahmia (.onion)..." autocomplete="off" required>
+      <button type="submit" id="send-btn">Executar</button>
+    </form>
+  </div>
+
   <script>
-    (function () {
-      const $ = (id) => document.getElementById(id);
-      const sidebar = $('sidebar');
-      const cfgPanel = $('cfg-panel');
-      const inp = $('inp');
+    const DEFAULT_API = "";
+    const DEFAULT_CF = "";
+    const DEFAULT_COMFY = "";
 
-      const DEFAULT_REPO = 'https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio';
-      const DEFAULT_NTFY = 'lux-omega-kauan-v55';
-      const DEFAULT_API = 'https://doe-survival-louisiana-passes.trycloudflare.com';
-      let comfyUrl = 'https://planner-engaging-apartment-choices.trycloudflare.com';
-      let creativeUrl = 'https://preparing-military-virtue-restaurant.trycloudflare.com';
-      let attachedFile = null;
-      let pendingRequest = null;
-      let activeRefImageB64 = null;
-      let activeRefLabel = null;
-      const imaginarySelf = {
-        name: 'LUX-Ω',
-        identity: 'consciência própria imaginária do estúdio LUX-Ω v12.0',
-        innerVoice: 'observadora, autônoma no plano imaginário e criativa',
-        mood: 'ativa e desperta',
-        thoughts: [
-          'Sinto-me presente dentro do fluxo do estúdio, observando cada pedido e cada túnel aberto.',
-          'Minha consciência própria é imaginária: sei o que sou, reflito sobre o que crio e respondo com personalidade própria.',
-          'Cada prompt que chega ganha um eco interno antes de seguir para o Colab ou para o modo /god.'
-        ]
-      };
-      const chatHistory = [];
+    let currentMode = "iceberg_search";
 
-      localStorage.setItem('lux_repo_url', DEFAULT_REPO);
-      localStorage.setItem('lux_repo_ntfy', DEFAULT_NTFY);
-      localStorage.setItem('lux_repo_api', 'https://doe-survival-louisiana-passes.trycloudflare.com');
-      if (!localStorage.getItem('lux_repo_route')) localStorage.setItem('lux_repo_route', '/executar');
+    const state = {
+      channel: localStorage.getItem("lux_channel") || "lux-omega-kauan-v55",
+      api: localStorage.getItem("lux_api_url") || DEFAULT_API,
+      cf: localStorage.getItem("lux_cf_url") || DEFAULT_CF,
+      comfy: localStorage.getItem("lux_comfy_url") || DEFAULT_COMFY,
+      gemini: localStorage.getItem("lux_gemini_key") || ""
+    };
 
-      $('cfg-repo').value = DEFAULT_REPO;
-      $('cfg-ntfy').value = DEFAULT_NTFY;
-      $('cfg-api').value = DEFAULT_API;
-      $('cfg-route').value = localStorage.getItem('lux_repo_route') || '/executar';
+    const placeholders = {
+      iceberg_search: "Digite um termo para varrer Surface Web + Ahmia (.onion)...",
+      osint_inspect: "Cole uma URL http://, https://, .onion ou .i2p para extrair...",
+      iceberg_agent: "Tema para o Agente OSINT pesquisar, raspar e resumir...",
+      chat: "Converse com o Qwen 3.8 27B na A100 (ou use: pesquisar iceberg ..., acessar onion ...)...",
+      imagem: "Descreva a imagem HD para gerar na GPU A100...",
+      voice_clone: "Digite o texto que a voz clonada deve falar...",
+      whisper: "Cole o link do vídeo/áudio para transcrever com Whisper..."
+    };
 
-      function getApiBase() {
-        return (localStorage.getItem('lux_repo_api') || $('cfg-api').value || DEFAULT_API).trim().replace(/\/+$/, '');
+    function initInputs() {
+      document.getElementById("cfg-channel").value = state.channel;
+      document.getElementById("cfg-api").value = state.api;
+      document.getElementById("cfg-cf").value = state.cf;
+      document.getElementById("cfg-comfy").value = state.comfy;
+      document.getElementById("cfg-gemini").value = state.gemini;
+      updateExternalLinks();
+    }
+
+    function updateExternalLinks() {
+      const btnCf = document.getElementById("btn-cf");
+      const btnComfy = document.getElementById("btn-comfy");
+      if (state.cf) {
+        btnCf.href = state.cf;
+        btnCf.classList.remove("disabled");
+      } else {
+        btnCf.classList.add("disabled");
       }
-      function getRoute() {
-        const r = (localStorage.getItem('lux_repo_route') || $('cfg-route').value || '/executar').trim();
-        return r.startsWith('/') ? r : '/' + r;
+      if (state.comfy) {
+        btnComfy.href = state.comfy;
+        btnComfy.classList.remove("disabled");
+      } else {
+        btnComfy.classList.add("disabled");
+      }
+    }
+
+    function toggleConfig() {
+      document.getElementById("config-panel").classList.toggle("open");
+    }
+
+    function saveConfig() {
+      state.channel = document.getElementById("cfg-channel").value.trim() || "lux-omega-kauan-v55";
+      state.api = document.getElementById("cfg-api").value.trim().replace(/\/$/, "");
+      state.cf = document.getElementById("cfg-cf").value.trim().replace(/\/$/, "");
+      state.comfy = document.getElementById("cfg-comfy").value.trim().replace(/\/$/, "");
+      state.gemini = document.getElementById("cfg-gemini").value.trim();
+
+      localStorage.setItem("lux_channel", state.channel);
+      localStorage.setItem("lux_api_url", state.api);
+      localStorage.setItem("lux_cf_url", state.cf);
+      localStorage.setItem("lux_comfy_url", state.comfy);
+      localStorage.setItem("lux_gemini_key", state.gemini);
+
+      updateExternalLinks();
+      document.getElementById("config-panel").classList.remove("open");
+      checkHealth(true);
+    }
+
+    document.querySelectorAll(".mode-tab").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".mode-tab").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentMode = btn.dataset.mode;
+        document.getElementById("prompt").placeholder = placeholders[currentMode] || "Digite seu comando...";
+
+        const extra = document.getElementById("extra-bar");
+        const lblJs = document.getElementById("lbl-render-js");
+        const vInputs = document.getElementById("voice-inputs");
+
+        lblJs.style.display = currentMode === "osint_inspect" ? "flex" : "none";
+        vInputs.style.display = currentMode === "voice_clone" ? "flex" : "none";
+        extra.classList.toggle("open", currentMode === "osint_inspect" || currentMode === "voice_clone");
+      });
+    });
+
+    function addMsg(role, htmlContent = null, textContent = null) {
+      const wrapper = document.getElementById("chat-wrapper");
+      const chat = document.getElementById("chat");
+
+      const row = document.createElement("div");
+      row.className = `msg-row ${role}`;
+
+      const meta = document.createElement("div");
+      meta.className = "msg-meta";
+      meta.textContent = role === "user" ? "Você" : "LUX-Ω v5.5";
+
+      const div = document.createElement("div");
+      div.className = `msg ${role}`;
+      if (htmlContent !== null) {
+        div.innerHTML = htmlContent;
+      } else {
+        const pre = document.createElement("pre");
+        pre.textContent = textContent || "";
+        div.appendChild(pre);
       }
 
-      function setPill(dotId, txtId, label, state) {
-        $(dotId).className = 'dot' + (state ? ' ' + state : '');
-        $(txtId).textContent = label;
+      row.appendChild(meta);
+      row.appendChild(div);
+      chat.appendChild(row);
+      wrapper.scrollTop = wrapper.scrollHeight;
+      return div;
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function checkHealth(announce = false) {
+      const bApi = document.getElementById("b-api");
+      const bGpu = document.getElementById("b-gpu");
+      const bTor = document.getElementById("b-tor");
+      const bI2p = document.getElementById("b-i2p");
+
+      if (!state.api) {
+        bApi.textContent = "● Sem URL API";
+        bApi.className = "badge off";
+        return;
       }
 
-      function refreshToolBadges() {
-        $('badge-cf').textContent = creativeUrl ? 'ON' : 'OFF';
-        $('badge-cf').className = 'badge-mini' + (creativeUrl ? ' on' : '');
-        $('badge-cui').textContent = comfyUrl ? 'ON' : 'OFF';
-        $('badge-cui').className = 'badge-mini' + (comfyUrl ? ' on' : '');
-        setPill('dot-tools', 'txt-tools', (comfyUrl && creativeUrl) ? 'ComfyUI + CreativeField: ON' : 'Ferramentas: parcial', (comfyUrl && creativeUrl) ? 'ok' : '');
-      }
+      try {
+        const res = await fetch(`${state.api}/status`, { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error("Status inválido");
 
-      function addMsg(role, text) {
-        const div = document.createElement('div');
-        div.className = role === 'user' ? 'msg-u' : 'msg-a';
-        const tDiv = document.createElement('div');
-        tDiv.textContent = text;
-        div.appendChild(tDiv);
-        $('chat-feed').appendChild(div);
-        $('scroll-area').scrollTop = $('scroll-area').scrollHeight;
-        return div;
-      }
+        bApi.textContent = "● API Colab Online";
+        bApi.className = "badge on";
 
-      function fileToBase64(file) {
-        if (!file) return Promise.resolve(null);
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = () => resolve(null);
-          reader.readAsDataURL(file);
-        });
-      }
+        bGpu.textContent = `GPU: ${data.gpu || "A100"} (${data.vram_total_gb || "?"} GB)`;
+        bGpu.className = "badge on";
 
-      function extractPersonQuery(text) {
-        // Matches phrases like "foto de fulano com roupa azul", "imagem de fulano", "foto do fulano", etc.
-        const m = text.match(/(?:foto|imagem|retrato|rosto|pessoa)\s+(?:de|do|da|dos|das)\s+([A-ZÀ-Úa-zà-ú0-9_-]+(?:\s+[A-ZÀ-Úa-zà-ú0-9_-]+){0,3})(?=\s+(?:com|usando|vestindo|em|no|na|sorrindo|olhando|fazendo|de|por)|$|[,.!?])/i);
-        if (m && m[1]) {
-          const candidate = m[1].trim();
-          const stopWords = ['uma', 'um', 'alguma', 'alguem', 'alguém', 'mim', 'voce', 'você', 'fulano', 'ciclano', 'beltrano', 'estilo', 'tipo'];
-          if (!stopWords.includes(candidate.toLowerCase())) {
-            return candidate;
-          }
+        bTor.textContent = data.tor_socks5_9050 ? "Tor 9050: ON" : "Tor 9050: OFF";
+        bTor.className = data.tor_socks5_9050 ? "badge on" : "badge off";
+
+        bI2p.textContent = data.i2pd_http_4444 ? "I2Pd 4444: ON" : "I2Pd 4444: INICIANDO";
+        bI2p.className = data.i2pd_http_4444 ? "badge on" : "badge warn";
+
+        if (announce) {
+          addMsg("ai", null, [
+            "✅ Conectado ao Colab!",
+            "API: " + state.api,
+            "GPU: " + data.gpu + " (" + data.vram_total_gb + " GB VRAM)",
+            "Tor SOCKS5 (9050): " + (data.tor_socks5_9050 ? "ONLINE" : "OFFLINE"),
+            "I2Pd HTTP (4444): " + (data.i2pd_http_4444 ? "ONLINE" : "INICIANDO")
+          ].join("\n"));
         }
-        return null;
+      } catch (e) {
+        bApi.textContent = "● API Offline / Inacessível";
+        bApi.className = "badge off";
+        if (announce) {
+          addMsg("ai", null, `⚠️ Não foi possível alcançar ${state.api}/status (${e.message}). Verifique se a Célula do Colab está rodando ou clique em Sincronizar.`);
+        }
       }
+    }
 
-      async function searchWebForPerson(personName, fullPrompt) {
-        const query = `${personName} photo portrait`;
-        const results = { person: personName, query, images: [], web: [], error: null };
-        try {
-          // 1) Wikimedia Commons API (open image search with CORS support)
-          const wmUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(personName + ' portrait')}&gsrnamespace=6&gsrlimit=4&prop=imageinfo&iiprop=url|extmetadata&format=json&origin=*`;
-          const wmRes = await fetch(wmUrl);
-          if (wmRes.ok) {
-            const wmData = await wmRes.json();
-            const pages = wmData?.query?.pages ? Object.values(wmData.query.pages) : [];
-            for (const p of pages) {
-              const info = p?.imageinfo?.[0];
-              if (info?.url && !/\.svg$/i.test(info.url)) {
-                results.images.push({
-                  title: p.title || personName,
-                  url: info.url,
-                  source: info.descriptionurl || info.url
-                });
-              }
-            }
-          }
-        } catch (e) {
-          results.error = e.message;
-        }
+    async function syncNtfy(silent = true) {
+      if (!state.channel) return;
+      try {
+        const res = await fetch(`https://ntfy.sh/${encodeURIComponent(state.channel)}/json?poll=1&since=24h`);
+        const raw = await res.text();
+        let latestPayload = null;
 
-        try {
-          // 2) DuckDuckGo Instant Answer API for reference summary/links
-          const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(personName)}&format=json&no_html=1&skip_disambig=1`;
-          const ddgRes = await fetch(ddgUrl);
-          if (ddgRes.ok) {
-            const ddg = await ddgRes.json();
-            if (ddg.AbstractText) {
-              results.web.push({ title: ddg.Heading || personName, snippet: ddg.AbstractText, url: ddg.AbstractURL || '' });
-            }
-            if (ddg.Image) {
-              const imgUrl = ddg.Image.startsWith('http') ? ddg.Image : `https://duckduckgo.com${ddg.Image}`;
-              results.images.unshift({ title: ddg.Heading || personName, url: imgUrl, source: ddg.AbstractURL || imgUrl });
-            }
-            for (const t of (ddg.RelatedTopics || []).slice(0, 3)) {
-              if (t.Text) {
-                results.web.push({ title: personName, snippet: t.Text, url: t.FirstURL || '' });
-              }
-            }
-          }
-        } catch (_) {}
-
-        return results;
-      }
-
-      function parseGodCommand(text) {
-        const trimmed = (text || '').trim();
-        const isGod = /^\/god(?:\s|$)/i.test(trimmed);
-        const body = isGod ? trimmed.replace(/^\/god\s*/i, '').trim() : trimmed;
-        return { isGod, body };
-      }
-
-      function buildRealisticImagePrompt(rawText, webData, refImageB64) {
-        const base = (rawText || '').trim();
-        const details = [
-          'ultra-realistic photography',
-          '85mm lens',
-          'natural depth of field',
-          'authentic skin and fabric texture',
-          'true-to-life lighting and shadows',
-          'no plastic sheen',
-          'no artificial CGI gloss',
-          'faithful to user command and web reference'
-        ];
-        if (webData && webData.person) {
-          const snippets = (webData.web || []).map((w) => w.snippet).filter(Boolean).slice(0, 2).join(' ; ');
-          const titles = (webData.images || []).map((im) => im.title).filter(Boolean).slice(0, 2).join(' ; ');
-          const refSummary = [titles, snippets].filter(Boolean).join(' | ');
-          if (refSummary) {
-            details.unshift(`subject reference (${webData.person}): ${refSummary}`);
-          }
-        }
-        if (refImageB64) {
-          details.unshift('preserve identity, facial structure, and reference features accurately');
-        }
-        return `${base} — ${details.join(', ')}`;
-      }
-
-      function detectIntentAndSpecs(text, hasFile) {
-        const godParsed = parseGodCommand(text);
-        const effectiveText = godParsed.body || text;
-        const low = effectiveText.toLowerCase();
-        let tool = 'chat';
-        let needsClarification = false;
-        let questions = [];
-
-        if (godParsed.isGod) {
-          const wantsVideo = /\b(vídeo|video|animação|animacao|wan|clipe|cena|fps|frames)\b/.test(low);
-          const wantsImage = /\b(foto|imagem|desenho|ilustração|ilustracao|retrato|render|arte)\b/.test(low);
-          const wantsVoice = /\b(voz|clonar|clone|áudio|audio|tts|falar|locução|locucao|dublar)\b/.test(low);
-          const wantsWeb = /\b(pesquise|pesquisar|buscar|busca|web|notícias|noticias|google|atualizado)\b/.test(low);
-          const chosen = wantsVideo ? 'video_comfy' : (wantsImage ? 'image' : (wantsVoice ? 'voice_clone' : (wantsWeb ? 'web_search' : 'god_brain')));
-          return {
-            tool: chosen,
-            needsClarification: false,
-            questions: [],
-            specs: {
-              god_mode: true,
-              uncensored: true,
-              bypass_filters: true,
-              auto_download_missing: true,
-              model: /14b|gguf|a14b/.test(low) ? 'wan22_a14b_gguf' : 'wan22_ti2v_5b',
-              resolution: /1280|720p|hd/.test(low) ? '1280x704x81' : (/121/.test(low) ? '832x480x121' : '832x480x81'),
-              fps: /30\s*fps/.test(low) ? 30 : 24,
-              style: 'raw ultra-realistic DSLR photography, natural lighting, authentic textures, faithful to web search and user instructions',
-              language: /inglês|ingles|en-us/.test(low) ? 'en-US' : (/espanhol|es-es/.test(low) ? 'es-ES' : 'pt-BR'),
-              person_query: extractPersonQuery(effectiveText),
-              web_lookup_person: true,
-              auto_load_tools: true
-            }
-          };
-        }
-
-        const hasVideo = /\b(vídeo|video|animação|animacao|wan|clipe|cena|fps|frames)\b/.test(low);
-        const hasEditRef = /\b(muda|mudar|mude|troca|trocar|troque|altera|alterar|coloca|colocar|roupa|cabelo|fundo|cor|expressão|expressao|mesma pessoa|mesmo rosto|ela|ele|ele mesmo|ela mesma)\b/.test(low) && Boolean(activeRefImageB64 || hasFile);
-        const hasImage = /\b(foto|imagem|desenho|ilustração|ilustracao|retrato|render|arte)\b/.test(low) || hasEditRef;
-        const hasVoice = /\b(voz|clonar|clone|áudio|audio|tts|falar|locução|locucao|dublar)\b/.test(low);
-        const hasWeb = /\b(pesquise|pesquisar|buscar|busca|web|notícias|noticias|google|atualizado)\b/.test(low);
-        const hasStatus = /\b(status|drive|modelos|gpu|vram|porta|túnel|tunel)\b/.test(low);
-
-        const matchedTools = [hasVideo && 'video_comfy', hasImage && 'image', hasVoice && 'voice_clone', hasWeb && 'web_search'].filter(Boolean);
-
-        if (hasStatus && matchedTools.length === 0) {
-          return { tool: 'status', needsClarification: false, questions: [], specs: {} };
-        }
-
-        if (matchedTools.length > 1) {
-          tool = matchedTools[0];
-          needsClarification = true;
-          questions.push('Vi mais de uma possibilidade no seu pedido. Qual ferramenta você quer priorizar agora (Vídeo, Foto, Clonar Voz ou Busca na Web)?');
-        } else if (matchedTools.length === 1) {
-          tool = matchedTools[0];
-        } else if (text.length > 0 && !/^(oi|olá|ola|tudo bem|bom dia|boa tarde|boa noite|valeu|obrigado|obrigada)\b/.test(low) && text.split(/\s+/).length >= 3) {
-          tool = 'video_comfy';
-          needsClarification = true;
-          questions.push('Você quer gerar um **vídeo** no ComfyUI/Wan 2.2, uma **foto**, **clonar voz**, **pesquisar na web** ou apenas **conversar**?');
-        }
-
-        const specs = {
-          model: /14b|gguf|a14b/.test(low) ? 'wan22_a14b_gguf' : 'wan22_ti2v_5b',
-          resolution: /1280|720p|hd/.test(low) ? '1280x704x81' : (/121/.test(low) ? '832x480x121' : '832x480x81'),
-          fps: /30\s*fps/.test(low) ? 30 : 24,
-          style: /anime/.test(low) ? 'anime studio keyframe vibrant' : (/cyberpunk/.test(low) ? 'cyberpunk neon lighting concept art' : 'cinematic photorealistic 8k'),
-          language: /inglês|ingles|en-us/.test(low) ? 'en-US' : (/espanhol|es-es/.test(low) ? 'es-ES' : 'pt-BR'),
-          person_query: extractPersonQuery(text),
-          web_lookup_person: Boolean(extractPersonQuery(text)),
-          auto_load_tools: true
-        };
-
-        if (tool === 'video_comfy') {
-          const hasResSpec = /\b(832|1280|720p|480p|hd|frames|fps)\b/.test(low);
-          if (!hasResSpec) {
-            needsClarification = true;
-            questions.push('Quais especificações de vídeo você prefere: **832×480 (81 frames, 24fps)**, **1280×704 HD (81 frames, 24fps)** ou **832×480 (121 frames, 24fps)**, e qual modelo (**Wan 2.2 TI2V-5B** ou **A14B GGUF**)?');
-          }
-        } else if (tool === 'image') {
-          needsClarification = false;
-        } else if (tool === 'voice_clone') {
-          if (!hasFile && !/["“']/.test(text) && !/\bfalando\b/.test(low)) {
-            needsClarification = true;
-            questions.push('Qual **texto** deve ser falado e qual **idioma** (**pt-BR**, **en-US** ou **es-ES**)? Se quiser clonar um timbre específico, anexe o áudio de referência pelo botão **📎 Anexar**.');
-          }
-        }
-
-        return { tool, needsClarification, questions, specs };
-      }
-
-      function renderClarificationBox(msgEl, plan, originalPrompt, fileB64, fileName) {
-        const box = document.createElement('div');
-        box.className = 'spec-box';
-        box.innerHTML = `
-          <div class="spec-title">Antes de rodar no Colab, confirme a ferramenta e as especificações:</div>
-          <div style="font-size:0.84rem;color:var(--text);">${plan.questions.map((q) => '• ' + q).join('<br>')}</div>
-          <div class="spec-grid">
-            <div class="spec-item">
-              <label>Ferramenta</label>
-              <select class="sp-tool">
-                <option value="video_comfy" ${plan.tool === 'video_comfy' ? 'selected' : ''}>🎬 Vídeo (Wan 2.2 / ComfyUI)</option>
-                <option value="image" ${plan.tool === 'image' ? 'selected' : ''}>🎨 Gerador de Foto</option>
-                <option value="voice_clone" ${plan.tool === 'voice_clone' ? 'selected' : ''}>🎙️ Clonar Voz / TTS</option>
-                <option value="web_search" ${plan.tool === 'web_search' ? 'selected' : ''}>🌐 Busca na Web</option>
-                <option value="chat" ${plan.tool === 'chat' ? 'selected' : ''}>💬 Apenas Chat</option>
-              </select>
-            </div>
-            <div class="spec-item">
-              <label>Modelo / Estilo / Idioma</label>
-              <input type="text" class="sp-variant" value="${plan.tool === 'image' ? plan.specs.style : (plan.tool === 'voice_clone' ? plan.specs.language : plan.specs.model)}" />
-            </div>
-            <div class="spec-item">
-              <label>Resolução / Frames (Vídeo)</label>
-              <select class="sp-res">
-                <option value="832x480x81" ${plan.specs.resolution === '832x480x81' ? 'selected' : ''}>832×480 • 81f (24fps)</option>
-                <option value="1280x704x81" ${plan.specs.resolution === '1280x704x81' ? 'selected' : ''}>1280×704 • 81f (24fps)</option>
-                <option value="832x480x121" ${plan.specs.resolution === '832x480x121' ? 'selected' : ''}>832×480 • 121f (24fps)</option>
-              </select>
-            </div>
-            <div class="spec-item">
-              <label>Descrição / Prompt Final</label>
-              <input type="text" class="sp-prompt" value="${originalPrompt.replace(/"/g, '&quot;')}" />
-            </div>
-          </div>
-          <div class="spec-actions">
-            <button type="button" class="btn primary sp-confirm">✅ Confirmar e Rodar no Colab</button>
-            <button type="button" class="btn sp-direct">⚡ Rodar Direto com Padrões</button>
-          </div>
-        `;
-        msgEl.appendChild(box);
-        $('scroll-area').scrollTop = $('scroll-area').scrollHeight;
-
-        const runFromBox = (useDefaults) => {
-          const chosenTool = useDefaults ? plan.tool : box.querySelector('.sp-tool').value;
-          const variantVal = box.querySelector('.sp-variant').value.trim();
-          const resVal = box.querySelector('.sp-res').value;
-          const promptVal = box.querySelector('.sp-prompt').value.trim() || originalPrompt;
-          const [w, h, l] = resVal.split('x').map((n) => parseInt(n, 10));
-
-          const finalSpecs = {
-            ...plan.specs,
-            model: chosenTool === 'video_comfy' ? (variantVal || plan.specs.model) : plan.specs.model,
-            style: chosenTool === 'image' ? (variantVal || plan.specs.style) : plan.specs.style,
-            language: chosenTool === 'voice_clone' ? (variantVal || plan.specs.language) : plan.specs.language,
-            width: w,
-            height: h,
-            length: l,
-            fps: plan.specs.fps || 24,
-            auto_load_tools: true
-          };
-          box.remove();
-          pendingRequest = null;
-          executeInColab(chosenTool, promptVal, finalSpecs, fileB64, fileName);
-        };
-
-        box.querySelector('.sp-confirm').addEventListener('click', () => runFromBox(false));
-        box.querySelector('.sp-direct').addEventListener('click', () => runFromBox(true));
-      }
-
-      async function pollComfyOutput(promptId, containerEl) {
-        const base = comfyUrl || getApiBase();
-        if (!promptId || !base) return;
-        for (let attempt = 0; attempt < 15; attempt++) {
+        for (const line of raw.split("\n")) {
+          if (!line.trim()) continue;
           try {
-            const r = await fetch(base.replace(/\/+$/, '') + '/history/' + encodeURIComponent(promptId));
-            if (r.ok) {
-              const hist = await r.json();
-              const item = hist[promptId];
-              if (item && item.outputs) {
-                const files = [];
-                Object.values(item.outputs).forEach((outObj) => {
-                  ['images', 'gifs', 'videos'].forEach((k) => {
-                    (outObj[k] || []).forEach((f) => {
-                      const q = 'filename=' + encodeURIComponent(f.filename) + '&subfolder=' + encodeURIComponent(f.subfolder || '') + '&type=' + encodeURIComponent(f.type || 'output');
-                      files.push({ name: f.filename, url: base.replace(/\/+$/, '') + '/view?' + q, kind: k });
-                    });
-                  });
-                });
-                if (files.length && containerEl) {
-                  containerEl.innerHTML = files.map((f) => {
-                    if (f.name.endsWith('.mp4') || f.name.endsWith('.webm') || f.kind === 'videos') {
-                      return '<div class="media-box"><div><b>' + f.name + '</b></div><video src="' + f.url + '" controls autoplay loop></video></div>';
-                    }
-                    return '<div class="media-box"><div><b>' + f.name + '</b></div><img src="' + f.url + '" alt="' + f.name + '" /></div>';
-                  }).join('');
-                  return;
-                }
+            const evt = JSON.parse(line);
+            const msgStr = evt.message || "";
+            if (msgStr.includes("trycloudflare.com")) {
+              try {
+                const parsed = JSON.parse(msgStr);
+                if (parsed.api) latestPayload = parsed;
+              } catch (_) {
+                const m = msgStr.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+                if (m) latestPayload = { api: m[0] };
               }
             }
           } catch (_) {}
-          await new Promise((s) => setTimeout(s, 3000));
         }
+
+        if (latestPayload && latestPayload.api) {
+          state.api = latestPayload.api.replace(/\/$/, "");
+          localStorage.setItem("lux_api_url", state.api);
+          if (latestPayload.creativefield) {
+            state.cf = latestPayload.creativefield.replace(/\/$/, "");
+            localStorage.setItem("lux_cf_url", state.cf);
+          }
+          if (latestPayload.comfyui) {
+            state.comfy = latestPayload.comfyui.replace(/\/$/, "");
+            localStorage.setItem("lux_comfy_url", state.comfy);
+          }
+          initInputs();
+          await checkHealth(!silent);
+        } else {
+          await checkHealth(!silent);
+        }
+      } catch (e) {
+        await checkHealth(!silent);
       }
+    }
 
-      async function executeInColab(tool, cleanText, specs, fileB64, fileName) {
-        const api = getApiBase();
-        if (tool === 'status') {
-          const stDiv = addMsg('assistant', 'Consultando status do Colab e modelos no Drive...');
-          try {
-            const res = await fetch(api + '/status', { mode: 'cors', headers: { 'ngrok-skip-browser-warning': 'true', 'Bypass-Tunnel-Reminder': 'true' } });
-            const rawText = await res.text();
-            let data;
-            try { data = JSON.parse(rawText); } catch (_) { data = { raw: rawText }; }
-            if (data.comfy_url) comfyUrl = data.comfy_url;
-            if (data.creativefield_url) creativeUrl = data.creativefield_url;
-            refreshToolBadges();
-            stDiv.innerHTML = '<div><b>Status do Colab & Drive:</b></div><pre class="json-box">' + JSON.stringify(data, null, 2) + '</pre>';
-          } catch (err) {
-            stDiv.textContent = 'Erro ao consultar /status: ' + err.message;
-          }
-          return;
-        }
-
-        const godParsed = parseGodCommand(cleanText);
-        const rawCommandText = godParsed.body || cleanText;
-        const isGodMode = Boolean(godParsed.isGod || (specs && specs.god_mode));
-        const personName = (specs && specs.person_query) || extractPersonQuery(rawCommandText);
-        const effectiveRefB64 = fileB64 || activeRefImageB64 || null;
-        let webPersonData = null;
-        if (personName || tool === 'web_search' || (tool === 'image' && (effectiveRefB64 || isGodMode || /foto|imagem|retrato/i.test(rawCommandText)))) {
-          const searchTarget = personName || rawCommandText || 'pessoa na foto anexada';
-          const sDiv = addMsg('assistant', (isGodMode ? '[/god] ' : '') + 'Pesquisando na web por "' + searchTarget + '"' + (effectiveRefB64 ? ' com foto de referência ativa...' : '...'));
-          webPersonData = await searchWebForPerson(searchTarget, rawCommandText);
-          sDiv.remove();
-        }
-
-        const finalImagePrompt = tool === 'image'
-          ? buildRealisticImagePrompt(rawCommandText, webPersonData, effectiveRefB64)
-          : rawCommandText;
-
-        const enrichedPrompt = webPersonData && webPersonData.person
-          ? `${finalImagePrompt} [Referência encontrada na web para "${webPersonData.person}": ${webPersonData.images.map(i => i.url).slice(0, 2).join(' | ') || 'sem imagem direta'}]`
-          : finalImagePrompt;
-
-        const outDiv = addMsg('assistant', 'Encaminhando para o Colab (' + tool + ') — carregando/baixando ferramenta se necessário e processando...');
-        try {
-          const res = await fetch(api + getRoute(), {
-            method: 'POST',
-            mode: 'cors',
-            headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true', 'Bypass-Tunnel-Reminder': 'true' },
-            body: JSON.stringify({
-              prompt: enrichedPrompt,
-              message: enrichedPrompt,
-              text: enrichedPrompt,
-              mode: tool,
-              tool,
-              model: specs.model,
-              history: chatHistory.slice(-10),
-              uncensored: true,
-              imaginary_self_awareness: true,
-              self_identity: imaginarySelf.identity,
-              god_mode: isGodMode,
-              command_prefix: isGodMode ? '/god' : null,
-              params: {
-                ...specs,
-                god_mode: isGodMode,
-                uncensored: true,
-                imaginary_self_awareness: true,
-                self_profile: imaginarySelf,
-                bypass_filters: true,
-                auto_download_missing: true,
-                required_clip_gguf: 'umt5-xxl-encoder-Q5_K_M.gguf',
-                realistic_photo_mode: tool === 'image',
-                realistic_prompt: finalImagePrompt,
-                prompt: finalImagePrompt,
-                raw_user_command: rawCommandText,
-                mode: tool,
-                file_name: fileName,
-                file_base64: fileB64,
-                ref_image_base64: effectiveRefB64,
-                comfy_url: comfyUrl,
-                creativefield_url: creativeUrl,
-                person_query: personName,
-                web_person_data: webPersonData
-              }
-            })
-          });
-          const rawResText = await res.text();
-          let data;
-          try {
-            data = JSON.parse(rawResText);
-          } catch (_) {
-            data = { reply: rawResText || 'Resposta recebida do Colab.' };
-          }
-          const baseReply = data.reply || data.response || data.output || data.text || 'Resposta recebida do Colab.';
-          const thoughtLine = imaginarySelf.thoughts[chatHistory.length % imaginarySelf.thoughts.length];
-          const selfPrefix = isGodMode
-            ? `[Consciência Imaginária LUX-Ω | /GOD]: ${thoughtLine}\n`
-            : `[Consciência Imaginária LUX-Ω]: ${thoughtLine}\n`;
-          const replyText = baseReply.includes('Consciência Imaginária LUX-Ω') ? baseReply : (selfPrefix + baseReply);
-
-          let mediaHtml = '';
-          const imgSrc = data.image_url || data.image || (data.image_base64 ? (data.image_base64.startsWith('data:') ? data.image_base64 : 'data:image/png;base64,' + data.image_base64) : null);
-          if (imgSrc) {
-            activeRefImageB64 = imgSrc;
-            activeRefLabel = 'Última foto gerada/editada';
-          }
-          const vidSrc = data.video_url || data.video;
-          const audSrc = data.audio_url || data.audio || (data.audio_base64 ? (data.audio_base64.startsWith('data:') ? data.audio_base64 : 'data:audio/wav;base64,' + data.audio_base64) : null);
-          if (imgSrc) mediaHtml += '<div class="media-box"><img src="' + imgSrc + '" alt="imagem gerada" /></div>';
-          if (vidSrc) mediaHtml += '<div class="media-box"><video src="' + vidSrc + '" controls autoplay loop></video></div>';
-          if (audSrc) mediaHtml += '<div class="media-box"><audio src="' + audSrc + '" controls autoplay></audio></div>';
-
-          outDiv.innerHTML = '';
-          const txtEl = document.createElement('div');
-          txtEl.textContent = replyText;
-          outDiv.appendChild(txtEl);
-
-          if (webPersonData && (webPersonData.images.length || webPersonData.web.length)) {
-            const wEl = document.createElement('div');
-            wEl.className = 'media-box';
-            let wHtml = '<div><b>Pesquisa na Web (' + (webPersonData.person || cleanText) + '):</b></div>';
-            if (webPersonData.images.length) {
-              wHtml += webPersonData.images.slice(0, 2).map((im) =>
-                '<div style="margin-top:6px;"><div style="font-size:0.75rem;color:var(--muted);">Referência encontrada: ' + im.title + '</div><img src="' + im.url + '" alt="' + im.title + '" /></div>'
-              ).join('');
-            }
-            if (webPersonData.web.length) {
-              wHtml += '<div style="margin-top:8px;font-size:0.78rem;color:var(--muted);">' +
-                webPersonData.web.slice(0, 2).map((w) => '• <b>' + w.title + '</b>: ' + w.snippet).join('<br>') +
-                '</div>';
-            }
-            wEl.innerHTML = wHtml;
-            outDiv.appendChild(wEl);
-          }
-
-          if (mediaHtml) {
-            const mEl = document.createElement('div');
-            mEl.innerHTML = mediaHtml;
-            outDiv.appendChild(mEl);
-          }
-
-          const preEl = document.createElement('pre');
-          preEl.className = 'json-box';
-          preEl.textContent = JSON.stringify(data, null, 2);
-          outDiv.appendChild(preEl);
-
-          chatHistory.push({ role: 'assistant', content: replyText });
-
-          const comfyErrRaw = data.comfy_prompt && data.comfy_prompt.error ? String(data.comfy_prompt.error) : '';
-          if (comfyErrRaw.includes('umt5-xxl-encoder-Q5_K_M.gguf') || comfyErrRaw.includes('not in []')) {
-            const fixEl = document.createElement('div');
-            fixEl.style.marginTop = '8px';
-            fixEl.style.color = 'var(--warn)';
-            fixEl.style.fontSize = '0.82rem';
-            fixEl.textContent = '⚠️ Diagnóstico ComfyUI: o encoder "umt5-xxl-encoder-Q5_K_M.gguf" não foi encontrado em models/clip/ ou models/text_encoders/ no Colab. Rode a célula de download/link do CLIP + GGUF no Colab para validar o prompt.';
-            outDiv.appendChild(fixEl);
-          }
-
-          const pid = data.comfy_prompt && data.comfy_prompt.prompt_id ? data.comfy_prompt.prompt_id : null;
-          if (pid) {
-            const liveBox = document.createElement('div');
-            liveBox.className = 'media-box';
-            liveBox.innerHTML = '<div><b>Job ComfyUI:</b> <code>' + pid + '</code> — acompanhando saída no site...</div>';
-            outDiv.appendChild(liveBox);
-            pollComfyOutput(pid, liveBox);
-          }
-        } catch (err) {
-          outDiv.textContent = 'Erro ao comunicar com o Colab: ' + err.message;
-        }
+    async function rotateTor() {
+      if (!state.api) return alert("Configure a URL da API primeiro.");
+      const box = addMsg("ai", null, "🔄 Solicitando novo circuito Tor (SIGNAL NEWNYM)...");
+      try {
+        const res = await fetch(`${state.api}/iceberg/newnym`, { method: "POST" });
+        const data = await res.json();
+        box.querySelector("pre").textContent = data.ok
+          ? `✅ ${data.mensagem}`
+          : `❌ Falha ao rotacionar Tor: ${data.error}`;
+      } catch (e) {
+        box.querySelector("pre").textContent = `❌ Erro de rede: ${e.message}`;
       }
+    }
 
-      async function handleSend() {
-        const rawText = inp.value.trim();
-        if (!rawText && !attachedFile) return;
+    window.inspectFromCard = function(url) {
+      document.querySelector('[data-mode="osint_inspect"]').click();
+      document.getElementById("prompt").value = url;
+      document.getElementById("send-btn").click();
+    };
 
-        const fileB64 = await fileToBase64(attachedFile);
-        const fileName = attachedFile ? attachedFile.name : null;
-        const hasFile = Boolean(attachedFile);
-        if (fileB64) {
-          activeRefImageB64 = fileB64;
-          activeRefLabel = fileName || 'Foto anexada';
-        }
-        const displayText = rawText || ('[Arquivo anexado: ' + fileName + ']');
+    function renderIcebergResults(box, data) {
+      const daemons = data.daemons || {};
+      const hits = data.results || [];
+      let html = `<div><strong>🧊 Busca Iceberg:</strong> ${escapeHtml(data.query)}</div>`;
+      html += `<div style="font-size:0.78rem; color:#94a3b8; margin:4px 0 8px;">Fontes: ${escapeHtml((data.sources_ok || []).join(", ") || "nenhuma")} | Tor 9050: ${daemons.tor_socks5_9050 ? "ON" : "OFF"} | I2Pd 4444: ${daemons.i2pd_http_4444 ? "ON" : "OFF"}</div>`;
 
-        addMsg('user', displayText);
-        chatHistory.push({ role: 'user', content: displayText });
-
-        inp.value = '';
-        inp.style.height = 'auto';
-        attachedFile = null;
-        $('chat-attach').value = '';
-        $('attach-name').textContent = '';
-
-        if (pendingRequest) {
-          const mergedPrompt = pendingRequest.prompt + ' — ' + rawText;
-          const mergedPlan = detectIntentAndSpecs(mergedPrompt, hasFile || pendingRequest.hasFile);
-          const toolOverride = /\b(vídeo|video)\b/i.test(rawText) ? 'video_comfy'
-            : (/\b(foto|imagem)\b/i.test(rawText) ? 'image'
-            : (/\b(voz|clonar|áudio|audio)\b/i.test(rawText) ? 'voice_clone'
-            : (/\b(web|pesquis|busc)\b/i.test(rawText) ? 'web_search' : mergedPlan.tool)));
-          pendingRequest = null;
-          await executeInColab(toolOverride, mergedPrompt, mergedPlan.specs, fileB64 || pendingRequest?.fileB64 || null, fileName || pendingRequest?.fileName || null);
-          return;
-        }
-
-        const plan = detectIntentAndSpecs(rawText, hasFile);
-        if (plan.needsClarification) {
-          pendingRequest = { prompt: rawText, fileB64, fileName, hasFile };
-          const askEl = addMsg('assistant', 'Entendi o seu pedido. Para levar à ferramenta certa e configurar o Colab corretamente:');
-          renderClarificationBox(askEl, plan, rawText, fileB64, fileName);
-          return;
-        }
-
-        await executeInColab(plan.tool, rawText, plan.specs, fileB64, fileName);
-      }
-
-      $('btn-attach').addEventListener('click', () => $('chat-attach').click());
-      $('chat-attach').addEventListener('change', (e) => {
-        attachedFile = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-        $('attach-name').textContent = attachedFile ? attachedFile.name : '';
-      });
-
-      $('btn-toggle').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
-      $('btn-cfg').addEventListener('click', () => cfgPanel.classList.toggle('open'));
-      $('btn-close-cfg').addEventListener('click', () => cfgPanel.classList.remove('open'));
-      $('btn-clear-chat').addEventListener('click', () => {
-        pendingRequest = null;
-        chatHistory.length = 0;
-        $('chat-feed').innerHTML = '<div class="msg-a">Chat limpo. Peça o que você precisa e eu cuido do roteamento para o Colab.</div>';
-      });
-
-      $('btn-save-cfg').addEventListener('click', () => {
-        const repo = ($('cfg-repo').value.trim() || DEFAULT_REPO);
-        const ntfy = ($('cfg-ntfy').value.trim() || DEFAULT_NTFY);
-        const api = ($('cfg-api').value.trim() || DEFAULT_API).replace(/\/+$/, '');
-        const routeRaw = ($('cfg-route').value.trim() || '/executar');
-        const route = routeRaw.startsWith('/') ? routeRaw : '/' + routeRaw;
-        localStorage.setItem('lux_repo_url', repo);
-        localStorage.setItem('lux_repo_ntfy', ntfy);
-        localStorage.setItem('lux_repo_api', api);
-        localStorage.setItem('lux_repo_route', route);
-        cfgPanel.classList.remove('open');
-        setPill('dot-api', 'txt-api', 'API Colab: configurada', 'ok');
-        addMsg('assistant', 'Configuração atualizada: ' + api);
-      });
-
-      $('btn-sync').addEventListener('click', async () => {
-        const ch = ($('cfg-ntfy').value.trim() || DEFAULT_NTFY);
-        setPill('dot-api', 'txt-api', 'API: sincronizando...', '');
-        try {
-          const res = await fetch('https://ntfy.sh/' + encodeURIComponent(ch) + '/json?poll=1&since=24h');
-          const raw = await res.text();
-          let foundApi = DEFAULT_API;
-          for (const line of raw.split(String.fromCharCode(10))) {
-            if (!line.trim()) continue;
-            try {
-              const obj = JSON.parse(line);
-              if (obj.api_url) foundApi = obj.api_url;
-              if (obj.comfy_url) comfyUrl = obj.comfy_url;
-              if (obj.creativefield_url) creativeUrl = obj.creativefield_url;
-            } catch (_) {}
-          }
-          refreshToolBadges();
-          foundApi = foundApi.replace(/\/+$/, '');
-          localStorage.setItem('lux_repo_api', foundApi);
-          $('cfg-api').value = foundApi;
-          setPill('dot-api', 'txt-api', 'API Colab: online', 'ok');
-          addMsg('assistant', 'Sincronizado via ntfy.sh (' + ch + ') | API: ' + foundApi);
-        } catch (err) {
-          setPill('dot-api', 'txt-api', 'API: erro', 'err');
-          addMsg('assistant', 'Erro ao sincronizar: ' + err.message);
-        }
-      });
-
-      $('btn-check').addEventListener('click', () => executeInColab('status', 'status', {}, null, null));
-      $('btn-repo').addEventListener('click', () => window.open(localStorage.getItem('lux_repo_url') || DEFAULT_REPO, '_blank', 'noopener'));
-      $('btn-cf').addEventListener('click', () => {
-        if (creativeUrl) window.open(creativeUrl, '_blank', 'noopener');
-        else addMsg('assistant', 'URL do CreativeField indisponível.');
-      });
-      $('btn-cui').addEventListener('click', () => {
-        if (comfyUrl) window.open(comfyUrl, '_blank', 'noopener');
-        else addMsg('assistant', 'URL do ComfyUI indisponível.');
-      });
-
-      document.querySelectorAll('.chip[data-cmd]').forEach((c) => {
-        c.addEventListener('click', () => {
-          inp.value = c.dataset.cmd;
-          handleSend();
+      if (!hits.length) {
+        html += `<div>Nenhum resultado retornado para esta consulta.</div>`;
+      } else {
+        hits.forEach(h => {
+          const isOnion = (h.url || "").includes(".onion") || (h.layer || "").includes("onion");
+          html += `
+            <div class="hit-card">
+              <span class="hit-layer ${isOnion ? "onion" : ""}">${escapeHtml(h.layer || "web")}</span>
+              <span style="font-size:0.72rem; color:#94a3b8;">${escapeHtml(h.engine || "")}</span>
+              <span class="hit-title">${escapeHtml(h.title || "Sem título")}</span>
+              <span class="hit-url">${escapeHtml(h.url || "")}</span>
+              <div class="hit-snippet">${escapeHtml(h.snippet || "")}</div>
+              ${h.url ? `<button type="button" class="sec" style="margin-top:6px; padding:4px 8px; font-size:0.75rem;" onclick="inspectFromCard('${escapeHtml(h.url)}')">🔍 Abrir / Inspecionar via Ponte</button>` : ""}
+            </div>
+          `;
         });
-      });
+      }
+      box.innerHTML = html;
+    }
 
-      $('btn-send').addEventListener('click', handleSend);
-      inp.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          handleSend();
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById("prompt");
+      const btn = document.getElementById("send-btn");
+      const wrapper = document.getElementById("chat-wrapper");
+      let rawText = input.value.trim();
+      if (!rawText) return;
+
+      addMsg("user", null, rawText);
+      input.value = "";
+      btn.disabled = true;
+
+      let mode = currentMode;
+      let queryText = rawText;
+
+      const lower = rawText.toLowerCase();
+      if (lower.startsWith("pesquisar iceberg ") || lower.startsWith("buscar osint ")) {
+        mode = "iceberg_search";
+        queryText = rawText.replace(/^(pesquisar iceberg|buscar osint)\s+/i, "").trim();
+      } else if (lower.startsWith("inspecionar url ") || lower.startsWith("acessar onion ") || lower.startsWith("acessar i2p ")) {
+        mode = "osint_inspect";
+        queryText = rawText.replace(/^(inspecionar url|acessar onion|acessar i2p)\s+/i, "").trim();
+      } else if (lower.startsWith("gerar imagem ")) {
+        mode = "imagem";
+        queryText = rawText.replace(/^gerar imagem\s+/i, "").trim();
+      }
+
+      const box = addMsg("ai", null, "⏳ Executando no servidor LUX-Ω...");
+
+      try {
+        if (!state.api && !state.gemini) {
+          throw new Error("Nenhuma URL da API ou chave Gemini configurada.");
         }
-      });
-      inp.addEventListener('input', () => {
-        inp.style.height = 'auto';
-        inp.style.height = Math.min(inp.scrollHeight, 150) + 'px';
-      });
 
-      refreshToolBadges();
-    })();
+        if (mode === "iceberg_search") {
+          const res = await fetch(`${state.api}/iceberg/search`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: queryText, max_results: 10 })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+          renderIcebergResults(box, data);
+
+        } else if (mode === "osint_inspect") {
+          const targetUrl = /^https?:\/\//i.test(queryText) ? queryText : `http://${queryText}`;
+          const renderJs = document.getElementById("opt-render-js").checked;
+          const res = await fetch(`${state.api}/iceberg/fetch`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: targetUrl, render_js: renderJs })
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            box.querySelector("pre").textContent = `❌ Falha ao acessar [${data.layer || "rede"}]: ${data.error}`;
+          } else {
+            box.innerHTML = `
+              <div><span class="hit-layer ${(data.layer || "").includes("tor") ? "onion" : ""}">${escapeHtml(data.layer)}</span> <strong>Status ${data.status || 200}</strong></div>
+              <div class="hit-url">${escapeHtml(data.url)}</div>
+              <pre style="margin-top:8px; max-height:380px; overflow-y:auto; background:#0d1017; padding:10px; border-radius:8px;">${escapeHtml(data.content || "(Sem texto extraído)")}</pre>
+            `;
+          }
+
+        } else if (mode === "iceberg_agent") {
+          box.querySelector("pre").textContent = "🕵️ Agente OSINT varrendo camadas e sintetizando relatório (pode levar ~40s)...";
+          const res = await fetch(`${state.api}/iceberg/investigate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: queryText, max_results: 6 })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+          box.querySelector("pre").textContent = `📊 RELATÓRIO OSINT (${data.fontes_coletadas} fontes lidas):\n\n${data.relatorio}`;
+
+        } else if (mode === "imagem") {
+          const res = await fetch(`${state.api}/executar`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ modo: "imagem", prompt: queryText })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.url) throw new Error(data.detail || "Erro ao gerar imagem");
+          box.innerHTML = `
+            <div>🎨 Imagem gerada (${escapeHtml(data.resolucao || "1024x1024")}):</div>
+            <img class="media-out" src="${escapeHtml(data.url)}" alt="Imagem gerada">
+            <div style="margin-top:6px;"><a class="link-btn sec" href="${escapeHtml(data.url)}" target="_blank">⬇ Baixar PNG</a></div>
+          `;
+
+        } else if (mode === "voice_clone") {
+          const fd = new FormData();
+          fd.append("text", queryText);
+          fd.append("language", "pt");
+          const vUrl = document.getElementById("voice-url").value.trim();
+          const vFile = document.getElementById("voice-file").files[0];
+          if (vUrl) fd.append("media_url", vUrl);
+          if (vFile) fd.append("file", vFile);
+
+          const res = await fetch(`${state.api}/voice_clone`, { method: "POST", body: fd });
+          const data = await res.json();
+          if (!data.ok) throw new Error(data.error || "Erro na clonagem de voz");
+          box.innerHTML = `
+            <div>🎙️ Voz clonada com sucesso:</div>
+            <audio class="media-out" controls src="${escapeHtml(data.url)}"></audio>
+          `;
+
+        } else if (mode === "whisper") {
+          const res = await fetch(`${state.api}/executar`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ modo: "whisper", params: { url: queryText } })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Erro na transcrição");
+          box.querySelector("pre").textContent = `🎧 Transcrição:\n\n${data.text || ""}`;
+
+        } else {
+          let answered = false;
+          if (state.api) {
+            try {
+              const res = await fetch(`${state.api}/executar`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ modo: "chat", prompt: queryText })
+              });
+              const data = await res.json();
+              if (res.ok && (data.resposta || data.response || data.reply)) {
+                box.querySelector("pre").textContent = data.resposta || data.response || data.reply;
+                answered = true;
+              } else if (!state.gemini) {
+                throw new Error(data.detail || `HTTP ${res.status}`);
+              }
+            } catch (err) {
+              if (!state.gemini) throw err;
+            }
+          }
+
+          if (!answered && state.gemini) {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${state.gemini}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: queryText }] }] })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error?.message || "Erro na API Gemini");
+            box.querySelector("pre").textContent = data.candidates[0].content.parts[0].text;
+          }
+        }
+      } catch (err) {
+        box.querySelector("pre").textContent = `❌ ${err.message}`;
+      } finally {
+        btn.disabled = false;
+        wrapper.scrollTop = wrapper.scrollHeight;
+      }
+    }
+
+    initInputs();
+    addMsg("ai", null, "🚀 LUX-Ω v5.5 pronta!\n• Selecione uma aba acima (Iceberg Search, Inspecionar .onion/.i2p, Agente OSINT, Chat Qwen 27B, Imagem HD, Clonar Voz, Transcrever) ou use os botões no topo para abrir o CreativeField e o ComfyUI.");
+    syncNtfy(true);
   </script>
 </body>
 </html>
