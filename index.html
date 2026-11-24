@@ -325,7 +325,7 @@
           </div>
           <div class="field">
             <label for="cfg-api">URL da API FastAPI (Colab)</label>
-            <input type="url" id="cfg-api" value="https://essence-breach-met-basis.trycloudflare.com" />
+            <input type="url" id="cfg-api" value="https://strong-aging-mails-visited.trycloudflare.com" />
           </div>
           <div class="field">
             <label for="cfg-route">Rota POST</label>
@@ -343,7 +343,7 @@
           <div class="hero-banner">
             <div class="greeting">LUX-Ω v12.0 A100 ULTIMATE GGUF STUDIO (COMPLETO)</div>
             <div style="font-size:0.84rem;color:var(--muted);">
-              API: <code>https://essence-breach-met-basis.trycloudflare.com</code> • ComfyUI: <code>https://voices-ward-advancement-minimum.trycloudflare.com</code> • CreativeField: <code>https://drinks-url-acquire-copper.trycloudflare.com</code> • ntfy: <code>lux-omega-kauan-v55</code>
+              API: <code>https://strong-aging-mails-visited.trycloudflare.com</code> • ComfyUI: <code>https://vector-bbs-down-dice.trycloudflare.com</code> • CreativeField: <code>https://cumulative-vital-statements-educators.trycloudflare.com</code> • ntfy: <code>lux-omega-kauan-v55</code>
             </div>
             <div class="quick-row">
               <button type="button" class="chip" data-cmd="Quero gerar um vídeo de um cachorro voando com asas">🎬 Ex.: Gerar vídeo</button>
@@ -390,11 +390,13 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
 
       const DEFAULT_REPO = 'https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio';
       const DEFAULT_NTFY = 'lux-omega-kauan-v55';
-      const DEFAULT_API = 'https://essence-breach-met-basis.trycloudflare.com';
-      let comfyUrl = 'https://voices-ward-advancement-minimum.trycloudflare.com';
-      let creativeUrl = 'https://drinks-url-acquire-copper.trycloudflare.com';
+      const DEFAULT_API = 'https://strong-aging-mails-visited.trycloudflare.com';
+      let comfyUrl = 'https://vector-bbs-down-dice.trycloudflare.com';
+      let creativeUrl = 'https://cumulative-vital-statements-educators.trycloudflare.com';
       let attachedFile = null;
       let pendingRequest = null;
+      let activeRefImageB64 = null;
+      let activeRefLabel = null;
       const chatHistory = [];
 
       localStorage.setItem('lux_repo_url', DEFAULT_REPO);
@@ -518,7 +520,8 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
         let questions = [];
 
         const hasVideo = /\b(vídeo|video|animação|animacao|wan|clipe|cena|fps|frames)\b/.test(low);
-        const hasImage = /\b(foto|imagem|desenho|ilustração|ilustracao|retrato|render|arte)\b/.test(low);
+        const hasEditRef = /\b(muda|mudar|mude|troca|trocar|troque|altera|alterar|coloca|colocar|roupa|cabelo|fundo|cor|expressão|expressao|mesma pessoa|mesmo rosto|ela|ele|ele mesmo|ela mesma)\b/.test(low) && Boolean(activeRefImageB64 || hasFile);
+        const hasImage = /\b(foto|imagem|desenho|ilustração|ilustracao|retrato|render|arte)\b/.test(low) || hasEditRef;
         const hasVoice = /\b(voz|clonar|clone|áudio|audio|tts|falar|locução|locucao|dublar)\b/.test(low);
         const hasWeb = /\b(pesquise|pesquisar|buscar|busca|web|notícias|noticias|google|atualizado)\b/.test(low);
         const hasStatus = /\b(status|drive|modelos|gpu|vram|porta|túnel|tunel)\b/.test(low);
@@ -559,11 +562,7 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
             questions.push('Quais especificações de vídeo você prefere: **832×480 (81 frames, 24fps)**, **1280×704 HD (81 frames, 24fps)** ou **832×480 (121 frames, 24fps)**, e qual modelo (**Wan 2.2 TI2V-5B** ou **A14B GGUF**)?');
           }
         } else if (tool === 'image') {
-          const hasStyleSpec = /\b(realista|fotorrealista|anime|cyberpunk|arquitetura|estilo|8k)\b/.test(low);
-          if (!hasStyleSpec) {
-            needsClarification = true;
-            questions.push('Qual estilo visual você quer para a foto (**Cinematográfico / Fotorrealista**, **Anime**, **Cyberpunk** ou **Arquitetura**)?');
-          }
+          needsClarification = false;
         } else if (tool === 'voice_clone') {
           if (!hasFile && !/["“']/.test(text) && !/\bfalando\b/.test(low)) {
             needsClarification = true;
@@ -696,10 +695,11 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
         }
 
         const personName = (specs && specs.person_query) || extractPersonQuery(cleanText);
+        const effectiveRefB64 = fileB64 || activeRefImageB64 || null;
         let webPersonData = null;
-        if (personName || tool === 'web_search' || tool === 'image') {
-          const searchTarget = personName || cleanText;
-          const sDiv = addMsg('assistant', 'Pesquisando na web por "' + searchTarget + '" para localizar referências e foto...');
+        if (personName || tool === 'web_search' || (tool === 'image' && effectiveRefB64)) {
+          const searchTarget = personName || (effectiveRefB64 ? (cleanText || 'pessoa na foto anexada') : cleanText);
+          const sDiv = addMsg('assistant', 'Pesquisando na web por "' + searchTarget + '"' + (effectiveRefB64 ? ' com foto de referência ativa...' : '...'));
           webPersonData = await searchWebForPerson(searchTarget, cleanText);
           sDiv.remove();
         }
@@ -727,6 +727,7 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
                 mode: tool,
                 file_name: fileName,
                 file_base64: fileB64,
+                ref_image_base64: effectiveRefB64,
                 comfy_url: comfyUrl,
                 creativefield_url: creativeUrl,
                 person_query: personName,
@@ -739,6 +740,10 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
 
           let mediaHtml = '';
           const imgSrc = data.image_url || data.image || (data.image_base64 ? (data.image_base64.startsWith('data:') ? data.image_base64 : 'data:image/png;base64,' + data.image_base64) : null);
+          if (imgSrc) {
+            activeRefImageB64 = imgSrc;
+            activeRefLabel = 'Última foto gerada/editada';
+          }
           const vidSrc = data.video_url || data.video;
           const audSrc = data.audio_url || data.audio || (data.audio_base64 ? (data.audio_base64.startsWith('data:') ? data.audio_base64 : 'data:audio/wav;base64,' + data.audio_base64) : null);
           if (imgSrc) mediaHtml += '<div class="media-box"><img src="' + imgSrc + '" alt="imagem gerada" /></div>';
@@ -801,6 +806,10 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
         const fileB64 = await fileToBase64(attachedFile);
         const fileName = attachedFile ? attachedFile.name : null;
         const hasFile = Boolean(attachedFile);
+        if (fileB64) {
+          activeRefImageB64 = fileB64;
+          activeRefLabel = fileName || 'Foto anexada';
+        }
         const displayText = rawText || ('[Arquivo anexado: ' + fileName + ']');
 
         addMsg('user', displayText);
