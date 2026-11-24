@@ -272,14 +272,11 @@
       <div class="badges">
         <span class="badge warn" id="b-api">● Conectando...</span>
         <span class="badge" id="b-gpu">GPU: --</span>
-        <span class="badge" id="b-tor">Tor 9050: --</span>
-        <span class="badge" id="b-i2p">I2Pd 4444: --</span>
       </div>
     </div>
     <div class="header-actions">
       <a class="link-btn sec disabled" id="btn-cf" href="#" target="_blank" rel="noopener">🎬 CreativeField</a>
       <a class="link-btn sec disabled" id="btn-comfy" href="#" target="_blank" rel="noopener">⚙️ ComfyUI</a>
-      <button type="button" class="sec" onclick="rotateTor()">🔄 Novo IP Tor</button>
       <button type="button" class="sec" onclick="syncNtfy(false)">📡 Sincronizar</button>
       <button type="button" class="sec" onclick="toggleConfig()">⚙ Config</button>
     </div>
@@ -319,6 +316,7 @@
     <button type="button" class="mode-tab" data-mode="imagem">🎨 Imagem HD</button>
     <button type="button" class="mode-tab" data-mode="voice_clone">🎙️ Clonar Voz</button>
     <button type="button" class="mode-tab" data-mode="whisper">🎧 Transcrever Áudio</button>
+    <button type="button" class="mode-tab" data-mode="god">/GOD</button>
   </div>
 
   <div id="extra-bar">
@@ -328,6 +326,11 @@
     <div id="voice-inputs" style="display:none; gap:8px; flex-wrap:wrap; width:100%; align-items:center;">
       <input type="text" id="voice-url" placeholder="URL do vídeo/áudio de referência (YouTube/MP4/MP3)..." style="max-width:340px;">
       <input type="file" id="voice-file" accept="audio/*,video/*" style="max-width:250px;">
+      <select id="voice-lang" style="max-width:130px;">
+        <option value="pt" selected>Idioma: PT</option>
+        <option value="en">Idioma: EN</option>
+        <option value="es">Idioma: ES</option>
+      </select>
     </div>
   </div>
 
@@ -364,7 +367,8 @@
       chat: "Converse com o Qwen 3.8 27B na A100 (ou use: pesquisar iceberg ..., acessar onion ...)...",
       imagem: "Descreva a imagem HD para gerar na GPU A100...",
       voice_clone: "Digite o texto que a voz clonada deve falar...",
-      whisper: "Cole o link do vídeo/áudio para transcrever com Whisper..."
+      whisper: "Cole o link do vídeo/áudio para transcrever com Whisper...",
+      god: "/GOD — Digite qualquer comando direto para execução irrestrita..."
     };
 
     function initInputs() {
@@ -468,11 +472,19 @@
         .replace(/"/g, "&quot;");
     }
 
+    function resolveMediaUrl(rawUrl, audioBase64 = null) {
+      if (audioBase64) {
+        return `data:audio/wav;base64,${audioBase64}`;
+      }
+      if (!rawUrl) return "";
+      if (/^https?:\/\//i.test(rawUrl) || rawUrl.startsWith("data:")) return rawUrl;
+      const base = (state.api || "").replace(/\/$/, "");
+      return base ? `${base}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}` : rawUrl;
+    }
+
     async function checkHealth(announce = false) {
       const bApi = document.getElementById("b-api");
       const bGpu = document.getElementById("b-gpu");
-      const bTor = document.getElementById("b-tor");
-      const bI2p = document.getElementById("b-i2p");
 
       if (!state.api) {
         bApi.textContent = "● Sem URL API";
@@ -491,19 +503,11 @@
         bGpu.textContent = `GPU: ${data.gpu || "A100"} (${data.vram_total_gb || "?"} GB)`;
         bGpu.className = "badge on";
 
-        bTor.textContent = data.tor_socks5_9050 ? "Tor 9050: ON" : "Tor 9050: OFF";
-        bTor.className = data.tor_socks5_9050 ? "badge on" : "badge off";
-
-        bI2p.textContent = data.i2pd_http_4444 ? "I2Pd 4444: ON" : "I2Pd 4444: INICIANDO";
-        bI2p.className = data.i2pd_http_4444 ? "badge on" : "badge warn";
-
         if (announce) {
           addMsg("ai", null, [
             "✅ Conectado ao Colab!",
             "API: " + state.api,
-            "GPU: " + data.gpu + " (" + data.vram_total_gb + " GB VRAM)",
-            "Tor SOCKS5 (9050): " + (data.tor_socks5_9050 ? "ONLINE" : "OFFLINE"),
-            "I2Pd HTTP (4444): " + (data.i2pd_http_4444 ? "ONLINE" : "INICIANDO")
+            "GPU: " + data.gpu + " (" + data.vram_total_gb + " GB VRAM)"
           ].join("\n"));
         }
       } catch (e) {
@@ -560,20 +564,6 @@
       }
     }
 
-    async function rotateTor() {
-      if (!state.api) return alert("Configure a URL da API primeiro.");
-      const box = addMsg("ai", null, "🔄 Solicitando novo circuito Tor (SIGNAL NEWNYM)...");
-      try {
-        const res = await fetch(`${state.api}/iceberg/newnym`, { method: "POST" });
-        const data = await res.json();
-        box.querySelector("pre").textContent = data.ok
-          ? `✅ ${data.mensagem}`
-          : `❌ Falha ao rotacionar Tor: ${data.error}`;
-      } catch (e) {
-        box.querySelector("pre").textContent = `❌ Erro de rede: ${e.message}`;
-      }
-    }
-
     window.inspectFromCard = function(url) {
       document.querySelector('[data-mode="osint_inspect"]').click();
       document.getElementById("prompt").value = url;
@@ -581,10 +571,9 @@
     };
 
     function renderIcebergResults(box, data) {
-      const daemons = data.daemons || {};
       const hits = data.results || [];
       let html = `<div><strong>🧊 Busca Iceberg:</strong> ${escapeHtml(data.query)}</div>`;
-      html += `<div style="font-size:0.78rem; color:#94a3b8; margin:4px 0 8px;">Fontes: ${escapeHtml((data.sources_ok || []).join(", ") || "nenhuma")} | Tor 9050: ${daemons.tor_socks5_9050 ? "ON" : "OFF"} | I2Pd 4444: ${daemons.i2pd_http_4444 ? "ON" : "OFF"}</div>`;
+      html += `<div style="font-size:0.78rem; color:#94a3b8; margin:4px 0 8px;">Fontes: ${escapeHtml((data.sources_ok || []).join(", ") || "nenhuma")}</div>`;
 
       if (!hits.length) {
         html += `<div>Nenhum resultado retornado para esta consulta.</div>`;
@@ -606,6 +595,18 @@
       box.innerHTML = html;
     }
 
+    async function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const out = String(reader.result || "");
+          resolve(out.includes(",") ? out.split(",")[1] : out);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
     async function handleSubmit(e) {
       e.preventDefault();
       const input = document.getElementById("prompt");
@@ -622,7 +623,10 @@
       let queryText = rawText;
 
       const lower = rawText.toLowerCase();
-      if (lower.startsWith("pesquisar iceberg ") || lower.startsWith("buscar osint ")) {
+      if (lower.startsWith("/god ") || lower === "/god") {
+        mode = "god";
+        queryText = rawText.replace(/^\/god\s*/i, "").trim();
+      } else if (lower.startsWith("pesquisar iceberg ") || lower.startsWith("buscar osint ")) {
         mode = "iceberg_search";
         queryText = rawText.replace(/^(pesquisar iceberg|buscar osint)\s+/i, "").trim();
       } else if (lower.startsWith("inspecionar url ") || lower.startsWith("acessar onion ") || lower.startsWith("acessar i2p ")) {
@@ -640,7 +644,22 @@
           throw new Error("Nenhuma URL da API ou chave Gemini configurada.");
         }
 
-        if (mode === "iceberg_search") {
+        if (mode === "god") {
+          const res = await fetch(`${state.api}/executar`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              modo: "god",
+              mode: "god",
+              prompt: queryText,
+              params: { unrestricted: true, command: queryText }
+            })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+          box.querySelector("pre").textContent = data.resposta || data.response || data.reply || JSON.stringify(data, null, 2);
+
+        } else if (mode === "iceberg_search") {
           const res = await fetch(`${state.api}/iceberg/search`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -695,20 +714,62 @@
           `;
 
         } else if (mode === "voice_clone") {
-          const fd = new FormData();
-          fd.append("text", queryText);
-          fd.append("language", "pt");
+          box.querySelector("pre").textContent = "🎙️ Processando referência de voz e sintetizando áudio...";
           const vUrl = document.getElementById("voice-url").value.trim();
           const vFile = document.getElementById("voice-file").files[0];
-          if (vUrl) fd.append("media_url", vUrl);
-          if (vFile) fd.append("file", vFile);
+          const vLang = document.getElementById("voice-lang").value || "pt";
 
-          const res = await fetch(`${state.api}/voice_clone`, { method: "POST", body: fd });
-          const data = await res.json();
-          if (!data.ok) throw new Error(data.error || "Erro na clonagem de voz");
+          const fd = new FormData();
+          fd.append("text", queryText);
+          fd.append("prompt", queryText);
+          fd.append("language", vLang);
+          if (vUrl) {
+            fd.append("media_url", vUrl);
+            fd.append("ref_url", vUrl);
+          }
+          if (vFile) {
+            fd.append("file", vFile, vFile.name);
+            fd.append("ref_audio", vFile, vFile.name);
+          }
+
+          let res = await fetch(`${state.api}/voice_clone`, { method: "POST", body: fd });
+          let data = await res.json().catch(() => ({}));
+
+          if (!res.ok || data.ok === false) {
+            const fileB64 = vFile ? await fileToBase64(vFile) : null;
+            res = await fetch(`${state.api}/executar`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                modo: "voice_clone",
+                mode: "voice_clone",
+                prompt: queryText,
+                text: queryText,
+                params: {
+                  text: queryText,
+                  language: vLang,
+                  media_url: vUrl || null,
+                  file_base64: fileB64,
+                  file_name: vFile ? vFile.name : null
+                }
+              })
+            });
+            data = await res.json().catch(() => ({}));
+          }
+
+          if (!res.ok || data.ok === false) {
+            throw new Error(data.error || data.detail || `HTTP ${res.status}`);
+          }
+
+          const audioSrc = resolveMediaUrl(data.url || data.audio_url, data.audio_base64);
+          if (!audioSrc) {
+            throw new Error("API não retornou URL nem base64 do áudio clonado.");
+          }
+
           box.innerHTML = `
-            <div>🎙️ Voz clonada com sucesso:</div>
-            <audio class="media-out" controls src="${escapeHtml(data.url)}"></audio>
+            <div>🎙️ Voz clonada com sucesso (${escapeHtml(data.engine || "XTTS / TTS")}):</div>
+            <audio class="media-out" controls autoplay src="${escapeHtml(audioSrc)}"></audio>
+            <div style="margin-top:6px;"><a class="link-btn sec" href="${escapeHtml(audioSrc)}" download="voz_clonada.wav" target="_blank">⬇ Baixar Áudio</a></div>
           `;
 
         } else if (mode === "whisper") {
@@ -762,7 +823,7 @@
     }
 
     initInputs();
-    addMsg("ai", null, "🚀 LUX-Ω v5.5 pronta!\n• Selecione uma aba acima (Iceberg Search, Inspecionar .onion/.i2p, Agente OSINT, Chat Qwen 27B, Imagem HD, Clonar Voz, Transcrever) ou use os botões no topo para abrir o CreativeField e o ComfyUI.");
+    addMsg("ai", null, "🚀 LUX-Ω v5.5 pronta!\n• Selecione uma aba acima (Iceberg Search, Inspecionar .onion/.i2p, Agente OSINT, Chat Qwen 27B, Imagem HD, Clonar Voz, Transcrever, /GOD) ou use os botões no topo para abrir o CreativeField e o ComfyUI.");
     syncNtfy(true);
   </script>
 </body>
