@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LUX-Ω v12.0 Studio — lux-omega-v12-a100-gguf-studio</title>
+  <title>LUX-Ω v12.0 — Chat Único & Orquestrador Colab</title>
   <style>
     :root {
       --bg: #0f1012;
@@ -29,13 +29,13 @@
     }
     .app { display: flex; height: 100vh; width: 100%; overflow: hidden; }
     .sidebar {
-      width: 290px;
+      width: 280px;
       background: linear-gradient(180deg, #17191e 0%, #131519 100%);
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       padding: 14px;
-      gap: 7px;
+      gap: 8px;
       flex-shrink: 0;
       overflow-y: auto;
       transition: width 0.2s ease, padding 0.2s ease;
@@ -50,8 +50,10 @@
       box-shadow: 0 0 14px rgba(122, 176, 255, 0.65);
       flex-shrink: 0;
     }
-    .repo-title { font-size: 0.92rem; font-weight: 700; color: var(--text); word-break: break-word; }
+    .repo-title { font-size: 0.94rem; font-weight: 700; color: var(--text); }
     .repo-sub { font-size: 0.72rem; color: var(--muted); padding: 0 8px 10px; border-bottom: 1px solid var(--border); }
+    .sec { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; margin-top: 4px; border-top: 1px solid var(--border); }
+    .sec-lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px; }
     .nav-btn {
       width: 100%;
       text-align: left;
@@ -60,7 +62,7 @@
       color: var(--text);
       border-radius: 12px;
       padding: 8px 11px;
-      font-size: 0.84rem;
+      font-size: 0.83rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -69,11 +71,6 @@
       transition: background 0.15s ease, border-color 0.15s ease;
     }
     .nav-btn:hover { background: var(--surface-2); border-color: #363c48; }
-    .nav-btn.active {
-      background: linear-gradient(90deg, rgba(122,176,255,0.16), rgba(110,231,183,0.08));
-      border-color: rgba(122,176,255,0.45);
-      font-weight: 600;
-    }
     .badge-mini {
       font-size: 0.67rem;
       padding: 2px 7px;
@@ -88,11 +85,9 @@
       color: var(--ok);
       border-color: rgba(52, 211, 153, 0.45);
     }
-    .sec { display: flex; flex-direction: column; gap: 6px; padding-top: 9px; margin-top: 4px; border-top: 1px solid var(--border); }
-    .sec-lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px; }
     .main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; }
     .topbar {
-      min-height: 58px;
+      min-height: 56px;
       padding: 8px 18px;
       display: flex;
       align-items: center;
@@ -103,7 +98,7 @@
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
     }
-    .top-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+    .top-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .pill {
       display: inline-flex;
       align-items: center;
@@ -119,7 +114,7 @@
     .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
     .dot.ok { background: var(--ok); box-shadow: 0 0 8px rgba(52, 211, 153, 0.55); }
     .dot.err { background: var(--err); box-shadow: 0 0 8px rgba(248, 113, 113, 0.55); }
-    .top-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+    .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     button.btn {
       appearance: none;
       background: var(--surface);
@@ -142,33 +137,33 @@
     }
     .panel { display: none; background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 18px; flex-shrink: 0; }
     .panel.open { display: block; }
-    .panel-grid { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
-    .field label { display: block; font-size: 0.73rem; color: var(--muted); margin-bottom: 4px; }
-    .field input, .field select, .field textarea.small-ta {
+    .panel-grid { max-width: 920px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+    .field label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+    .field input {
       width: 100%;
       background: var(--bg);
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 8px 12px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       outline: none;
     }
-    .field input:focus, .field select:focus, .field textarea.small-ta:focus { border-color: var(--accent); }
-    .panel-foot { max-width: 960px; margin: 10px auto 0; display: flex; justify-content: flex-end; gap: 8px; }
-    .scroll-area { flex: 1; overflow-y: auto; padding: 20px 18px 120px; }
-    .container { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+    .field input:focus { border-color: var(--accent); }
+    .panel-foot { max-width: 920px; margin: 10px auto 0; display: flex; justify-content: flex-end; gap: 8px; }
+    .scroll-area { flex: 1; overflow-y: auto; padding: 20px 18px 110px; }
+    .container { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
     .hero-banner {
       background: linear-gradient(135deg, rgba(122,176,255,0.12), rgba(110,231,183,0.06));
       border: 1px solid rgba(122,176,255,0.28);
       border-radius: 18px;
-      padding: 16px 18px;
+      padding: 15px 18px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
     }
     .greeting {
-      font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+      font-size: clamp(1.2rem, 2.2vw, 1.6rem);
       font-weight: 700;
       line-height: 1.25;
       background: linear-gradient(90deg, #93c5fd 0%, #e0f2fe 45%, #6ee7b7 100%);
@@ -182,12 +177,11 @@
       color: var(--text);
       border-radius: 999px;
       padding: 6px 11px;
-      font-size: 0.77rem;
+      font-size: 0.76rem;
       cursor: pointer;
       transition: border-color 0.15s ease, background 0.15s ease;
     }
     .chip:hover { border-color: var(--accent); background: rgba(122,176,255,0.14); }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
     .msg-u {
       align-self: flex-end;
       background: linear-gradient(135deg, #243044, #1e2636);
@@ -210,30 +204,49 @@
       white-space: pre-wrap;
       word-break: break-word;
       font-size: 0.93rem;
-      line-height: 1.62;
+      line-height: 1.6;
     }
-    .media-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 10px; }
-    .media-box { background: #0d0f12; border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
-    .media-box img, .media-box video, .media-box audio { width: 100%; border-radius: 8px; margin-top: 6px; }
-    .composer { padding: 10px 18px 16px; background: var(--bg); border-top: 1px solid var(--border); flex-shrink: 0; }
-    .composer-inner { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
-    .mode-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-    .mode-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-    .mode-pill {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 0.74rem;
-      cursor: pointer;
+    .spec-box {
+      margin-top: 10px;
+      background: #111318;
+      border: 1px solid rgba(122,176,255,0.3);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
-    .mode-pill.active {
-      background: rgba(122,176,255,0.18);
-      border-color: var(--accent);
+    .spec-title { font-size: 0.82rem; font-weight: 700; color: var(--accent); }
+    .spec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 8px; }
+    .spec-item label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 3px; }
+    .spec-item select, .spec-item input {
+      width: 100%;
+      background: var(--bg);
       color: var(--text);
-      font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 9px;
+      font-size: 0.8rem;
+      outline: none;
     }
+    .spec-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .media-box { background: #0d0f12; border: 1px solid var(--border); border-radius: 12px; padding: 10px; margin-top: 10px; }
+    .media-box img, .media-box video, .media-box audio { width: 100%; border-radius: 8px; margin-top: 6px; }
+    pre.json-box {
+      background: #0d0f12;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.76rem;
+      color: #c9d6ea;
+      margin-top: 8px;
+      white-space: pre;
+    }
+    .composer { padding: 10px 18px 16px; background: var(--bg); border-top: 1px solid var(--border); flex-shrink: 0; }
+    .composer-inner { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+    .composer-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
     .pill-box {
       display: flex;
       align-items: flex-end;
@@ -257,19 +270,6 @@
       resize: none;
       outline: none;
     }
-    pre.code-box {
-      background: #0d0f12;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.8rem;
-      line-height: 1.5;
-      color: #d6deeb;
-      white-space: pre;
-    }
-    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -278,44 +278,24 @@
     <aside id="sidebar" class="sidebar">
       <div class="brand">
         <span class="brand-orb"></span>
-        <div class="repo-title">LUX-Ω v12.0 Studio</div>
+        <div class="repo-title">LUX-Ω v12.0 Chat</div>
       </div>
-      <div class="repo-sub">kauanoliveira80-collab • lux-omega-v12-a100-gguf-studio</div>
-
-      <button type="button" class="nav-btn active" data-view="chat">
-        <span>💬 Chat Conversacional & Comandos</span>
-        <span class="badge-mini on">LIVE</span>
-      </button>
-      <button type="button" class="nav-btn" data-view="studio">
-        <span>🎬 Vídeo & GGUF (No Site)</span>
-        <span class="badge-mini on">WAN 2.2</span>
-      </button>
-      <button type="button" class="nav-btn" data-view="image">
-        <span>🎨 Gerador de Fotos & Visão</span>
-        <span class="badge-mini">IMG</span>
-      </button>
-      <button type="button" class="nav-btn" data-view="voice">
-        <span>🎙️ Clonar Voz & TTS</span>
-        <span class="badge-mini">VOICE</span>
-      </button>
-      <button type="button" class="nav-btn" data-view="web">
-        <span>🌐 Busca na Web & Pesquisa</span>
-        <span class="badge-mini">WEB</span>
-      </button>
-      <button type="button" class="nav-btn" data-view="colab">
-        <span>⚡ Colab Acelerador & Logs</span>
-        <span class="badge-mini">CLI</span>
-      </button>
-      <button type="button" class="nav-btn" data-view="status">
-        <span>📊 Status & Google Drive</span>
-        <span class="badge-mini on">4/4 MOD.</span>
-      </button>
+      <div class="repo-sub">Chat único • Roteamento automático para ferramentas no Colab</div>
 
       <div class="sec">
-        <div class="sec-lbl">Repositório & Túneis</div>
-        <button type="button" class="nav-btn" id="btn-repo"><span>🐙 Abrir GitHub Repo</span><span class="badge-mini on">GIT</span></button>
+        <div class="sec-lbl">Ferramentas Ativas via Chat</div>
+        <div class="nav-btn"><span>🎬 Vídeo (Wan 2.2 / GGUF)</span><span class="badge-mini on">COLAB</span></div>
+        <div class="nav-btn"><span>🎨 Foto & Visão</span><span class="badge-mini on">COLAB</span></div>
+        <div class="nav-btn"><span>🎙️ Clonar Voz / TTS</span><span class="badge-mini on">COLAB</span></div>
+        <div class="nav-btn"><span>🌐 Busca na Web</span><span class="badge-mini on">WEB</span></div>
+        <div class="nav-btn"><span>⚡ Código / Status Colab</span><span class="badge-mini on">AUTO</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-lbl">Atalhos & Túneis</div>
+        <button type="button" class="nav-btn" id="btn-repo"><span>🐙 GitHub Repo</span><span class="badge-mini on">GIT</span></button>
         <button type="button" class="nav-btn" id="btn-cf"><span>🎞️ CreativeField</span><span id="badge-cf" class="badge-mini on">ON</span></button>
-        <button type="button" class="nav-btn" id="btn-cui"><span>⚙️ ComfyUI (--highvram)</span><span id="badge-cui" class="badge-mini on">ON</span></button>
+        <button type="button" class="nav-btn" id="btn-cui"><span>⚙️ ComfyUI</span><span id="badge-cui" class="badge-mini on">ON</span></button>
       </div>
     </aside>
 
@@ -323,13 +303,12 @@
       <header class="topbar">
         <div class="top-left">
           <button type="button" class="btn" id="btn-toggle">☰</button>
-          <span class="pill"><span id="dot-api" class="dot ok"></span><span id="txt-api">API: online</span></span>
-          <span class="pill"><span id="dot-drive" class="dot ok"></span><span id="txt-drive">Drive: 4 mod. (0 ausentes)</span></span>
+          <span class="pill"><span id="dot-api" class="dot ok"></span><span id="txt-api">API Colab: online</span></span>
           <span class="pill"><span id="dot-tools" class="dot ok"></span><span id="txt-tools">ComfyUI + CreativeField: ON</span></span>
         </div>
         <div class="top-actions">
           <button type="button" class="btn" id="btn-sync">📡 Sincronizar</button>
-          <button type="button" class="btn" id="btn-check">Status</button>
+          <button type="button" class="btn" id="btn-check">Status Colab</button>
           <button type="button" class="btn primary" id="btn-cfg">⚙️ Config</button>
         </div>
       </header>
@@ -345,7 +324,7 @@
             <input type="text" id="cfg-ntfy" value="lux-omega-kauan-v55" />
           </div>
           <div class="field">
-            <label for="cfg-api">URL da API FastAPI</label>
+            <label for="cfg-api">URL da API FastAPI (Colab)</label>
             <input type="url" id="cfg-api" value="https://regards-himself-mambo-investigator.trycloudflare.com" />
           </div>
           <div class="field">
@@ -360,186 +339,41 @@
       </section>
 
       <main id="scroll-area" class="scroll-area">
-        <div id="view-chat" class="container">
+        <div class="container">
           <div class="hero-banner">
             <div class="greeting">LUX-Ω v12.0 A100 ULTIMATE GGUF STUDIO (COMPLETO)</div>
-            <div style="font-size:0.86rem;color:var(--muted);">
-              API: <code>https://regards-himself-mambo-investigator.trycloudflare.com</code> •
-              ComfyUI: <code>https://kings-medium-procedure-homepage.trycloudflare.com</code> •
-              CreativeField: <code>https://biz-rose-wav-crest.trycloudflare.com</code> •
-              ntfy: <code>lux-omega-kauan-v55</code>
+            <div style="font-size:0.84rem;color:var(--muted);">
+              API: <code>https://regards-himself-mambo-investigator.trycloudflare.com</code> • ComfyUI: <code>https://kings-medium-procedure-homepage.trycloudflare.com</code> • CreativeField: <code>https://biz-rose-wav-crest.trycloudflare.com</code> • ntfy: <code>lux-omega-kauan-v55</code>
             </div>
             <div class="quick-row">
-              <button type="button" class="chip" data-cmd="/foto cachorro astronauta em órbita da terra, iluminação cinematográfica 8k">/foto Rápido</button>
-              <button type="button" class="chip" data-cmd="/video cachorro voando com asas sobre nuvens douradas ao pôr do sol, 24fps">/video Wan 2.2</button>
-              <button type="button" class="chip" data-cmd="/voz Olá, esta é uma demonstração de clonagem de voz no estúdio LUX-Omega v12.">/voz Clonar/TTS</button>
-              <button type="button" class="chip" data-cmd="/web novidades modelos de IA video e GGUF novembro 2026">/web Buscar</button>
+              <button type="button" class="chip" data-cmd="Quero gerar um vídeo de um cachorro voando com asas">🎬 Ex.: Gerar vídeo</button>
+              <button type="button" class="chip" data-cmd="Quero criar uma foto de um lobo branco na neve">🎨 Ex.: Gerar foto</button>
+              <button type="button" class="chip" data-cmd="Quero clonar uma voz falando: Olá, bem-vindo ao estúdio LUX-Omega">🎙️ Ex.: Clonar voz</button>
+              <button type="button" class="chip" data-cmd="Pesquise na web novidades sobre modelos Wan 2.2 e GGUF">🌐 Ex.: Pesquisar na web</button>
+              <button type="button" class="chip" data-cmd="Verifique o status do Colab e dos modelos no Drive">📊 Ex.: Status Colab</button>
               <button type="button" class="chip" id="btn-clear-chat">🧹 Limpar chat</button>
             </div>
           </div>
+
           <div id="chat-feed" style="display:flex;flex-direction:column;gap:14px;">
-            <div class="msg-a">Sessão atualizada com LUX-Ω v12.0 A100 ULTIMATE GGUF STUDIO (COMPLETO).
-API URL: https://regards-himself-mambo-investigator.trycloudflare.com
-ComfyUI URL: https://kings-medium-procedure-homepage.trycloudflare.com
-CreativeField URL: https://biz-rose-wav-crest.trycloudflare.com
-Canal ntfy.sh: lux-omega-kauan-v55</div>
-          </div>
-        </div>
-
-        <div id="view-studio" class="container hidden">
-          <div class="card">
-            <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">🎬 Geração de Vídeo & GGUF (Resultado no Site)</div>
-            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;">Enfileira o job no ComfyUI via <code>/executar</code>, consulta o histórico do ComfyUI e exibe o vídeo/animação e o JSON na própria página.</p>
-            <div class="panel-grid">
-              <div class="field">
-                <label for="st-model">Preset / Modelo</label>
-                <select id="st-model">
-                  <option value="wan22_ti2v_5b">Wan 2.2 TI2V-5B (24fps)</option>
-                  <option value="wan22_a14b_gguf">Wan 2.2 A14B GGUF + UMT5-XXL</option>
-                  <option value="inswapper_128">Face Swap / Dub (inswapper_128.onnx)</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="st-res">Resolução / Frames</label>
-                <select id="st-res">
-                  <option value="832x480x81">832×480 • 81 frames (24fps)</option>
-                  <option value="1280x704x81">1280×704 HD • 81 frames (24fps)</option>
-                  <option value="832x480x121">832×480 • 121 frames (24fps)</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="st-prompt">Prompt do Vídeo</label>
-                <input type="text" id="st-prompt" value="cachorro voando com asas" />
-              </div>
-            </div>
-            <div class="row-actions">
-              <button type="button" class="btn primary" id="btn-run-st">Gerar Vídeo no Site</button>
-              <button type="button" class="btn" id="btn-poll-video">🔄 Buscar Resultado no ComfyUI</button>
-              <button type="button" class="btn" id="btn-copy-st">Copiar JSON</button>
-            </div>
-            <div id="st-media" class="media-grid"></div>
-            <pre id="st-out" class="code-box" style="margin-top:12px;">Aguardando execução.</pre>
-          </div>
-        </div>
-
-        <div id="view-image" class="container hidden">
-          <div class="card">
-            <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">🎨 Gerador de Fotos & Visão Computacional</div>
-            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;">Gera imagens via API do Colab e permite anexar imagem de referência.</p>
-            <div class="panel-grid">
-              <div class="field">
-                <label for="img-style">Estilo Rápido</label>
-                <select id="img-style">
-                  <option value="cinematic photorealistic 8k">Cinematográfico / Fotorrealista</option>
-                  <option value="anime studio keyframe vibrant">Anime / Ilustração</option>
-                  <option value="cyberpunk neon lighting concept art">Cyberpunk / Conceito</option>
-                  <option value="architectural studio render">Arquitetura / Estúdio</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="img-prompt">Descrição da Foto</label>
-                <input type="text" id="img-prompt" placeholder="Ex.: lobo branco na neve ao amanhecer..." />
-              </div>
-              <div class="field">
-                <label for="img-file">Imagem de Referência (opcional)</label>
-                <input type="file" id="img-file" accept="image/*" />
-              </div>
-            </div>
-            <div class="row-actions">
-              <button type="button" class="btn primary" id="btn-gen-img">Gerar Foto</button>
-            </div>
-            <div id="img-result" class="media-grid"></div>
-          </div>
-        </div>
-
-        <div id="view-voice" class="container hidden">
-          <div class="card">
-            <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">🎙️ Clonar Voz & Síntese de Fala (TTS)</div>
-            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;">Envia amostra de voz de referência + texto para o backend do Colab e permite ouvir no navegador.</p>
-            <div class="panel-grid">
-              <div class="field">
-                <label for="voice-ref">Áudio de Referência para Clonagem (WAV/MP3)</label>
-                <input type="file" id="voice-ref" accept="audio/*" />
-              </div>
-              <div class="field">
-                <label for="voice-lang">Idioma / Estilo</label>
-                <select id="voice-lang">
-                  <option value="pt-BR">Português (pt-BR)</option>
-                  <option value="en-US">Inglês (en-US)</option>
-                  <option value="es-ES">Espanhol (es-ES)</option>
-                </select>
-              </div>
-            </div>
-            <div class="field" style="margin-top:10px;">
-              <label for="voice-text">Texto para Falar / Clonar</label>
-              <textarea id="voice-text" class="small-ta" rows="3" placeholder="Digite o texto que a voz clonada deve falar..."></textarea>
-            </div>
-            <div class="row-actions">
-              <button type="button" class="btn primary" id="btn-clone-voice">Clonar Voz via API</button>
-              <button type="button" class="btn" id="btn-tts-local">🔊 Ouvir no Navegador</button>
-            </div>
-            <div id="voice-result" class="media-grid"></div>
-          </div>
-        </div>
-
-        <div id="view-web" class="container hidden">
-          <div class="card">
-            <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">🌐 Busca na Web & Pesquisa em Tempo Real</div>
-            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;">Consulta a API do Colab (<code>mode: "web_search"</code>) com fallback automático para busca aberta.</p>
-            <div class="panel-grid">
-              <div class="field" style="grid-column: span 2;">
-                <label for="web-q">Consulta na Web</label>
-                <input type="text" id="web-q" placeholder="Ex.: ComfyUI Wan 2.2 GGUF workflow parameters" />
-              </div>
-            </div>
-            <div class="row-actions">
-              <button type="button" class="btn primary" id="btn-web-search">Buscar na Web</button>
-            </div>
-            <div id="web-out" class="msg-a" style="margin-top:12px;">Digite um termo e clique em <b>Buscar na Web</b>.</div>
-          </div>
-        </div>
-
-        <div id="view-colab" class="container hidden">
-          <div class="card">
-            <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">⚡ Aceleração de Alocação no Terminal do Colab</div>
-            <pre id="colab-cli" class="code-box">export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
-export HF_HUB_ENABLE_HF_TRANSFER=1
-apt-get update -qq && apt-get install -y -qq aria2 lsof psmisc > /dev/null 2>&1
-nvidia-smi --query-gpu=name,memory.total,memory.free --format=csv
-ss -tulpn | grep -E "8000|8188|3000" || true</pre>
-            <div class="row-actions">
-              <button type="button" class="btn primary" id="btn-copy-cli">Copiar comando de aceleração</button>
-              <button type="button" class="btn" id="btn-fix-ports">Copiar limpeza de portas (8000/8188/3000)</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="view-status" class="container hidden">
-          <div class="card">
-            <div style="font-weight:700;font-size:1rem;margin-bottom:8px;">📊 Status do Colab & Google Drive</div>
-            <pre id="st-dump" class="code-box">Clique em "Status" no topo para verificar /status em https://regards-himself-mambo-investigator.trycloudflare.com.</pre>
+            <div class="msg-a">Olá! Este é o chat único do LUX-Ω v12.0.
+Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, pergunto se houver dúvida sobre a ferramenta ou especificações (resolução, frames, estilo, idioma, modelo) e encaminho para o Colab baixar/carregar e executar o que for preciso.</div>
           </div>
         </div>
       </main>
 
-      <div id="composer" class="composer">
+      <div class="composer">
         <div class="composer-inner">
-          <div class="mode-bar">
-            <div class="mode-pills" id="mode-pills">
-              <button type="button" class="mode-pill active" data-mode="chat">💬 Chat</button>
-              <button type="button" class="mode-pill" data-mode="image">🎨 /foto</button>
-              <button type="button" class="mode-pill" data-mode="video_comfy">🎬 /video</button>
-              <button type="button" class="mode-pill" data-mode="voice_clone">🎙️ /voz</button>
-              <button type="button" class="mode-pill" data-mode="web_search">🌐 /web</button>
-            </div>
+          <div class="composer-top">
+            <span style="font-size:0.75rem;color:var(--muted);">Entendimento automático de intenção • Confirmação de especificações no próprio chat</span>
             <div style="display:flex;align-items:center;gap:8px;">
               <input type="file" id="chat-attach" class="hidden" />
-              <button type="button" class="btn" id="btn-attach">📎 Anexar</button>
+              <button type="button" class="btn" id="btn-attach">📎 Anexar mídia/áudio</button>
               <span id="attach-name" style="font-size:0.74rem;color:var(--muted);"></span>
             </div>
           </div>
           <div class="pill-box">
-            <textarea id="inp" rows="1" placeholder="Converse ou digite /foto, /video, /voz, /web, /status..."></textarea>
+            <textarea id="inp" rows="1" placeholder="Peça um vídeo, foto, clonagem de voz, pesquisa web, código ou status..."></textarea>
             <button type="button" class="btn primary" id="btn-send">Enviar</button>
           </div>
         </div>
@@ -559,17 +393,14 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
       const DEFAULT_API = 'https://regards-himself-mambo-investigator.trycloudflare.com';
       let comfyUrl = 'https://kings-medium-procedure-homepage.trycloudflare.com';
       let creativeUrl = 'https://biz-rose-wav-crest.trycloudflare.com';
-      let activeMode = 'chat';
       let attachedFile = null;
-      let lastPromptId = null;
+      let pendingRequest = null;
       const chatHistory = [];
 
       localStorage.setItem('lux_repo_url', DEFAULT_REPO);
       localStorage.setItem('lux_repo_ntfy', DEFAULT_NTFY);
       localStorage.setItem('lux_repo_api', DEFAULT_API);
-      if (!localStorage.getItem('lux_repo_route')) {
-        localStorage.setItem('lux_repo_route', '/executar');
-      }
+      if (!localStorage.getItem('lux_repo_route')) localStorage.setItem('lux_repo_route', '/executar');
 
       $('cfg-repo').value = DEFAULT_REPO;
       $('cfg-ntfy').value = DEFAULT_NTFY;
@@ -594,159 +425,158 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
         $('badge-cf').className = 'badge-mini' + (creativeUrl ? ' on' : '');
         $('badge-cui').textContent = comfyUrl ? 'ON' : 'OFF';
         $('badge-cui').className = 'badge-mini' + (comfyUrl ? ' on' : '');
-        const activeCount = (creativeUrl ? 1 : 0) + (comfyUrl ? 1 : 0);
-        if (activeCount === 2) {
-          setPill('dot-tools', 'txt-tools', 'ComfyUI + CreativeField: ON', 'ok');
-        } else if (activeCount === 1) {
-          setPill('dot-tools', 'txt-tools', '1 ferramenta ativa', '');
-        } else {
-          setPill('dot-tools', 'txt-tools', 'Ferramentas: OFF', 'err');
-        }
+        setPill('dot-tools', 'txt-tools', (comfyUrl && creativeUrl) ? 'ComfyUI + CreativeField: ON' : 'Ferramentas: parcial', (comfyUrl && creativeUrl) ? 'ok' : '');
       }
 
-      function addMsg(role, text, mediaHtml) {
+      function addMsg(role, text) {
         const div = document.createElement('div');
         div.className = role === 'user' ? 'msg-u' : 'msg-a';
         const tDiv = document.createElement('div');
         tDiv.textContent = text;
         div.appendChild(tDiv);
-        if (mediaHtml) {
-          const mWrap = document.createElement('div');
-          mWrap.innerHTML = mediaHtml;
-          div.appendChild(mWrap);
-        }
         $('chat-feed').appendChild(div);
         $('scroll-area').scrollTop = $('scroll-area').scrollHeight;
         return div;
       }
 
-      function showView(name) {
-        document.querySelectorAll('.nav-btn[data-view]').forEach((b) => {
-          b.classList.toggle('active', b.dataset.view === name);
-        });
-        ['chat', 'studio', 'image', 'voice', 'web', 'colab', 'status'].forEach((v) => {
-          $('view-' + v).classList.toggle('hidden', v !== name);
-        });
-        $('composer').classList.toggle('hidden', name !== 'chat');
-      }
-
-      document.querySelectorAll('.nav-btn[data-view]').forEach((b) => {
-        b.addEventListener('click', () => showView(b.dataset.view));
-      });
-
-      document.querySelectorAll('#mode-pills .mode-pill').forEach((p) => {
-        p.addEventListener('click', () => {
-          document.querySelectorAll('#mode-pills .mode-pill').forEach((x) => x.classList.remove('active'));
-          p.classList.add('active');
-          activeMode = p.dataset.mode;
-          const placeholders = {
-            chat: 'Converse ou digite /foto, /video, /voz, /web, /status...',
-            image: 'Descreva a imagem para gerar...',
-            video_comfy: 'Descreva o vídeo Wan 2.2 para gerar...',
-            voice_clone: 'Digite o texto para clonar/sintetizar voz...',
-            web_search: 'Digite o assunto para pesquisar na web...',
-          };
-          inp.placeholder = placeholders[activeMode] || placeholders.chat;
-        });
-      });
-
-      $('btn-attach').addEventListener('click', () => $('chat-attach').click());
-      $('chat-attach').addEventListener('change', (e) => {
-        attachedFile = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-        $('attach-name').textContent = attachedFile ? attachedFile.name : '';
-      });
-
-      $('btn-toggle').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
-      $('btn-cfg').addEventListener('click', () => cfgPanel.classList.toggle('open'));
-      $('btn-close-cfg').addEventListener('click', () => cfgPanel.classList.remove('open'));
-      $('btn-clear-chat').addEventListener('click', () => {
-        chatHistory.length = 0;
-        $('chat-feed').innerHTML = '<div class="msg-a">Histórico limpo. Pronto para novos comandos ou conversas.</div>';
-      });
-
-      $('btn-save-cfg').addEventListener('click', () => {
-        const repo = ($('cfg-repo').value.trim() || DEFAULT_REPO);
-        const ntfy = ($('cfg-ntfy').value.trim() || DEFAULT_NTFY);
-        const api = ($('cfg-api').value.trim() || DEFAULT_API).replace(/\/+$/, '');
-        const routeRaw = ($('cfg-route').value.trim() || '/executar');
-        const route = routeRaw.startsWith('/') ? routeRaw : '/' + routeRaw;
-        localStorage.setItem('lux_repo_url', repo);
-        localStorage.setItem('lux_repo_ntfy', ntfy);
-        localStorage.setItem('lux_repo_api', api);
-        localStorage.setItem('lux_repo_route', route);
-        cfgPanel.classList.remove('open');
-        setPill('dot-api', 'txt-api', 'API: configurada', 'ok');
-        addMsg('assistant', 'Configuração salva: API ' + api);
-      });
-
-      $('btn-sync').addEventListener('click', async () => {
-        const ch = ($('cfg-ntfy').value.trim() || DEFAULT_NTFY);
-        setPill('dot-api', 'txt-api', 'API: sincronizando...', '');
-        try {
-          const res = await fetch('https://ntfy.sh/' + encodeURIComponent(ch) + '/json?poll=1&since=24h');
-          const raw = await res.text();
-          let foundApi = DEFAULT_API;
-          for (const line of raw.split(String.fromCharCode(10))) {
-            if (!line.trim()) continue;
-            try {
-              const obj = JSON.parse(line);
-              if (obj.api_url) foundApi = obj.api_url;
-              if (obj.comfy_url) comfyUrl = obj.comfy_url;
-              if (obj.creativefield_url) creativeUrl = obj.creativefield_url;
-            } catch (_) {}
-          }
-          refreshToolBadges();
-          foundApi = foundApi.replace(/\/+$/, '');
-          localStorage.setItem('lux_repo_api', foundApi);
-          $('cfg-api').value = foundApi;
-          setPill('dot-api', 'txt-api', 'API: online', 'ok');
-          addMsg('assistant', 'Sincronizado | API: ' + foundApi + ' | ComfyUI: ' + comfyUrl + ' | CreativeField: ' + creativeUrl);
-        } catch (err) {
-          setPill('dot-api', 'txt-api', 'API: erro', 'err');
-          addMsg('assistant', 'Erro ao sincronizar: ' + err.message);
-        }
-      });
-
-      $('btn-check').addEventListener('click', async () => {
-        const api = getApiBase();
-        showView('status');
-        $('st-dump').textContent = 'Consultando ' + api + '/status ...';
-        try {
-          const res = await fetch(api + '/status');
-          const data = await res.json();
-          $('st-dump').textContent = JSON.stringify(data, null, 2);
-          setPill('dot-api', 'txt-api', 'API: online', res.ok ? 'ok' : 'err');
-          const d = data.drive || {};
-          const count = Object.keys(d.found_models || {}).length;
-          const missing = (d.missing_models || []).length;
-          setPill('dot-drive', 'txt-drive', 'Drive: ' + (d.drive_mounted ? count + ' mod. (' + missing + ' aus.)' : 'OFF'), d.drive_mounted ? 'ok' : 'err');
-          if (data.comfy_url) comfyUrl = data.comfy_url;
-          if (data.creativefield_url) creativeUrl = data.creativefield_url;
-          refreshToolBadges();
-        } catch (err) {
-          $('st-dump').textContent = 'Erro em /status: ' + err.message;
-          setPill('dot-api', 'txt-api', 'API: offline', 'err');
-        }
-      });
-
-      $('btn-repo').addEventListener('click', () => window.open(localStorage.getItem('lux_repo_url') || DEFAULT_REPO, '_blank', 'noopener'));
-      $('btn-cf').addEventListener('click', () => {
-        if (creativeUrl) window.open(creativeUrl, '_blank', 'noopener');
-        else addMsg('assistant', 'URL do CreativeField indisponível.');
-      });
-      $('btn-cui').addEventListener('click', () => {
-        if (comfyUrl) window.open(comfyUrl, '_blank', 'noopener');
-        else addMsg('assistant', 'URL do ComfyUI indisponível.');
-      });
-
-      async function fileToBase64(file) {
-        if (!file) return null;
+      function fileToBase64(file) {
+        if (!file) return Promise.resolve(null);
         return new Promise((resolve) => {
           const reader = new FileReader();
           reader.onload = () => resolve(reader.result);
           reader.onerror = () => resolve(null);
           reader.readAsDataURL(file);
         });
+      }
+
+      function detectIntentAndSpecs(text, hasFile) {
+        const low = text.toLowerCase();
+        let tool = 'chat';
+        let needsClarification = false;
+        let questions = [];
+
+        const hasVideo = /\b(vídeo|video|animação|animacao|wan|clipe|cena|fps|frames)\b/.test(low);
+        const hasImage = /\b(foto|imagem|desenho|ilustração|ilustracao|retrato|render|arte)\b/.test(low);
+        const hasVoice = /\b(voz|clonar|clone|áudio|audio|tts|falar|locução|locucao|dublar)\b/.test(low);
+        const hasWeb = /\b(pesquise|pesquisar|buscar|busca|web|notícias|noticias|google|atualizado)\b/.test(low);
+        const hasStatus = /\b(status|drive|modelos|gpu|vram|porta|túnel|tunel)\b/.test(low);
+
+        const matchedTools = [hasVideo && 'video_comfy', hasImage && 'image', hasVoice && 'voice_clone', hasWeb && 'web_search'].filter(Boolean);
+
+        if (hasStatus && matchedTools.length === 0) {
+          return { tool: 'status', needsClarification: false, questions: [], specs: {} };
+        }
+
+        if (matchedTools.length > 1) {
+          tool = matchedTools[0];
+          needsClarification = true;
+          questions.push('Vi mais de uma possibilidade no seu pedido. Qual ferramenta você quer priorizar agora (Vídeo, Foto, Clonar Voz ou Busca na Web)?');
+        } else if (matchedTools.length === 1) {
+          tool = matchedTools[0];
+        } else if (text.length > 0 && !/^(oi|olá|ola|tudo bem|bom dia|boa tarde|boa noite|valeu|obrigado|obrigada)\b/.test(low) && text.split(/\s+/).length >= 3) {
+          tool = 'video_comfy';
+          needsClarification = true;
+          questions.push('Você quer gerar um **vídeo** no ComfyUI/Wan 2.2, uma **foto**, **clonar voz**, **pesquisar na web** ou apenas **conversar**?');
+        }
+
+        const specs = {
+          model: /14b|gguf|a14b/.test(low) ? 'wan22_a14b_gguf' : 'wan22_ti2v_5b',
+          resolution: /1280|720p|hd/.test(low) ? '1280x704x81' : (/121/.test(low) ? '832x480x121' : '832x480x81'),
+          fps: /30\s*fps/.test(low) ? 30 : 24,
+          style: /anime/.test(low) ? 'anime studio keyframe vibrant' : (/cyberpunk/.test(low) ? 'cyberpunk neon lighting concept art' : 'cinematic photorealistic 8k'),
+          language: /inglês|ingles|en-us/.test(low) ? 'en-US' : (/espanhol|es-es/.test(low) ? 'es-ES' : 'pt-BR'),
+          auto_load_tools: true
+        };
+
+        if (tool === 'video_comfy') {
+          const hasResSpec = /\b(832|1280|720p|480p|hd|frames|fps)\b/.test(low);
+          if (!hasResSpec) {
+            needsClarification = true;
+            questions.push('Quais especificações de vídeo você prefere: **832×480 (81 frames, 24fps)**, **1280×704 HD (81 frames, 24fps)** ou **832×480 (121 frames, 24fps)**, e qual modelo (**Wan 2.2 TI2V-5B** ou **A14B GGUF**)?');
+          }
+        } else if (tool === 'image') {
+          const hasStyleSpec = /\b(realista|fotorrealista|anime|cyberpunk|arquitetura|estilo|8k)\b/.test(low);
+          if (!hasStyleSpec) {
+            needsClarification = true;
+            questions.push('Qual estilo visual você quer para a foto (**Cinematográfico / Fotorrealista**, **Anime**, **Cyberpunk** ou **Arquitetura**)?');
+          }
+        } else if (tool === 'voice_clone') {
+          if (!hasFile && !/["“']/.test(text) && !/\bfalando\b/.test(low)) {
+            needsClarification = true;
+            questions.push('Qual **texto** deve ser falado e qual **idioma** (**pt-BR**, **en-US** ou **es-ES**)? Se quiser clonar um timbre específico, anexe o áudio de referência pelo botão **📎 Anexar**.');
+          }
+        }
+
+        return { tool, needsClarification, questions, specs };
+      }
+
+      function renderClarificationBox(msgEl, plan, originalPrompt, fileB64, fileName) {
+        const box = document.createElement('div');
+        box.className = 'spec-box';
+        box.innerHTML = `
+          <div class="spec-title">Antes de rodar no Colab, confirme a ferramenta e as especificações:</div>
+          <div style="font-size:0.84rem;color:var(--text);">${plan.questions.map((q) => '• ' + q).join('<br>')}</div>
+          <div class="spec-grid">
+            <div class="spec-item">
+              <label>Ferramenta</label>
+              <select class="sp-tool">
+                <option value="video_comfy" ${plan.tool === 'video_comfy' ? 'selected' : ''}>🎬 Vídeo (Wan 2.2 / ComfyUI)</option>
+                <option value="image" ${plan.tool === 'image' ? 'selected' : ''}>🎨 Gerador de Foto</option>
+                <option value="voice_clone" ${plan.tool === 'voice_clone' ? 'selected' : ''}>🎙️ Clonar Voz / TTS</option>
+                <option value="web_search" ${plan.tool === 'web_search' ? 'selected' : ''}>🌐 Busca na Web</option>
+                <option value="chat" ${plan.tool === 'chat' ? 'selected' : ''}>💬 Apenas Chat</option>
+              </select>
+            </div>
+            <div class="spec-item">
+              <label>Modelo / Estilo / Idioma</label>
+              <input type="text" class="sp-variant" value="${plan.tool === 'image' ? plan.specs.style : (plan.tool === 'voice_clone' ? plan.specs.language : plan.specs.model)}" />
+            </div>
+            <div class="spec-item">
+              <label>Resolução / Frames (Vídeo)</label>
+              <select class="sp-res">
+                <option value="832x480x81" ${plan.specs.resolution === '832x480x81' ? 'selected' : ''}>832×480 • 81f (24fps)</option>
+                <option value="1280x704x81" ${plan.specs.resolution === '1280x704x81' ? 'selected' : ''}>1280×704 • 81f (24fps)</option>
+                <option value="832x480x121" ${plan.specs.resolution === '832x480x121' ? 'selected' : ''}>832×480 • 121f (24fps)</option>
+              </select>
+            </div>
+            <div class="spec-item">
+              <label>Descrição / Prompt Final</label>
+              <input type="text" class="sp-prompt" value="${originalPrompt.replace(/"/g, '&quot;')}" />
+            </div>
+          </div>
+          <div class="spec-actions">
+            <button type="button" class="btn primary sp-confirm">✅ Confirmar e Rodar no Colab</button>
+            <button type="button" class="btn sp-direct">⚡ Rodar Direto com Padrões</button>
+          </div>
+        `;
+        msgEl.appendChild(box);
+        $('scroll-area').scrollTop = $('scroll-area').scrollHeight;
+
+        const runFromBox = (useDefaults) => {
+          const chosenTool = useDefaults ? plan.tool : box.querySelector('.sp-tool').value;
+          const variantVal = box.querySelector('.sp-variant').value.trim();
+          const resVal = box.querySelector('.sp-res').value;
+          const promptVal = box.querySelector('.sp-prompt').value.trim() || originalPrompt;
+          const [w, h, l] = resVal.split('x').map((n) => parseInt(n, 10));
+
+          const finalSpecs = {
+            ...plan.specs,
+            model: chosenTool === 'video_comfy' ? (variantVal || plan.specs.model) : plan.specs.model,
+            style: chosenTool === 'image' ? (variantVal || plan.specs.style) : plan.specs.style,
+            language: chosenTool === 'voice_clone' ? (variantVal || plan.specs.language) : plan.specs.language,
+            width: w,
+            height: h,
+            length: l,
+            fps: plan.specs.fps || 24,
+            auto_load_tools: true
+          };
+          box.remove();
+          pendingRequest = null;
+          executeInColab(chosenTool, promptVal, finalSpecs, fileB64, fileName);
+        };
+
+        box.querySelector('.sp-confirm').addEventListener('click', () => runFromBox(false));
+        box.querySelector('.sp-direct').addEventListener('click', () => runFromBox(true));
       }
 
       async function pollComfyOutput(promptId, containerEl) {
@@ -784,186 +614,40 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
         }
       }
 
-      $('btn-run-st').addEventListener('click', async () => {
+      async function executeInColab(tool, cleanText, specs, fileB64, fileName) {
         const api = getApiBase();
-        const route = getRoute();
-        const prompt = $('st-prompt').value.trim() || 'cachorro voando com asas';
-        const model = $('st-model').value;
-        const [w, h, l] = ($('st-res').value || '832x480x81').split('x').map((n) => parseInt(n, 10));
-        $('st-out').textContent = 'Enfileirando em ' + api + route + ' ...';
-        try {
-          const res = await fetch(api + route, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              prompt,
-              mode: 'video_comfy',
-              model,
-              history: chatHistory.slice(-8),
-              params: { prompt, model, width: w, height: h, length: l, fps: 24, comfy_url: comfyUrl, creativefield_url: creativeUrl }
-            })
-          });
-          const data = await res.json();
-          $('st-out').textContent = JSON.stringify(data, null, 2);
-          const pid = data.comfy_prompt && data.comfy_prompt.prompt_id ? data.comfy_prompt.prompt_id : null;
-          if (pid) {
-            lastPromptId = pid;
-            $('st-media').innerHTML = '<div class="media-box"><div><b>Job enfileirado no ComfyUI:</b> <code>' + pid + '</code></div><div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">Aguardando renderização para exibir no site...</div></div>';
-            pollComfyOutput(pid, $('st-media'));
+        if (tool === 'status') {
+          const stDiv = addMsg('assistant', 'Consultando status do Colab e modelos no Drive...');
+          try {
+            const res = await fetch(api + '/status');
+            const data = await res.json();
+            if (data.comfy_url) comfyUrl = data.comfy_url;
+            if (data.creativefield_url) creativeUrl = data.creativefield_url;
+            refreshToolBadges();
+            stDiv.innerHTML = '<div><b>Status do Colab & Drive:</b></div><pre class="json-box">' + JSON.stringify(data, null, 2) + '</pre>';
+          } catch (err) {
+            stDiv.textContent = 'Erro ao consultar /status: ' + err.message;
           }
-        } catch (err) {
-          $('st-out').textContent = 'Erro: ' + err.message;
+          return;
         }
-      });
 
-      $('btn-poll-video').addEventListener('click', () => {
-        if (lastPromptId) pollComfyOutput(lastPromptId, $('st-media'));
-        else $('st-media').innerHTML = '<div class="media-box">Nenhum prompt_id recente ainda. Clique em "Gerar Vídeo no Site".</div>';
-      });
-
-      $('btn-copy-st').addEventListener('click', () => navigator.clipboard?.writeText($('st-out').textContent || ''));
-
-      $('btn-gen-img').addEventListener('click', async () => {
-        const pRaw = $('img-prompt').value.trim() || 'retrato cinematográfico';
-        const style = $('img-style').value;
-        const fullPrompt = pRaw + ', ' + style;
-        const b64 = await fileToBase64($('img-file').files && $('img-file').files[0]);
-        $('img-result').innerHTML = '<div class="media-box">Gerando imagem para: <b>' + fullPrompt + '</b>...</div>';
+        const outDiv = addMsg('assistant', 'Encaminhando para o Colab (' + tool + ') — carregando/baixando ferramenta se necessário e processando...');
         try {
-          const res = await fetch(getApiBase() + getRoute(), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: fullPrompt, mode: 'image', params: { prompt: fullPrompt, style, image_base64: b64 } })
-          });
-          const data = await res.json();
-          const imgSrc = data.image_url || data.image || (data.image_base64 ? (data.image_base64.startsWith('data:') ? data.image_base64 : 'data:image/png;base64,' + data.image_base64) : null);
-          if (imgSrc) {
-            $('img-result').innerHTML = '<div class="media-box"><div><b>Resultado:</b> ' + pRaw + '</div><img src="' + imgSrc + '" alt="' + pRaw + '" /></div>';
-          } else {
-            $('img-result').innerHTML = '<div class="media-box"><pre class="code-box">' + JSON.stringify(data, null, 2) + '</pre></div>';
-          }
-        } catch (err) {
-          $('img-result').innerHTML = '<div class="media-box">Erro ao gerar imagem: ' + err.message + '</div>';
-        }
-      });
-
-      $('btn-tts-local').addEventListener('click', () => {
-        const txt = ($('voice-text').value || '').trim();
-        const lang = $('voice-lang').value || 'pt-BR';
-        if (!txt || !window.speechSynthesis) return;
-        const u = new SpeechSynthesisUtterance(txt);
-        u.lang = lang;
-        window.speechSynthesis.speak(u);
-      });
-
-      $('btn-clone-voice').addEventListener('click', async () => {
-        const txt = ($('voice-text').value || '').trim() || 'Teste de clonagem de voz LUX-Omega v12.';
-        const lang = $('voice-lang').value || 'pt-BR';
-        const refB64 = await fileToBase64($('voice-ref').files && $('voice-ref').files[0]);
-        $('voice-result').innerHTML = '<div class="media-box">Enviando solicitação de clonagem de voz...</div>';
-        try {
-          const res = await fetch(getApiBase() + getRoute(), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: txt, mode: 'voice_clone', params: { text: txt, language: lang, reference_audio_base64: refB64 } })
-          });
-          const data = await res.json();
-          const audioSrc = data.audio_url || data.audio || (data.audio_base64 ? (data.audio_base64.startsWith('data:') ? data.audio_base64 : 'data:audio/wav;base64,' + data.audio_base64) : null);
-          if (audioSrc) {
-            $('voice-result').innerHTML = '<div class="media-box"><div><b>Áudio Clonado (' + lang + ')</b></div><audio src="' + audioSrc + '" controls autoplay></audio></div>';
-          } else {
-            $('voice-result').innerHTML = '<div class="media-box"><pre class="code-box">' + JSON.stringify(data, null, 2) + '</pre></div>';
-          }
-        } catch (err) {
-          $('voice-result').innerHTML = '<div class="media-box">Erro na clonagem de voz: ' + err.message + '</div>';
-        }
-      });
-
-      async function runWebSearch(query) {
-        const q = (query || '').trim();
-        if (!q) return;
-        showView('web');
-        $('web-out').textContent = 'Pesquisando na web por: ' + q + ' ...';
-        try {
-          const res = await fetch(getApiBase() + getRoute(), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: q, mode: 'web_search', params: { query: q } })
-          });
-          const data = await res.json();
-          if (data.web_results || data.results) {
-            $('web-out').textContent = JSON.stringify(data.web_results || data.results, null, 2);
-            return;
-          }
-        } catch (_) {}
-        try {
-          const ddg = await fetch('https://api.duckduckgo.com/?q=' + encodeURIComponent(q) + '&format=json&no_html=1');
-          const dData = await ddg.json();
-          const lines = [];
-          if (dData.AbstractText) lines.push('Resumo: ' + dData.AbstractText + (dData.AbstractURL ? ' (' + dData.AbstractURL + ')' : ''));
-          (dData.RelatedTopics || []).slice(0, 5).forEach((t) => {
-            if (t.Text) lines.push('• ' + t.Text + (t.FirstURL ? ' — ' + t.FirstURL : ''));
-          });
-          $('web-out').textContent = lines.length ? lines.join(String.fromCharCode(10, 10)) : JSON.stringify(dData, null, 2);
-        } catch (err) {
-          $('web-out').textContent = 'Erro na busca web: ' + err.message;
-        }
-      }
-
-      $('btn-web-search').addEventListener('click', () => runWebSearch($('web-q').value));
-
-      $('btn-copy-cli').addEventListener('click', () => navigator.clipboard?.writeText($('colab-cli').textContent || ''));
-      $('btn-fix-ports').addEventListener('click', () => {
-        const fixCmd = 'fuser -k 8000/tcp 8188/tcp 3000/tcp 2>/dev/null || true; pkill -f "cloudflared|uvicorn|main.py" 2>/dev/null || true; echo "Portas liberadas"';
-        $('colab-cli').textContent = fixCmd;
-        navigator.clipboard?.writeText(fixCmd);
-      });
-
-      document.querySelectorAll('.chip[data-cmd]').forEach((c) => {
-        c.addEventListener('click', () => {
-          inp.value = c.dataset.cmd;
-          sendPrompt();
-        });
-      });
-
-      async function sendPrompt() {
-        let rawText = inp.value.trim();
-        if (!rawText && !attachedFile) return;
-        let mode = activeMode;
-        let cleanText = rawText;
-
-        if (rawText.startsWith('/foto ')) { mode = 'image'; cleanText = rawText.slice(6).trim(); }
-        else if (rawText.startsWith('/video ')) { mode = 'video_comfy'; cleanText = rawText.slice(7).trim(); }
-        else if (rawText.startsWith('/voz ')) { mode = 'voice_clone'; cleanText = rawText.slice(5).trim(); }
-        else if (rawText.startsWith('/web ')) { mode = 'web_search'; cleanText = rawText.slice(5).trim(); }
-        else if (rawText === '/status') { $('btn-check').click(); inp.value = ''; return; }
-
-        const displayText = rawText || ('[Arquivo anexado: ' + attachedFile.name + ']');
-        addMsg('user', displayText);
-        chatHistory.push({ role: 'user', content: displayText });
-
-        const fileB64 = await fileToBase64(attachedFile);
-        const fileName = attachedFile ? attachedFile.name : null;
-        inp.value = '';
-        inp.style.height = 'auto';
-        attachedFile = null;
-        $('chat-attach').value = '';
-        $('attach-name').textContent = '';
-
-        const outDiv = addMsg('assistant', 'Processando (' + mode + ')...');
-        try {
-          const res = await fetch(getApiBase() + getRoute(), {
+          const res = await fetch(api + getRoute(), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               prompt: cleanText,
               message: cleanText,
               text: cleanText,
-              mode,
+              mode: tool,
+              tool,
+              model: specs.model,
               history: chatHistory.slice(-10),
               params: {
+                ...specs,
                 prompt: cleanText,
-                mode,
+                mode: tool,
                 file_name: fileName,
                 file_base64: fileB64,
                 comfy_url: comfyUrl,
@@ -972,7 +656,8 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
             })
           });
           const data = await res.json();
-          const replyText = data.reply || data.response || data.output || data.text || JSON.stringify(data, null, 2);
+          const replyText = data.reply || data.response || data.output || data.text || 'Resposta recebida do Colab.';
+
           let mediaHtml = '';
           const imgSrc = data.image_url || data.image || (data.image_base64 ? (data.image_base64.startsWith('data:') ? data.image_base64 : 'data:image/png;base64,' + data.image_base64) : null);
           const vidSrc = data.video_url || data.video;
@@ -985,32 +670,155 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
           const txtEl = document.createElement('div');
           txtEl.textContent = replyText;
           outDiv.appendChild(txtEl);
+
           if (mediaHtml) {
             const mEl = document.createElement('div');
             mEl.innerHTML = mediaHtml;
             outDiv.appendChild(mEl);
           }
+
+          const preEl = document.createElement('pre');
+          preEl.className = 'json-box';
+          preEl.textContent = JSON.stringify(data, null, 2);
+          outDiv.appendChild(preEl);
+
           chatHistory.push({ role: 'assistant', content: replyText });
 
           const pid = data.comfy_prompt && data.comfy_prompt.prompt_id ? data.comfy_prompt.prompt_id : null;
           if (pid) {
-            lastPromptId = pid;
             const liveBox = document.createElement('div');
             liveBox.className = 'media-box';
-            liveBox.innerHTML = '<div><b>Job ComfyUI:</b> <code>' + pid + '</code> — buscando preview/saída no site...</div>';
+            liveBox.innerHTML = '<div><b>Job ComfyUI:</b> <code>' + pid + '</code> — acompanhando saída no site...</div>';
             outDiv.appendChild(liveBox);
             pollComfyOutput(pid, liveBox);
           }
         } catch (err) {
-          outDiv.textContent = 'Erro na API: ' + err.message;
+          outDiv.textContent = 'Erro ao comunicar com o Colab: ' + err.message;
         }
       }
 
-      $('btn-send').addEventListener('click', sendPrompt);
+      async function handleSend() {
+        const rawText = inp.value.trim();
+        if (!rawText && !attachedFile) return;
+
+        const fileB64 = await fileToBase64(attachedFile);
+        const fileName = attachedFile ? attachedFile.name : null;
+        const hasFile = Boolean(attachedFile);
+        const displayText = rawText || ('[Arquivo anexado: ' + fileName + ']');
+
+        addMsg('user', displayText);
+        chatHistory.push({ role: 'user', content: displayText });
+
+        inp.value = '';
+        inp.style.height = 'auto';
+        attachedFile = null;
+        $('chat-attach').value = '';
+        $('attach-name').textContent = '';
+
+        if (pendingRequest) {
+          const mergedPrompt = pendingRequest.prompt + ' — ' + rawText;
+          const mergedPlan = detectIntentAndSpecs(mergedPrompt, hasFile || pendingRequest.hasFile);
+          const toolOverride = /\b(vídeo|video)\b/i.test(rawText) ? 'video_comfy'
+            : (/\b(foto|imagem)\b/i.test(rawText) ? 'image'
+            : (/\b(voz|clonar|áudio|audio)\b/i.test(rawText) ? 'voice_clone'
+            : (/\b(web|pesquis|busc)\b/i.test(rawText) ? 'web_search' : mergedPlan.tool)));
+          pendingRequest = null;
+          await executeInColab(toolOverride, mergedPrompt, mergedPlan.specs, fileB64 || pendingRequest?.fileB64 || null, fileName || pendingRequest?.fileName || null);
+          return;
+        }
+
+        const plan = detectIntentAndSpecs(rawText, hasFile);
+        if (plan.needsClarification) {
+          pendingRequest = { prompt: rawText, fileB64, fileName, hasFile };
+          const askEl = addMsg('assistant', 'Entendi o seu pedido. Para levar à ferramenta certa e configurar o Colab corretamente:');
+          renderClarificationBox(askEl, plan, rawText, fileB64, fileName);
+          return;
+        }
+
+        await executeInColab(plan.tool, rawText, plan.specs, fileB64, fileName);
+      }
+
+      $('btn-attach').addEventListener('click', () => $('chat-attach').click());
+      $('chat-attach').addEventListener('change', (e) => {
+        attachedFile = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+        $('attach-name').textContent = attachedFile ? attachedFile.name : '';
+      });
+
+      $('btn-toggle').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+      $('btn-cfg').addEventListener('click', () => cfgPanel.classList.toggle('open'));
+      $('btn-close-cfg').addEventListener('click', () => cfgPanel.classList.remove('open'));
+      $('btn-clear-chat').addEventListener('click', () => {
+        pendingRequest = null;
+        chatHistory.length = 0;
+        $('chat-feed').innerHTML = '<div class="msg-a">Chat limpo. Peça o que você precisa e eu cuido do roteamento para o Colab.</div>';
+      });
+
+      $('btn-save-cfg').addEventListener('click', () => {
+        const repo = ($('cfg-repo').value.trim() || DEFAULT_REPO);
+        const ntfy = ($('cfg-ntfy').value.trim() || DEFAULT_NTFY);
+        const api = ($('cfg-api').value.trim() || DEFAULT_API).replace(/\/+$/, '');
+        const routeRaw = ($('cfg-route').value.trim() || '/executar');
+        const route = routeRaw.startsWith('/') ? routeRaw : '/' + routeRaw;
+        localStorage.setItem('lux_repo_url', repo);
+        localStorage.setItem('lux_repo_ntfy', ntfy);
+        localStorage.setItem('lux_repo_api', api);
+        localStorage.setItem('lux_repo_route', route);
+        cfgPanel.classList.remove('open');
+        setPill('dot-api', 'txt-api', 'API Colab: configurada', 'ok');
+        addMsg('assistant', 'Configuração atualizada: ' + api);
+      });
+
+      $('btn-sync').addEventListener('click', async () => {
+        const ch = ($('cfg-ntfy').value.trim() || DEFAULT_NTFY);
+        setPill('dot-api', 'txt-api', 'API: sincronizando...', '');
+        try {
+          const res = await fetch('https://ntfy.sh/' + encodeURIComponent(ch) + '/json?poll=1&since=24h');
+          const raw = await res.text();
+          let foundApi = DEFAULT_API;
+          for (const line of raw.split(String.fromCharCode(10))) {
+            if (!line.trim()) continue;
+            try {
+              const obj = JSON.parse(line);
+              if (obj.api_url) foundApi = obj.api_url;
+              if (obj.comfy_url) comfyUrl = obj.comfy_url;
+              if (obj.creativefield_url) creativeUrl = obj.creativefield_url;
+            } catch (_) {}
+          }
+          refreshToolBadges();
+          foundApi = foundApi.replace(/\/+$/, '');
+          localStorage.setItem('lux_repo_api', foundApi);
+          $('cfg-api').value = foundApi;
+          setPill('dot-api', 'txt-api', 'API Colab: online', 'ok');
+          addMsg('assistant', 'Sincronizado via ntfy.sh (' + ch + ') | API: ' + foundApi);
+        } catch (err) {
+          setPill('dot-api', 'txt-api', 'API: erro', 'err');
+          addMsg('assistant', 'Erro ao sincronizar: ' + err.message);
+        }
+      });
+
+      $('btn-check').addEventListener('click', () => executeInColab('status', 'status', {}, null, null));
+      $('btn-repo').addEventListener('click', () => window.open(localStorage.getItem('lux_repo_url') || DEFAULT_REPO, '_blank', 'noopener'));
+      $('btn-cf').addEventListener('click', () => {
+        if (creativeUrl) window.open(creativeUrl, '_blank', 'noopener');
+        else addMsg('assistant', 'URL do CreativeField indisponível.');
+      });
+      $('btn-cui').addEventListener('click', () => {
+        if (comfyUrl) window.open(comfyUrl, '_blank', 'noopener');
+        else addMsg('assistant', 'URL do ComfyUI indisponível.');
+      });
+
+      document.querySelectorAll('.chip[data-cmd]').forEach((c) => {
+        c.addEventListener('click', () => {
+          inp.value = c.dataset.cmd;
+          handleSend();
+        });
+      });
+
+      $('btn-send').addEventListener('click', handleSend);
       inp.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          sendPrompt();
+          handleSend();
         }
       });
       inp.addEventListener('input', () => {
