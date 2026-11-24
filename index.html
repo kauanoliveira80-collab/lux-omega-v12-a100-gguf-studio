@@ -6,17 +6,18 @@
   <title>LUX-Ω v12.0 — lux-omega-v12-a100-gguf-studio</title>
   <style>
     :root {
-      --bg: #131314;
-      --surface: #1e1f20;
-      --surface-2: #282a2c;
-      --border: #333537;
-      --text: #e3e3e3;
-      --muted: #9aa0a6;
-      --accent: #a8c7fa;
-      --accent-ink: #062e6f;
-      --ok: #81c995;
-      --warn: #fdd663;
-      --err: #f28b82;
+      --bg: #0f1012;
+      --surface: #181a1f;
+      --surface-2: #22252c;
+      --border: #2e333d;
+      --text: #eef1f5;
+      --muted: #9aa3b2;
+      --accent: #7ab0ff;
+      --accent-2: #6ee7b7;
+      --accent-ink: #071b38;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --err: #f87171;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
@@ -24,46 +25,79 @@
       width: 100%;
       background: var(--bg);
       color: var(--text);
-      font-family: "Google Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: "Inter", "Google Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     .app { display: flex; height: 100vh; width: 100%; overflow: hidden; }
     .sidebar {
-      width: 280px;
-      background: var(--surface);
+      width: 285px;
+      background: linear-gradient(180deg, #17191e 0%, #131519 100%);
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       padding: 14px;
       gap: 8px;
       flex-shrink: 0;
+      transition: width 0.2s ease, padding 0.2s ease;
     }
     .sidebar.collapsed { width: 0; padding: 0; border-right: none; overflow: hidden; }
-    .repo-title { font-size: 0.92rem; font-weight: 700; color: var(--accent); padding: 4px 8px; word-break: break-word; }
-    .repo-sub { font-size: 0.72rem; color: var(--muted); padding: 0 8px 8px; border-bottom: 1px solid var(--border); }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+    }
+    .brand-orb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #a5f3fc, var(--accent) 55%, var(--accent-2));
+      box-shadow: 0 0 14px rgba(122, 176, 255, 0.65);
+      flex-shrink: 0;
+    }
+    .repo-title { font-size: 0.92rem; font-weight: 700; color: var(--text); word-break: break-word; }
+    .repo-sub { font-size: 0.72rem; color: var(--muted); padding: 0 8px 10px; border-bottom: 1px solid var(--border); }
     .nav-btn {
       width: 100%;
       text-align: left;
       background: transparent;
       border: 1px solid transparent;
       color: var(--text);
-      border-radius: 999px;
-      padding: 9px 14px;
+      border-radius: 12px;
+      padding: 9px 12px;
       font-size: 0.85rem;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
-    .nav-btn:hover { background: var(--surface-2); }
-    .nav-btn.active { background: var(--surface-2); font-weight: 600; }
-    .sec { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; margin-top: 4px; border-top: 1px solid var(--border); }
-    .sec-lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 0 8px; }
+    .nav-btn:hover { background: var(--surface-2); border-color: #363c48; }
+    .nav-btn.active {
+      background: linear-gradient(90deg, rgba(122,176,255,0.16), rgba(110,231,183,0.08));
+      border-color: rgba(122,176,255,0.45);
+      font-weight: 600;
+    }
+    .badge-mini {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .sec { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; margin-top: 4px; border-top: 1px solid var(--border); }
+    .sec-lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px; }
     .main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; }
     .topbar {
-      height: 58px;
-      padding: 0 18px;
+      min-height: 58px;
+      padding: 8px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      background: var(--bg);
+      flex-wrap: wrap;
+      background: rgba(15, 16, 18, 0.92);
+      border-bottom: 1px solid var(--border);
       flex-shrink: 0;
     }
     .top-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
@@ -80,9 +114,9 @@
       white-space: nowrap;
     }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
-    .dot.ok { background: var(--ok); }
-    .dot.err { background: var(--err); }
-    .top-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .dot.ok { background: var(--ok); box-shadow: 0 0 8px rgba(52, 211, 153, 0.55); }
+    .dot.err { background: var(--err); box-shadow: 0 0 8px rgba(248, 113, 113, 0.55); }
+    .top-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
     button.btn {
       appearance: none;
       background: var(--surface);
@@ -93,14 +127,21 @@
       font-size: 0.81rem;
       font-weight: 500;
       cursor: pointer;
+      transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
     }
-    button.btn:hover { background: var(--surface-2); border-color: #4a4e52; }
-    button.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+    button.btn:hover { background: var(--surface-2); border-color: #485060; }
+    button.btn:active { transform: scale(0.98); }
+    button.btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: var(--accent-ink);
+      border: none;
+      font-weight: 700;
+    }
     .panel { display: none; background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 18px; flex-shrink: 0; }
     .panel.open { display: block; }
-    .panel-grid { max-width: 860px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+    .panel-grid { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
     .field label { display: block; font-size: 0.73rem; color: var(--muted); margin-bottom: 4px; }
-    .field input, .field select {
+    .field input, .field select, .field textarea.small-ta {
       width: 100%;
       background: var(--bg);
       color: var(--text);
@@ -110,53 +151,78 @@
       font-size: 0.86rem;
       outline: none;
     }
-    .panel-foot { max-width: 860px; margin: 10px auto 0; display: flex; justify-content: flex-end; gap: 8px; }
+    .field input:focus, .field select:focus { border-color: var(--accent); }
+    .panel-foot { max-width: 900px; margin: 10px auto 0; display: flex; justify-content: flex-end; gap: 8px; }
     .scroll-area { flex: 1; overflow-y: auto; padding: 20px 18px 110px; }
-    .container { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(122,176,255,0.12), rgba(110,231,183,0.06));
+      border: 1px solid rgba(122,176,255,0.28);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
     .greeting {
-      font-size: clamp(1.45rem, 2.8vw, 2rem);
-      font-weight: 600;
+      font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+      font-weight: 700;
       line-height: 1.25;
-      background: linear-gradient(90deg, #a8c7fa 0%, #d3e3fd 45%, #81c995 100%);
+      background: linear-gradient(90deg, #93c5fd 0%, #e0f2fe 45%, #6ee7b7 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 4px;
     }
+    .quick-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .chip:hover { border-color: var(--accent); background: rgba(122,176,255,0.12); }
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
     .msg-u {
       align-self: flex-end;
-      background: var(--surface-2);
-      border: 1px solid #3c4043;
-      border-radius: 20px 20px 6px 20px;
+      background: linear-gradient(135deg, #243044, #1e2636);
+      border: 1px solid rgba(122,176,255,0.35);
+      border-radius: 18px 18px 4px 18px;
       padding: 12px 16px;
-      max-width: 80%;
+      max-width: 82%;
       white-space: pre-wrap;
       word-break: break-word;
-      font-size: 0.94rem;
+      font-size: 0.93rem;
       line-height: 1.5;
     }
     .msg-a {
       align-self: flex-start;
       width: 100%;
-      padding: 4px 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
       white-space: pre-wrap;
       word-break: break-word;
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       line-height: 1.62;
     }
-    .composer { padding: 10px 18px 18px; background: var(--bg); flex-shrink: 0; }
+    .composer { padding: 10px 18px 18px; background: var(--bg); border-top: 1px solid var(--border); flex-shrink: 0; }
     .pill-box {
-      max-width: 860px;
+      max-width: 900px;
       margin: 0 auto;
       display: flex;
       align-items: flex-end;
       gap: 10px;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 26px;
+      border-radius: 24px;
       padding: 8px 12px 8px 18px;
     }
-    textarea {
+    .pill-box:focus-within { border-color: var(--accent); }
+    textarea#inp {
       flex: 1;
       background: transparent;
       border: none;
@@ -169,22 +235,51 @@
       resize: none;
       outline: none;
     }
+    pre.code-box {
+      background: #0d0f12;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: #d6deeb;
+      white-space: pre;
+    }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="app">
     <aside id="sidebar" class="sidebar">
-      <div class="repo-title">lux-omega-v12-a100-gguf-studio</div>
-      <div class="repo-sub">kauanoliveira80-collab • LUX-Ω v12.0</div>
-      <button type="button" class="nav-btn active" data-view="chat">💬 Chat & /executar</button>
-      <button type="button" class="nav-btn" data-view="studio">🎬 Studio & GGUF</button>
-      <button type="button" class="nav-btn" data-view="status">📊 Status & Google Drive</button>
+      <div class="brand">
+        <span class="brand-orb"></span>
+        <div class="repo-title">LUX-Ω v12.0 Studio</div>
+      </div>
+      <div class="repo-sub">kauanoliveira80-collab • lux-omega-v12-a100-gguf-studio</div>
+      <button type="button" class="nav-btn active" data-view="chat">
+        <span>💬 Chat & /executar</span>
+        <span class="badge-mini">LIVE</span>
+      </button>
+      <button type="button" class="nav-btn" data-view="studio">
+        <span>🎬 Studio & GGUF</span>
+        <span class="badge-mini">WAN 2.2</span>
+      </button>
+      <button type="button" class="nav-btn" data-view="colab">
+        <span>⚡ Colab Acelerador & Logs</span>
+        <span class="badge-mini">CLI</span>
+      </button>
+      <button type="button" class="nav-btn" data-view="status">
+        <span>📊 Status & Google Drive</span>
+        <span class="badge-mini">JSON</span>
+      </button>
       <div class="sec">
         <div class="sec-lbl">Repositório & Túneis</div>
-        <button type="button" class="nav-btn" id="btn-repo">🐙 Abrir GitHub Repo</button>
-        <button type="button" class="nav-btn" id="btn-cf">🎞️ CreativeField</button>
-        <button type="button" class="nav-btn" id="btn-cui">⚙️ ComfyUI (--highvram)</button>
+        <button type="button" class="nav-btn" id="btn-repo"><span>🐙 Abrir GitHub Repo</span><span class="badge-mini">GIT</span></button>
+        <button type="button" class="nav-btn" id="btn-cf"><span>🎞️ CreativeField</span><span id="badge-cf" class="badge-mini">OFF</span></button>
+        <button type="button" class="nav-btn" id="btn-cui"><span>⚙️ ComfyUI (--highvram)</span><span id="badge-cui" class="badge-mini">OFF</span></button>
       </div>
     </aside>
 
@@ -194,6 +289,7 @@
           <button type="button" class="btn" id="btn-toggle">☰</button>
           <span class="pill"><span id="dot-api" class="dot"></span><span id="txt-api">API: pendente</span></span>
           <span class="pill"><span id="dot-drive" class="dot"></span><span id="txt-drive">Drive: -</span></span>
+          <span class="pill"><span id="dot-tools" class="dot"></span><span id="txt-tools">Ferramentas: verificando</span></span>
         </div>
         <div class="top-actions">
           <button type="button" class="btn" id="btn-sync">📡 Sincronizar</button>
@@ -229,46 +325,72 @@
 
       <main id="scroll-area" class="scroll-area">
         <div id="view-chat" class="container">
-          <div class="greeting">LUX-Ω v12.0 • lux-omega-v12-a100-gguf-studio</div>
-          <div class="msg-a">Conectado ao fluxo do repositório <b>lux-omega-v12-a100-gguf-studio</b>. Clique em <b>📡 Sincronizar</b> para capturar a API no canal <code>lux-omega-kauan-v55</code> ou abra <b>⚙️ Config</b>.</div>
+          <div class="hero-banner">
+            <div class="greeting">LUX-Ω v12.0 • Console Dinâmico Colab & GGUF</div>
+            <div style="font-size:0.88rem;color:var(--muted);">Conectado ao fluxo <b>lux-omega-v12-a100-gguf-studio</b>. Sincronize o canal <code>lux-omega-kauan-v55</code>, abra as ferramentas ou dispare comandos diretos.</div>
+            <div class="quick-row">
+              <button type="button" class="chip" id="q-status">📊 Checar /status e Drive</button>
+              <button type="button" class="chip" id="q-colab">⚡ Ver comandos de aceleração Colab</button>
+              <button type="button" class="chip" id="q-wan">🎬 Preparar prompt Wan 2.2</button>
+            </div>
+          </div>
+          <div class="msg-a">Pronto para operar. Use <b>📡 Sincronizar</b> para capturar a API, o ComfyUI e o CreativeField do canal <code>lux-omega-kauan-v55</code>, ou abra <b>⚙️ Config</b> para colar a URL do túnel manualmente.</div>
         </div>
 
         <div id="view-studio" class="container hidden">
           <div class="card">
-            <div style="font-weight:700;margin-bottom:6px;">Studio GGUF & ComfyUI (lux-omega-v12-a100-gguf-studio)</div>
-            <p style="font-size:0.86rem;color:var(--muted);margin-bottom:12px;">Envia comandos de geração para o backend do Colab e checa a disponibilidade de modelos no Google Drive.</p>
+            <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">🎬 Studio GGUF & ComfyUI</div>
+            <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">Envia comandos de geração para a API do Colab e exibe o retorno bruto.</p>
             <div class="panel-grid">
               <div class="field">
-                <label for="st-model">Preset</label>
+                <label for="st-model">Preset / Modelo</label>
                 <select id="st-model">
-                  <option value="wan22_a14b_gguf">Wan 2.2 A14B GGUF + UMT5-XXL</option>
                   <option value="wan22_ti2v_5b">Wan 2.2 TI2V-5B (720p / 24fps)</option>
+                  <option value="wan22_a14b_gguf">Wan 2.2 A14B GGUF + UMT5-XXL</option>
                   <option value="ltx_25">LTX-2.5</option>
                 </select>
               </div>
               <div class="field">
                 <label for="st-prompt">Prompt</label>
-                <input type="text" id="st-prompt" placeholder="Descreva a cena..." />
+                <input type="text" id="st-prompt" placeholder="Ex.: câmera lenta cinematográfica em chuva noturna..." />
               </div>
             </div>
-            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-              <button type="button" class="btn primary" id="btn-run-st">Executar</button>
+            <div class="row-actions">
+              <button type="button" class="btn primary" id="btn-run-st">Executar no Colab</button>
+              <button type="button" class="btn" id="btn-copy-st">Copiar JSON</button>
             </div>
-            <pre id="st-out" style="margin-top:12px;white-space:pre-wrap;font-size:0.83rem;color:var(--muted);">Aguardando execução.</pre>
+            <pre id="st-out" class="code-box" style="margin-top:12px;">Aguardando execução.</pre>
+          </div>
+        </div>
+
+        <div id="view-colab" class="container hidden">
+          <div class="card">
+            <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">⚡ Aceleração de Alocação no Terminal do Colab</div>
+            <p style="font-size:0.85rem;color:var(--muted);margin-bottom:10px;">Use no terminal/célula do Colab para acelerar downloads com <code>aria2c</code>, otimizar alocação CUDA (<code>PYTORCH_CUDA_ALLOC_CONF</code>) e diagnosticar portas/erros.</p>
+            <pre id="colab-cli" class="code-box"># 1. Acelerar alocação CUDA + aria2c (16 conexões) + verificar GPU/portas
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+export HF_HUB_ENABLE_HF_TRANSFER=1
+apt-get update -qq && apt-get install -y -qq aria2 lsof psmisc > /dev/null 2>&1
+nvidia-smi --query-gpu=name,memory.total,memory.free --format=csv
+ss -tulpn | grep -E "8000|8188|3000" || true</pre>
+            <div class="row-actions">
+              <button type="button" class="btn primary" id="btn-copy-cli">Copiar comando de aceleração</button>
+              <button type="button" class="btn" id="btn-fix-ports">Copiar limpeza de portas (8000/8188/3000)</button>
+            </div>
           </div>
         </div>
 
         <div id="view-status" class="container hidden">
           <div class="card">
-            <div style="font-weight:700;margin-bottom:8px;">Status do Colab & Arquivos no Google Drive</div>
-            <pre id="st-dump" style="white-space:pre-wrap;font-size:0.84rem;color:var(--muted);">Clique em "Status" no topo para verificar /status.</pre>
+            <div style="font-weight:700;font-size:1rem;margin-bottom:8px;">📊 Status do Colab & Google Drive</div>
+            <pre id="st-dump" class="code-box">Clique em "Status" no topo para verificar /status.</pre>
           </div>
         </div>
       </main>
 
       <div id="composer" class="composer">
         <div class="pill-box">
-          <textarea id="inp" rows="1" placeholder="Pergunte ou envie um comando..."></textarea>
+          <textarea id="inp" rows="1" placeholder="Pergunte, envie um comando ou cole um erro para diagnosticar..."></textarea>
           <button type="button" class="btn primary" id="btn-send">Enviar</button>
         </div>
       </div>
@@ -294,6 +416,19 @@
         $(txtId).textContent = label;
       }
 
+      function refreshToolBadges() {
+        $('badge-cf').textContent = creativeUrl ? 'ON' : 'OFF';
+        $('badge-cui').textContent = comfyUrl ? 'ON' : 'OFF';
+        const activeCount = (creativeUrl ? 1 : 0) + (comfyUrl ? 1 : 0);
+        if (activeCount === 2) {
+          setPill('dot-tools', 'txt-tools', 'ComfyUI + CreativeField: ON', 'ok');
+        } else if (activeCount === 1) {
+          setPill('dot-tools', 'txt-tools', '1 ferramenta ativa', '');
+        } else {
+          setPill('dot-tools', 'txt-tools', 'Portas 8188/3000 pendentes', 'err');
+        }
+      }
+
       function addMsg(role, text) {
         const div = document.createElement('div');
         div.className = role === 'user' ? 'msg-u' : 'msg-a';
@@ -309,6 +444,7 @@
         });
         $('view-chat').classList.toggle('hidden', name !== 'chat');
         $('view-studio').classList.toggle('hidden', name !== 'studio');
+        $('view-colab').classList.toggle('hidden', name !== 'colab');
         $('view-status').classList.toggle('hidden', name !== 'status');
         $('composer').classList.toggle('hidden', name !== 'chat');
       }
@@ -333,7 +469,7 @@
         localStorage.setItem('lux_repo_route', route);
         cfgPanel.classList.remove('open');
         if (api) setPill('dot-api', 'txt-api', 'API: configurada', 'ok');
-        addMsg('assistant', 'Configuração salva para lux-omega-v12-a100-gguf-studio.');
+        addMsg('assistant', 'Configuração salva para ' + repo);
       });
 
       $('btn-sync').addEventListener('click', async () => {
@@ -342,24 +478,25 @@
         try {
           const res = await fetch('https://ntfy.sh/' + encodeURIComponent(ch) + '/json?poll=1&since=24h');
           const raw = await res.text();
-          let found = null;
+          let foundApi = null;
           for (const line of raw.split(String.fromCharCode(10))) {
             if (!line.trim()) continue;
             try {
               const obj = JSON.parse(line);
-              if (obj.api_url) found = obj.api_url;
+              if (obj.api_url) foundApi = obj.api_url;
               if (obj.comfy_url) comfyUrl = obj.comfy_url;
               if (obj.creativefield_url) creativeUrl = obj.creativefield_url;
               const urls = (obj.message || '').match(/https?:\/\/[a-zA-Z0-9.-]+\.(?:trycloudflare\.com|loca\.lt|ngrok-free\.app|ngrok\.io)|http:\/\/bore\.pub:\d+/g);
-              if (urls && urls.length && !found) found = urls[0];
+              if (urls && urls.length && !foundApi) foundApi = urls[0];
             } catch (_) {}
           }
-          if (found) {
-            found = found.replace(/\/+$/, '');
-            localStorage.setItem('lux_repo_api', found);
-            $('cfg-api').value = found;
+          refreshToolBadges();
+          if (foundApi) {
+            foundApi = foundApi.replace(/\/+$/, '');
+            localStorage.setItem('lux_repo_api', foundApi);
+            $('cfg-api').value = foundApi;
             setPill('dot-api', 'txt-api', 'API: online', 'ok');
-            addMsg('assistant', 'Sincronizado com ' + found);
+            addMsg('assistant', 'Sincronizado com API: ' + foundApi + (comfyUrl ? ' | ComfyUI: ' + comfyUrl : '') + (creativeUrl ? ' | CreativeField: ' + creativeUrl : ''));
           } else {
             setPill('dot-api', 'txt-api', 'API: sem URL', '');
             addMsg('assistant', 'Nenhuma URL encontrada no canal ' + ch + '.');
@@ -386,6 +523,9 @@
           const d = data.drive || {};
           const count = Object.keys(d.found_models || {}).length;
           setPill('dot-drive', 'txt-drive', 'Drive: ' + (d.drive_mounted ? count + ' mod.' : 'OFF'), d.drive_mounted ? 'ok' : 'err');
+          if (data.comfy_url) comfyUrl = data.comfy_url;
+          if (data.creativefield_url) creativeUrl = data.creativefield_url;
+          refreshToolBadges();
         } catch (err) {
           $('st-dump').textContent = 'Erro em /status: ' + err.message;
           setPill('dot-api', 'txt-api', 'API: offline', 'err');
@@ -397,11 +537,11 @@
       });
       $('btn-cf').addEventListener('click', () => {
         if (creativeUrl) window.open(creativeUrl, '_blank', 'noopener');
-        else addMsg('assistant', 'URL do CreativeField não recebida.');
+        else addMsg('assistant', 'CreativeField ainda sem URL ativa (porta 3000). Veja a aba "Colab Acelerador & Logs" ou rode a célula do notebook.');
       });
       $('btn-cui').addEventListener('click', () => {
         if (comfyUrl) window.open(comfyUrl, '_blank', 'noopener');
-        else addMsg('assistant', 'URL do ComfyUI não recebida.');
+        else addMsg('assistant', 'ComfyUI ainda sem URL ativa (porta 8188). Veja a aba "Colab Acelerador & Logs" ou rode a célula do notebook.');
       });
 
       $('btn-run-st').addEventListener('click', async () => {
@@ -414,7 +554,7 @@
           $('st-out').textContent = 'Configure ou sincronize a API primeiro.';
           return;
         }
-        $('st-out').textContent = 'Enviando...';
+        $('st-out').textContent = 'Enviando para ' + api + route + ' ...';
         try {
           const res = await fetch(api + route, {
             method: 'POST',
@@ -428,6 +568,27 @@
         }
       });
 
+      $('btn-copy-st').addEventListener('click', () => {
+        navigator.clipboard?.writeText($('st-out').textContent || '');
+      });
+
+      $('btn-copy-cli').addEventListener('click', () => {
+        navigator.clipboard?.writeText($('colab-cli').textContent || '');
+      });
+
+      $('btn-fix-ports').addEventListener('click', () => {
+        const fixCmd = 'fuser -k 8000/tcp 8188/tcp 3000/tcp 2>/dev/null || true; pkill -f "cloudflared|uvicorn|main.py" 2>/dev/null || true; echo "Portas liberadas"';
+        $('colab-cli').textContent = fixCmd;
+        navigator.clipboard?.writeText(fixCmd);
+      });
+
+      $('q-status').addEventListener('click', () => $('btn-check').click());
+      $('q-colab').addEventListener('click', () => showView('colab'));
+      $('q-wan').addEventListener('click', () => {
+        $('st-prompt').value = 'Cinematic slow dolly shot in rain-lit alley, reflections on wet asphalt, 24fps, crisp detail';
+        showView('studio');
+      });
+
       async function sendPrompt() {
         const text = inp.value.trim();
         if (!text) return;
@@ -439,7 +600,7 @@
         inp.style.height = 'auto';
         const out = addMsg('assistant', 'Processando...');
         if (!api) {
-          out.textContent = 'Configure ou sincronize a URL da API em ⚙️ Config.';
+          out.textContent = 'Sem URL de API configurada. Clique em 📡 Sincronizar ou abra ⚙️ Config para colar a URL do Colab.';
           return;
         }
         try {
@@ -470,6 +631,7 @@
       if (($('cfg-api').value || '').trim()) {
         setPill('dot-api', 'txt-api', 'API: configurada', 'ok');
       }
+      refreshToolBadges();
     })();
   </script>
 </body>
