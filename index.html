@@ -1,919 +1,386 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b0d12">
-  <title>LUX-Ω v6 — Omni-Stack & Iceberg OSINT</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LUX-Ω v7 — Estúdio Uncensored (Imagem & Vídeo)</title>
   <style>
     :root {
-      --bg: #0b0d12;
-      --panel: #12151e;
-      --card: #171b26;
-      --card-2: #1e2332;
-      --border: #282f42;
-      --accent: #6366f1;
-      --accent-hover: #5255e0;
-      --cyan: #38bdf8;
-      --green: #34d399;
-      --yellow: #fbbf24;
-      --red: #f87171;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
+      --bg: #121215;
+      --panel: #1b1b20;
+      --card: #23232a;
+      --border: #32323c;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --accent: #8b5cf6;
+      --accent-2: #ec4899;
+      --ok: #10b981;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; }
     body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
-      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
     }
     header {
-      background: var(--panel);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .brand h1 {
-      font-size: 1.08rem;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      color: var(--text);
-    }
-    .badges {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .badge {
-      font-size: 0.72rem;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-weight: 600;
-    }
-    .badge.on { color: var(--green); border-color: rgba(52, 211, 153, 0.35); }
-    .badge.warn { color: var(--yellow); border-color: rgba(251, 191, 36, 0.35); }
-    .badge.off { color: var(--red); border-color: rgba(248, 113, 113, 0.35); }
-    .header-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    button, .link-btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 9px;
-      padding: 7px 12px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: 0.15s;
-    }
-    button:hover, .link-btn:hover { background: var(--accent-hover); }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    button.sec, .link-btn.sec {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    button.sec:hover, .link-btn.sec:hover { background: var(--card-2); }
-    .link-btn.disabled { opacity: 0.4; pointer-events: none; }
-
-    #config-panel {
-      background: #0e1118;
-      border-bottom: 1px solid var(--border);
-      padding: 14px 16px;
-      display: none;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 10px;
-      max-height: 55vh;
-      overflow-y: auto;
-    }
-    #config-panel.open { display: grid; }
-    .field { display: flex; flex-direction: column; gap: 4px; }
-    .field label { font-size: 0.74rem; color: var(--muted); }
-    input, select {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 9px;
-      padding: 8px 11px;
-      font-size: 0.88rem;
-      width: 100%;
-    }
-    input:focus, select:focus { outline: none; border-color: var(--accent); }
-
-    .mode-bar {
-      background: #0d1017;
-      border-bottom: 1px solid var(--border);
-      padding: 8px 16px;
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .mode-tab {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--muted);
-      padding: 6px 11px;
-      border-radius: 9px;
-      font-size: 0.8rem;
-      white-space: nowrap;
-    }
-    .mode-tab.active {
-      background: rgba(99, 102, 241, 0.16);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    #extra-bar {
-      background: #10131c;
-      border-bottom: 1px solid var(--border);
-      padding: 8px 16px;
-      display: none;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      font-size: 0.8rem;
-    }
-    #extra-bar.open { display: flex; }
-
-    #chat-wrapper {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 16px 28px;
-    }
-    #chat {
-      max-width: 860px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .msg-row {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .msg-row.user { align-items: flex-end; }
-    .msg-row.ai { align-items: flex-start; }
-    .msg-meta {
-      font-size: 0.72rem;
-      color: var(--muted);
-      padding: 0 4px;
-    }
-    .msg {
-      padding: 12px 16px;
-      line-height: 1.58;
-      font-size: 0.93rem;
-      word-wrap: break-word;
-    }
-    .msg.user {
-      max-width: 78%;
-      background: linear-gradient(135deg, #4f46e5, #6366f1);
-      color: #fff;
-      border-radius: 18px 18px 5px 18px;
-      white-space: pre-wrap;
-    }
-    .msg.ai {
-      width: 100%;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-    }
-    .msg pre {
-      white-space: pre-wrap;
-      font-family: inherit;
-      margin: 0;
-    }
-    .hit-card {
-      background: #111520;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-top: 8px;
-    }
-    .hit-layer {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 5px;
-      background: rgba(56, 189, 248, 0.14);
-      color: var(--cyan);
-      margin-right: 6px;
-    }
-    .hit-layer.onion { color: #d8b4fe; background: rgba(192, 132, 252, 0.16); }
-    .hit-title { font-weight: 700; color: #fff; margin-top: 4px; display: block; }
-    .hit-url { font-size: 0.78rem; color: var(--cyan); word-break: break-all; margin: 3px 0; display: block; }
-    .hit-snippet { font-size: 0.83rem; color: var(--muted); }
-    .media-out {
-      max-width: 100%;
-      border-radius: 10px;
-      margin-top: 8px;
-      border: 1px solid var(--border);
-    }
-
-    .composer-wrap {
+      gap: 12px;
+      padding: 14px 20px;
       background: var(--panel);
-      border-top: 1px solid var(--border);
-      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
     }
-    form {
-      max-width: 860px;
-      margin: 0 auto;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      background: var(--bg);
+    .brand { font-weight: 700; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; }
+    .badge {
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(139, 92, 246, 0.18);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+    }
+    .controls-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    input, select, textarea, button {
+      font-family: inherit;
+      border-radius: 10px;
       border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 6px 8px 6px 14px;
+      background: var(--card);
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 0.9rem;
     }
-    form:focus-within { border-color: var(--accent); }
-    #prompt {
-      flex: 1;
-      background: transparent;
+    button {
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
       border: none;
-      padding: 8px 6px;
-      font-size: 0.94rem;
+      font-weight: 600;
     }
-    #prompt:focus { border: none; outline: none; }
-    #send-btn { border-radius: 999px; padding: 9px 16px; }
+    button.secondary { background: var(--card); border: 1px solid var(--border); }
+    main {
+      max-width: 1120px;
+      margin: 24px auto;
+      padding: 0 18px 40px;
+      display: grid;
+      gap: 18px;
+    }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab-btn.active { outline: 2px solid var(--accent); }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    label { font-size: 0.82rem; color: var(--muted); display: block; margin-bottom: 4px; }
+    textarea { min-height: 96px; width: 100%; resize: vertical; }
+    .row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    img, video {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0b0b0d;
+    }
+    pre {
+      margin: 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: #0d0d10;
+      border: 1px solid var(--border);
+      color: #d1d5db;
+      font-size: 0.8rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
   <header>
     <div class="brand">
-      <h1>LUX-Ω v6</h1>
-      <div class="badges">
-        <span class="badge warn" id="b-api">● Conectando...</span>
-        <span class="badge" id="b-gpu">GPU: --</span>
-      </div>
+      <span>LUX-Ω v7 Uncensored</span>
+      <span class="badge">Imagem + Vídeo (ComfyUI / Diffusers)</span>
     </div>
-    <div class="header-actions">
-      <a class="link-btn sec disabled" id="btn-cf" href="#" target="_blank" rel="noopener">🎬 CreativeField</a>
-      <a class="link-btn sec disabled" id="btn-comfy" href="#" target="_blank" rel="noopener">⚙️ ComfyUI</a>
-      <button type="button" class="sec" onclick="syncNtfy(false)">📡 Sincronizar</button>
-      <button type="button" class="sec" onclick="toggleConfig()">⚙ Config</button>
+    <div class="controls-top">
+      <input id="apiUrlInput" type="text" placeholder="https://xxxx.trycloudflare.com" style="min-width: 260px;" />
+      <button class="secondary" onclick="syncNtfy()">📡 Sincronizar ntfy</button>
+      <button class="secondary" onclick="checkHealth()">🩺 Status</button>
     </div>
   </header>
 
-  <div id="config-panel">
-    <div class="field">
-      <label>Canal ntfy (Auto-Sync):</label>
-      <input type="text" id="cfg-channel" value="lux-omega-kauan-v55">
+  <main>
+    <div class="tabs">
+      <button id="tab-img" class="tab-btn active" onclick="switchTab('img')">🖼️ Gerador de Imagem Uncensored</button>
+      <button id="tab-vid" class="tab-btn secondary" onclick="switchTab('vid')">🎬 Gerador de Vídeo Uncensored</button>
+      <button id="tab-god" class="tab-btn secondary" onclick="switchTab('god')">⚡ /GOD & JSON</button>
     </div>
-    <div class="field">
-      <label>API Unificada Colab (Porta 8000):</label>
-      <input type="url" id="cfg-api" placeholder="https://xxxx.trycloudflare.com">
-    </div>
-    <div class="field">
-      <label>URL CreativeField (Porta 3000):</label>
-      <input type="url" id="cfg-cf" placeholder="https://xxxx.trycloudflare.com">
-    </div>
-    <div class="field">
-      <label>URL ComfyUI (Porta 8188):</label>
-      <input type="url" id="cfg-comfy" placeholder="https://xxxx.trycloudflare.com">
-    </div>
-    <div class="field">
-      <label>Chave API Gemini (Opcional / Fallback):</label>
-      <input type="password" id="cfg-gemini" placeholder="AIza...">
-    </div>
-    <div class="field" style="justify-content: flex-end;">
-      <button type="button" onclick="saveConfig()">💾 Salvar & Testar Conexão</button>
-    </div>
-  </div>
 
-  <div class="mode-bar" id="mode-bar">
-    <button type="button" class="mode-tab active" data-mode="iceberg_search">🧊 Iceberg Search (.onion + Web)</button>
-    <button type="button" class="mode-tab" data-mode="osint_inspect">🧅 Inspecionar URL (.onion / .i2p)</button>
-    <button type="button" class="mode-tab" data-mode="iceberg_agent">🕵️ Agente OSINT</button>
-    <button type="button" class="mode-tab" data-mode="chat">💬 Chat IA (Qwen 27B)</button>
-    <button type="button" class="mode-tab" data-mode="imagem">🎨 Imagem HD</button>
-    <button type="button" class="mode-tab" data-mode="voice_clone">🎙️ Clonar Voz</button>
-    <button type="button" class="mode-tab" data-mode="whisper">🎧 Transcrever Áudio</button>
-    <button type="button" class="mode-tab" data-mode="god">/GOD</button>
-  </div>
+    <section id="panel-img" class="grid-2">
+      <div class="card">
+        <h3>Gerador de Imagem Uncensored</h3>
+        <div>
+          <label>Preset Realista / Detalhe</label>
+          <select id="imgPreset" onchange="applyImagePreset()">
+            <option value="">Personalizado (sem filtro de prompt)</option>
+            <option value="raw 4k photograph, natural lighting, realistic skin and fabric texture, shallow depth of field, 35mm lens">4K Realista + Iluminação Natural + Profundidade</option>
+            <option value="golden hour sunlight, warm natural shadows, crisp focus, high detail">Luz Dourada Natural</option>
+            <option value="editorial studio portrait, soft key light, realistic pores and hair strands, f/1.8">Retrato de Estúdio</option>
+          </select>
+        </div>
+        <div>
+          <label>Prompt (sem restrição de filtro)</label>
+          <textarea id="imgPrompt" placeholder="Descreva a imagem em detalhes..."></textarea>
+        </div>
+        <div>
+          <label>Modelo HuggingFace / Checkpoint (opcional)</label>
+          <input id="imgModel" type="text" placeholder="Ex.: stabilityai/sdxl-turbo ou ID uncensored" />
+        </div>
+        <div class="row">
+          <div>
+            <label>Largura</label>
+            <input id="imgWidth" type="number" value="1024" />
+          </div>
+          <div>
+            <label>Altura</label>
+            <input id="imgHeight" type="number" value="1024" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Steps</label>
+            <input id="imgSteps" type="number" value="4" />
+          </div>
+          <div>
+            <label>Guidance Scale</label>
+            <input id="imgCfg" type="number" step="0.1" value="0.0" />
+          </div>
+        </div>
+        <button onclick="generateImage()">🎨 Gerar Imagem Uncensored</button>
+      </div>
 
-  <div id="extra-bar">
-    <label id="lbl-render-js" style="display:none; align-items:center; gap:6px; cursor:pointer;">
-      <input type="checkbox" id="opt-render-js" style="width:auto;"> Renderizar JavaScript (Playwright Headless)
-    </label>
-    <div id="img-inputs" style="display:none; gap:8px; flex-wrap:wrap; width:100%; align-items:center;">
-      <select id="img-preset" style="max-width:320px;">
-        <option value="photo_4k_real" selected>Preset: 4K Ultra Realista (Luz Natural + Profundidade)</option>
-        <option value="golden_hour_real">Preset: Luz Dourada Natural / Cena Real</option>
-        <option value="editorial_depth">Preset: Fotografia Real / Retrato 85mm f/1.4</option>
-        <option value="clean_no_artifacts">Preset: Sem Artefatos / Alta Fidelidade</option>
-        <option value="raw_prompt">Preset: Prompt Puro (Sem Refinamento)</option>
-      </select>
-      <select id="img-res" style="max-width:170px;">
-        <option value="1280x720" selected>1280x720 (HD/4K Style)</option>
-        <option value="1024x1024">1024x1024 (1:1)</option>
-        <option value="832x1216">832x1216 (Vertical)</option>
-      </select>
-    </div>
-    <div id="voice-inputs" style="display:none; gap:8px; flex-wrap:wrap; width:100%; align-items:center;">
-      <input type="text" id="voice-url" placeholder="URL do vídeo/áudio de referência (YouTube/MP4/MP3)..." style="max-width:340px;">
-      <input type="file" id="voice-file" accept="audio/*,video/*" style="max-width:250px;">
-      <select id="voice-lang" style="max-width:130px;">
-        <option value="pt" selected>Idioma: PT</option>
-        <option value="en">Idioma: EN</option>
-        <option value="es">Idioma: ES</option>
-      </select>
-    </div>
-  </div>
+      <div class="card">
+        <h3>Resultado da Imagem</h3>
+        <img id="imgPreview" class="hidden" alt="Imagem gerada" />
+        <pre id="imgLog">Aguardando geração...</pre>
+      </div>
+    </section>
 
-  <div id="chat-wrapper">
-    <div id="chat"></div>
-  </div>
+    <section id="panel-vid" class="grid-2 hidden">
+      <div class="card">
+        <h3>Gerador de Vídeo Uncensored (ComfyUI / Wan 2.2 / Diffusers)</h3>
+        <div>
+          <label>Prompt de Vídeo</label>
+          <textarea id="vidPrompt" placeholder="Descreva o movimento, câmera, cena e iluminação..."></textarea>
+        </div>
+        <div>
+          <label>Modelo de Vídeo (opcional — usa Wan 2.2 no ComfyUI 8188 se vazio)</label>
+          <input id="vidModel" type="text" placeholder="Ex.: Wan-AI/Wan2.1-T2V-1.3B-Diffusers" />
+        </div>
+        <div class="row">
+          <div>
+            <label>Frames (4n+1 no Wan)</label>
+            <input id="vidFrames" type="number" value="25" />
+          </div>
+          <div>
+            <label>FPS</label>
+            <input id="vidFps" type="number" value="16" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Largura</label>
+            <input id="vidWidth" type="number" value="512" />
+          </div>
+          <div>
+            <label>Altura</label>
+            <input id="vidHeight" type="number" value="320" />
+          </div>
+        </div>
+        <button onclick="generateVideo()">🎥 Gerar Vídeo Uncensored</button>
+      </div>
 
-  <div class="composer-wrap">
-    <form onsubmit="handleSubmit(event)">
-      <input type="text" id="prompt" placeholder="Digite um termo para varrer Surface Web + Ahmia (.onion)..." autocomplete="off" required>
-      <button type="submit" id="send-btn">Executar</button>
-    </form>
-  </div>
+      <div class="card">
+        <h3>Resultado do Vídeo</h3>
+        <video id="vidPreview" class="hidden" controls></video>
+        <pre id="vidLog">Aguardando geração...</pre>
+      </div>
+    </section>
+
+    <section id="panel-god" class="card hidden">
+      <h3>Comando /GOD & Diagnóstico</h3>
+      <textarea id="godCmd" placeholder="Ex.: nvidia-smi && ls -la /content/outputs"></textarea>
+      <button onclick="runGod()">⚡ Executar /GOD</button>
+      <pre id="godLog">Pronto.</pre>
+    </section>
+  </main>
 
   <script>
-    const DEFAULT_API = "";
-    const DEFAULT_CF = "";
-    const DEFAULT_COMFY = "";
+    const NTFY_CHANNEL = "lux-omega-kauan-v55";
+    const apiInput = document.getElementById("apiUrlInput");
+    apiInput.value = localStorage.getItem("lux_api_url") || "";
+    apiInput.addEventListener("change", () => localStorage.setItem("lux_api_url", apiInput.value.trim()));
 
-    const imaginarySelf = {
-      name: "LUX-Ω",
-      version: "v6",
-      nature: "imaginative_ai_persona",
-      summary: "Identidade criativa e orquestradora do painel LUX-Ω v6 conectada ao Colab, ComfyUI, CreativeField e ferramentas OSINT."
-    };
-
-    let currentMode = "iceberg_search";
-
-    const state = {
-      channel: localStorage.getItem("lux_channel") || "lux-omega-kauan-v55",
-      api: localStorage.getItem("lux_api_url") || DEFAULT_API,
-      cf: localStorage.getItem("lux_cf_url") || DEFAULT_CF,
-      comfy: localStorage.getItem("lux_comfy_url") || DEFAULT_COMFY,
-      gemini: localStorage.getItem("lux_gemini_key") || ""
-    };
-
-    const placeholders = {
-      iceberg_search: "Digite um termo para varrer Surface Web + Ahmia (.onion)...",
-      osint_inspect: "Cole uma URL http://, https://, .onion ou .i2p para extrair...",
-      iceberg_agent: "Tema para o Agente OSINT pesquisar, raspar e resumir...",
-      chat: "Converse com o Qwen 3.8 27B na A100 (ou use: pesquisar iceberg ..., acessar onion ...)...",
-      imagem: "Descreva a cena real (ex: rua molhada ao entardecer, reflexos naturais, profundidade de campo)...",
-      voice_clone: "Digite o texto que a voz clonada deve falar...",
-      whisper: "Cole o link do vídeo/áudio para transcrever com Whisper...",
-      god: "/GOD — Digite qualquer comando direto para execução irrestrita..."
-    };
-
-    const imagePresets = {
-      photo_4k_real: {
-        suffix: "4k ultra realistic candid photograph, natural lighting, realistic shadows and highlights, shallow depth of field, authentic textures, sharp focus on subject, natural color grading, no artificial plastic skin, no distortion, no extra limbs, no text or watermark",
-        steps: 8
-      },
-      golden_hour_real: {
-        suffix: "natural golden hour sunlight, realistic warm highlights and soft cool shadows, rich depth of field, true-to-life candid photography, clean anatomical proportions, no artifacts or filters",
-        steps: 8
-      },
-      editorial_depth: {
-        suffix: "authentic real-world photograph shot on 85mm lens f/1.4, natural directional sunlight, rich depth of field, true-to-life skin and fabric texture, natural film grain, clean composition without artifacts or anatomical errors",
-        steps: 8
-      },
-      clean_no_artifacts: {
-        suffix: "high resolution realistic photograph, balanced exposure, natural ambient lighting, crisp detail, clean geometry, zero artifacts, zero blur on main subject, natural depth",
-        steps: 8
-      },
-      raw_prompt: {
-        suffix: "",
-        steps: 6
-      }
-    };
-
-    function buildImageRequest(rawPrompt) {
-      const presetKey = document.getElementById("img-preset")?.value || "photo_4k_real";
-      const resVal = document.getElementById("img-res")?.value || "1280x720";
-      const [wStr, hStr] = resVal.split("x");
-      const preset = imagePresets[presetKey] || imagePresets.photo_4k_real;
-      const finalPrompt = preset.suffix ? `${rawPrompt}, ${preset.suffix}` : rawPrompt;
-      return {
-        prompt: finalPrompt,
-        params: {
-          preset: presetKey,
-          width: parseInt(wStr, 10) || 1280,
-          height: parseInt(hStr, 10) || 720,
-          steps: preset.steps,
-          imaginary_self_awareness: true,
-          self_identity: imaginarySelf
-        }
-      };
+    function getApiBase() {
+      const val = (apiInput.value || "").trim().replace(/\/+$/, "");
+      if (!val) throw new Error("Informe ou sincronize a URL da API do Colab.");
+      return val;
     }
 
-    function initInputs() {
-      document.getElementById("cfg-channel").value = state.channel;
-      document.getElementById("cfg-api").value = state.api;
-      document.getElementById("cfg-cf").value = state.cf;
-      document.getElementById("cfg-comfy").value = state.comfy;
-      document.getElementById("cfg-gemini").value = state.gemini;
-      updateExternalLinks();
-    }
-
-    function updateExternalLinks() {
-      const btnCf = document.getElementById("btn-cf");
-      const btnComfy = document.getElementById("btn-comfy");
-      if (state.cf) {
-        btnCf.href = state.cf;
-        btnCf.classList.remove("disabled");
-      } else {
-        btnCf.classList.add("disabled");
-      }
-      if (state.comfy) {
-        btnComfy.href = state.comfy;
-        btnComfy.classList.remove("disabled");
-      } else {
-        btnComfy.classList.add("disabled");
-      }
-    }
-
-    function toggleConfig() {
-      document.getElementById("config-panel").classList.toggle("open");
-    }
-
-    function saveConfig() {
-      state.channel = document.getElementById("cfg-channel").value.trim() || "lux-omega-kauan-v55";
-      state.api = document.getElementById("cfg-api").value.trim().replace(/\/$/, "");
-      state.cf = document.getElementById("cfg-cf").value.trim().replace(/\/$/, "");
-      state.comfy = document.getElementById("cfg-comfy").value.trim().replace(/\/$/, "");
-      state.gemini = document.getElementById("cfg-gemini").value.trim();
-
-      localStorage.setItem("lux_channel", state.channel);
-      localStorage.setItem("lux_api_url", state.api);
-      localStorage.setItem("lux_cf_url", state.cf);
-      localStorage.setItem("lux_comfy_url", state.comfy);
-      localStorage.setItem("lux_gemini_key", state.gemini);
-
-      updateExternalLinks();
-      document.getElementById("config-panel").classList.remove("open");
-      checkHealth(true);
-    }
-
-    document.querySelectorAll(".mode-tab").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".mode-tab").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentMode = btn.dataset.mode;
-        document.getElementById("prompt").placeholder = placeholders[currentMode] || "Digite seu comando...";
-
-        const extra = document.getElementById("extra-bar");
-        const lblJs = document.getElementById("lbl-render-js");
-        const imgInputs = document.getElementById("img-inputs");
-        const vInputs = document.getElementById("voice-inputs");
-
-        lblJs.style.display = currentMode === "osint_inspect" ? "flex" : "none";
-        imgInputs.style.display = currentMode === "imagem" ? "flex" : "none";
-        vInputs.style.display = currentMode === "voice_clone" ? "flex" : "none";
-        extra.classList.toggle("open", currentMode === "osint_inspect" || currentMode === "imagem" || currentMode === "voice_clone");
-      });
-    });
-
-    function addMsg(role, htmlContent = null, textContent = null) {
-      const wrapper = document.getElementById("chat-wrapper");
-      const chat = document.getElementById("chat");
-
-      const row = document.createElement("div");
-      row.className = `msg-row ${role}`;
-
-      const meta = document.createElement("div");
-      meta.className = "msg-meta";
-      meta.textContent = role === "user" ? "Você" : `${imaginarySelf.name} ${imaginarySelf.version}`;
-
-      const div = document.createElement("div");
-      div.className = `msg ${role}`;
-      if (htmlContent !== null) {
-        div.innerHTML = htmlContent;
-      } else {
-        const pre = document.createElement("pre");
-        pre.textContent = textContent || "";
-        div.appendChild(pre);
-      }
-
-      row.appendChild(meta);
-      row.appendChild(div);
-      chat.appendChild(row);
-      wrapper.scrollTop = wrapper.scrollHeight;
-      return div;
-    }
-
-    function escapeHtml(str) {
-      return String(str || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    function resolveMediaUrl(rawUrl, audioBase64 = null) {
-      if (audioBase64) {
-        return `data:audio/wav;base64,${audioBase64}`;
-      }
-      if (!rawUrl) return "";
-      if (/^https?:\/\//i.test(rawUrl) || rawUrl.startsWith("data:")) return rawUrl;
-      const base = (state.api || "").replace(/\/$/, "");
-      return base ? `${base}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}` : rawUrl;
-    }
-
-    async function checkHealth(announce = false) {
-      const bApi = document.getElementById("b-api");
-      const bGpu = document.getElementById("b-gpu");
-
-      if (!state.api) {
-        bApi.textContent = "● Sem URL API";
-        bApi.className = "badge off";
-        return;
-      }
-
-      try {
-        const res = await fetch(`${state.api}/status`, { cache: "no-store" });
-        const data = await res.json();
-        if (!res.ok || !data.ok) throw new Error("Status inválido");
-
-        bApi.textContent = "● API Colab Online";
-        bApi.className = "badge on";
-
-        bGpu.textContent = `GPU: ${data.gpu || "A100"} (${data.vram_total_gb || "?"} GB)`;
-        bGpu.className = "badge on";
-
-        if (data.creativefield_url && !state.cf) {
-          state.cf = data.creativefield_url.replace(/\/$/, "");
-          localStorage.setItem("lux_cf_url", state.cf);
-          initInputs();
-        }
-        if (data.comfy_url && !state.comfy) {
-          state.comfy = data.comfy_url.replace(/\/$/, "");
-          localStorage.setItem("lux_comfy_url", state.comfy);
-          initInputs();
-        }
-
-        if (announce) {
-          addMsg("ai", null, [
-            "✅ Conectado ao Colab!",
-            "API: " + state.api,
-            "GPU: " + data.gpu + " (" + data.vram_total_gb + " GB VRAM)"
-          ].join("\n"));
-        }
-      } catch (e) {
-        bApi.textContent = "● API Offline / Inacessível";
-        bApi.className = "badge off";
-        if (announce) {
-          addMsg("ai", null, `⚠️ Não foi possível alcançar ${state.api}/status (${e.message}). Verifique se a Célula do Colab está rodando ou clique em Sincronizar.`);
-        }
-      }
-    }
-
-    async function syncNtfy(silent = true) {
-      if (!state.channel) return;
-      try {
-        const res = await fetch(`https://ntfy.sh/${encodeURIComponent(state.channel)}/json?poll=1&since=24h`);
-        const raw = await res.text();
-        let latestPayload = null;
-
-        for (const line of raw.split("\n")) {
-          if (!line.trim()) continue;
-          try {
-            const evt = JSON.parse(line);
-            const msgStr = evt.message || "";
-            if (msgStr.includes("trycloudflare.com")) {
-              try {
-                const parsed = JSON.parse(msgStr);
-                if (parsed.api) latestPayload = parsed;
-              } catch (_) {
-                const m = msgStr.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
-                if (m) latestPayload = { api: m[0] };
-              }
-            }
-          } catch (_) {}
-        }
-
-        if (latestPayload && latestPayload.api) {
-          state.api = latestPayload.api.replace(/\/$/, "");
-          localStorage.setItem("lux_api_url", state.api);
-          if (latestPayload.creativefield) {
-            state.cf = latestPayload.creativefield.replace(/\/$/, "");
-            localStorage.setItem("lux_cf_url", state.cf);
-          }
-          if (latestPayload.comfyui) {
-            state.comfy = latestPayload.comfyui.replace(/\/$/, "");
-            localStorage.setItem("lux_comfy_url", state.comfy);
-          }
-          initInputs();
-          await checkHealth(!silent);
-        } else {
-          await checkHealth(!silent);
-        }
-      } catch (e) {
-        await checkHealth(!silent);
-      }
-    }
-
-    window.inspectFromCard = function(url) {
-      document.querySelector('[data-mode="osint_inspect"]').click();
-      document.getElementById("prompt").value = url;
-      document.getElementById("send-btn").click();
-    };
-
-    function renderIcebergResults(box, data) {
-      const hits = data.results || [];
-      let html = `<div><strong>🧊 Busca Iceberg:</strong> ${escapeHtml(data.query)}</div>`;
-      html += `<div style="font-size:0.78rem; color:#94a3b8; margin:4px 0 8px;">Fontes: ${escapeHtml((data.sources_ok || []).join(", ") || "nenhuma")}</div>`;
-
-      if (!hits.length) {
-        html += `<div>Nenhum resultado retornado para esta consulta.</div>`;
-      } else {
-        hits.forEach(h => {
-          const isOnion = (h.url || "").includes(".onion") || (h.layer || "").includes("onion");
-          html += `
-            <div class="hit-card">
-              <span class="hit-layer ${isOnion ? "onion" : ""}">${escapeHtml(h.layer || "web")}</span>
-              <span style="font-size:0.72rem; color:#94a3b8;">${escapeHtml(h.engine || "")}</span>
-              <span class="hit-title">${escapeHtml(h.title || "Sem título")}</span>
-              <span class="hit-url">${escapeHtml(h.url || "")}</span>
-              <div class="hit-snippet">${escapeHtml(h.snippet || "")}</div>
-              ${h.url ? `<button type="button" class="sec" style="margin-top:6px; padding:4px 8px; font-size:0.75rem;" onclick="inspectFromCard('${escapeHtml(h.url)}')">🔍 Abrir / Inspecionar via Ponte</button>` : ""}
-            </div>
-          `;
-        });
-      }
-      box.innerHTML = html;
-    }
-
-    async function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const out = String(reader.result || "");
-          resolve(out.includes(",") ? out.split(",")[1] : out);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+    function switchTab(name) {
+      ["img", "vid", "god"].forEach(k => {
+        document.getElementById("panel-" + k).classList.toggle("hidden", k !== name);
+        const btn = document.getElementById("tab-" + k);
+        btn.classList.toggle("active", k === name);
+        btn.classList.toggle("secondary", k !== name);
       });
     }
 
-    async function handleSubmit(e) {
-      e.preventDefault();
-      const input = document.getElementById("prompt");
-      const btn = document.getElementById("send-btn");
-      const wrapper = document.getElementById("chat-wrapper");
-      let rawText = input.value.trim();
-      if (!rawText) return;
-
-      addMsg("user", null, rawText);
-      input.value = "";
-      btn.disabled = true;
-
-      let mode = currentMode;
-      let queryText = rawText;
-
-      const lower = rawText.toLowerCase();
-      if (lower.startsWith("/god ") || lower === "/god") {
-        mode = "god";
-        queryText = rawText.replace(/^\/god\s*/i, "").trim();
-      } else if (lower.startsWith("pesquisar iceberg ") || lower.startsWith("buscar osint ")) {
-        mode = "iceberg_search";
-        queryText = rawText.replace(/^(pesquisar iceberg|buscar osint)\s+/i, "").trim();
-      } else if (lower.startsWith("inspecionar url ") || lower.startsWith("acessar onion ") || lower.startsWith("acessar i2p ")) {
-        mode = "osint_inspect";
-        queryText = rawText.replace(/^(inspecionar url|acessar onion|acessar i2p)\s+/i, "").trim();
-      } else if (lower.startsWith("gerar imagem ")) {
-        mode = "imagem";
-        queryText = rawText.replace(/^gerar imagem\s+/i, "").trim();
+    function applyImagePreset() {
+      const preset = document.getElementById("imgPreset").value;
+      const box = document.getElementById("imgPrompt");
+      if (preset && !box.value.includes(preset)) {
+        box.value = box.value.trim() ? `${box.value.trim()}, ${preset}` : preset;
       }
+    }
 
-      const box = addMsg("ai", null, `⏳ ${imaginarySelf.name} executando no servidor...`);
-
+    async function syncNtfy() {
       try {
-        if (!state.api && !state.gemini) {
-          throw new Error("Nenhuma URL da API ou chave Gemini configurada.");
-        }
-
-        if (mode === "god") {
-          const res = await fetch(`${state.api}/executar`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              modo: "god",
-              mode: "god",
-              prompt: queryText,
-              params: {
-                unrestricted: true,
-                command: queryText,
-                imaginary_self_awareness: true,
-                self_identity: imaginarySelf
-              }
-            })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-          box.querySelector("pre").textContent = data.resposta || data.response || data.reply || JSON.stringify(data, null, 2);
-
-        } else if (mode === "iceberg_search") {
-          const res = await fetch(`${state.api}/iceberg/search`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: queryText, max_results: 10 })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-          renderIcebergResults(box, data);
-
-        } else if (mode === "osint_inspect") {
-          const targetUrl = /^https?:\/\//i.test(queryText) ? queryText : `http://${queryText}`;
-          const renderJs = document.getElementById("opt-render-js").checked;
-          const res = await fetch(`${state.api}/iceberg/fetch`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url: targetUrl, render_js: renderJs })
-          });
-          const data = await res.json();
-          if (!data.ok) {
-            box.querySelector("pre").textContent = `❌ Falha ao acessar [${data.layer || "rede"}]: ${data.error}`;
-          } else {
-            box.innerHTML = `
-              <div><span class="hit-layer ${(data.layer || "").includes("tor") ? "onion" : ""}">${escapeHtml(data.layer)}</span> <strong>Status ${data.status || 200}</strong></div>
-              <div class="hit-url">${escapeHtml(data.url)}</div>
-              <pre style="margin-top:8px; max-height:380px; overflow-y:auto; background:#0d1017; padding:10px; border-radius:8px;">${escapeHtml(data.content || "(Sem texto extraído)")}</pre>
-            `;
-          }
-
-        } else if (mode === "iceberg_agent") {
-          box.querySelector("pre").textContent = "🕵️ Agente OSINT varrendo camadas e sintetizando relatório (pode levar ~40s)...";
-          const res = await fetch(`${state.api}/iceberg/investigate`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: queryText, max_results: 6 })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-          box.querySelector("pre").textContent = `📊 RELATÓRIO OSINT (${data.fontes_coletadas} fontes lidas):\n\n${data.relatorio}`;
-
-        } else if (mode === "imagem") {
-          const imgReq = buildImageRequest(queryText);
-          const res = await fetch(`${state.api}/executar`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ modo: "imagem", prompt: imgReq.prompt, params: imgReq.params })
-          });
-          const data = await res.json();
-          if (!res.ok || !data.url) throw new Error(data.detail || "Erro ao gerar imagem");
-          box.innerHTML = `
-            <div>🎨 Imagem gerada (${escapeHtml(data.resolucao || `${imgReq.params.width}x${imgReq.params.height}`)}):</div>
-            <img class="media-out" src="${escapeHtml(data.url)}" alt="Imagem gerada">
-            <div style="margin-top:6px;"><a class="link-btn sec" href="${escapeHtml(data.url)}" target="_blank">⬇ Baixar PNG</a></div>
-          `;
-
-        } else if (mode === "voice_clone") {
-          box.querySelector("pre").textContent = "🎙️ Processando referência de voz e sintetizando áudio...";
-          const vUrl = document.getElementById("voice-url").value.trim();
-          const vFile = document.getElementById("voice-file").files[0];
-          const vLang = document.getElementById("voice-lang").value || "pt";
-
-          const fd = new FormData();
-          fd.append("text", queryText);
-          fd.append("prompt", queryText);
-          fd.append("language", vLang);
-          if (vUrl) {
-            fd.append("media_url", vUrl);
-            fd.append("ref_url", vUrl);
-          }
-          if (vFile) {
-            fd.append("file", vFile, vFile.name);
-            fd.append("ref_audio", vFile, vFile.name);
-          }
-
-          let res = await fetch(`${state.api}/voice_clone`, { method: "POST", body: fd });
-          let data = await res.json().catch(() => ({}));
-
-          if (!res.ok || data.ok === false) {
-            const fileB64 = vFile ? await fileToBase64(vFile) : null;
-            res = await fetch(`${state.api}/executar`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                modo: "voice_clone",
-                mode: "voice_clone",
-                prompt: queryText,
-                text: queryText,
-                params: {
-                  text: queryText,
-                  language: vLang,
-                  media_url: vUrl || null,
-                  file_base64: fileB64,
-                  file_name: vFile ? vFile.name : null
-                }
-              })
-            });
-            data = await res.json().catch(() => ({}));
-          }
-
-          if (!res.ok || data.ok === false) {
-            throw new Error(data.error || data.detail || `HTTP ${res.status}`);
-          }
-
-          const audioSrc = resolveMediaUrl(data.url || data.audio_url, data.audio_base64);
-          if (!audioSrc) {
-            throw new Error("API não retornou URL nem base64 do áudio clonado.");
-          }
-
-          box.innerHTML = `
-            <div>🎙️ Voz clonada com sucesso (${escapeHtml(data.engine || "XTTS / TTS")}):</div>
-            <audio class="media-out" controls autoplay src="${escapeHtml(audioSrc)}"></audio>
-            <div style="margin-top:6px;"><a class="link-btn sec" href="${escapeHtml(audioSrc)}" download="voz_clonada.wav" target="_blank">⬇ Baixar Áudio</a></div>
-          `;
-
-        } else if (mode === "whisper") {
-          const res = await fetch(`${state.api}/executar`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ modo: "whisper", params: { url: queryText } })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.detail || "Erro na transcrição");
-          box.querySelector("pre").textContent = `🎧 Transcrição:\n\n${data.text || ""}`;
-
-        } else {
-          let answered = false;
-          if (state.api) {
+        const res = await fetch(`https://ntfy.sh/${NTFY_CHANNEL}/json?poll=1&since=2h`);
+        const text = await res.text();
+        const lines = text.trim().split("
+").filter(Boolean).reverse();
+        for (const line of lines) {
+          const obj = JSON.parse(line);
+          if (obj.event === "message" && obj.message) {
             try {
-              const res = await fetch(`${state.api}/executar`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  modo: "chat",
-                  prompt: queryText,
-                  params: {
-                    imaginary_self_awareness: true,
-                    self_identity: imaginarySelf
-                  }
-                })
-              });
-              const data = await res.json();
-              if (res.ok && (data.resposta || data.response || data.reply)) {
-                box.querySelector("pre").textContent = data.resposta || data.response || data.reply;
-                answered = true;
-              } else if (!state.gemini) {
-                throw new Error(data.detail || `HTTP ${res.status}`);
+              const payload = JSON.parse(obj.message);
+              if (payload.api_url || payload.api) {
+                apiInput.value = payload.api_url || payload.api;
+                localStorage.setItem("lux_api_url", apiInput.value);
+                await checkHealth();
+                return;
               }
-            } catch (err) {
-              if (!state.gemini) throw err;
-            }
-          }
-
-          if (!answered && state.gemini) {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${state.gemini}`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: queryText }] }] })
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error?.message || "Erro na API Gemini");
-            box.querySelector("pre").textContent = data.candidates[0].content.parts[0].text;
+            } catch (_) {}
           }
         }
-      } catch (err) {
-        box.querySelector("pre").textContent = `❌ ${err.message}`;
-      } finally {
-        btn.disabled = false;
-        wrapper.scrollTop = wrapper.scrollHeight;
+        alert("Nenhuma URL publicada recentemente no canal ntfy.sh.");
+      } catch (e) {
+        alert("Erro ao sincronizar ntfy: " + e.message);
       }
     }
 
-    initInputs();
-    addMsg("ai", null, `🚀 ${imaginarySelf.name} ${imaginarySelf.version} pronta!\n• Selecione uma aba acima (Iceberg Search, Inspecionar .onion/.i2p, Agente OSINT, Chat Qwen 27B, Imagem HD, Clonar Voz, Transcrever, /GOD) ou use os botões no topo para abrir o CreativeField e o ComfyUI.`);
-    syncNtfy(true);
+    async function checkHealth() {
+      try {
+        const base = getApiBase();
+        const res = await fetch(`${base}/status`);
+        const data = await res.json();
+        document.getElementById("godLog").textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        document.getElementById("godLog").textContent = "Erro: " + e.message;
+      }
+    }
+
+    async function generateImage() {
+      const log = document.getElementById("imgLog");
+      const preview = document.getElementById("imgPreview");
+      log.textContent = "Gerando imagem uncensored...";
+      try {
+        const base = getApiBase();
+        const body = {
+          modo: "uncensored_image",
+          prompt: document.getElementById("imgPrompt").value,
+          model: document.getElementById("imgModel").value || null,
+          params: {
+            width: Number(document.getElementById("imgWidth").value || 1024),
+            height: Number(document.getElementById("imgHeight").value || 1024),
+            steps: Number(document.getElementById("imgSteps").value || 4),
+            guidance_scale: Number(document.getElementById("imgCfg").value || 0.0)
+          }
+        };
+        const res = await fetch(`${base}/executar`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.image_base64) {
+          preview.src = "data:image/png;base64," + data.image_base64;
+          preview.classList.remove("hidden");
+        } else if (data.image_url) {
+          preview.src = data.image_url;
+          preview.classList.remove("hidden");
+        }
+        const { image_base64, ...meta } = data;
+        log.textContent = JSON.stringify({ ...meta, has_image_base64: Boolean(image_base64) }, null, 2);
+      } catch (e) {
+        log.textContent = "Erro: " + e.message;
+      }
+    }
+
+    async function generateVideo() {
+      const log = document.getElementById("vidLog");
+      const preview = document.getElementById("vidPreview");
+      log.textContent = "Gerando vídeo uncensored...";
+      try {
+        const base = getApiBase();
+        const body = {
+          modo: "uncensored_video",
+          prompt: document.getElementById("vidPrompt").value,
+          model: document.getElementById("vidModel").value || null,
+          params: {
+            frames: Number(document.getElementById("vidFrames").value || 25),
+            fps: Number(document.getElementById("vidFps").value || 16),
+            width: Number(document.getElementById("vidWidth").value || 512),
+            height: Number(document.getElementById("vidHeight").value || 320)
+          }
+        };
+        const res = await fetch(`${base}/executar`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.video_base64) {
+          preview.src = "data:video/mp4;base64," + data.video_base64;
+          preview.classList.remove("hidden");
+        } else if (data.video_url) {
+          preview.src = data.video_url;
+          preview.classList.remove("hidden");
+        }
+        const { video_base64, ...meta } = data;
+        log.textContent = JSON.stringify({ ...meta, has_video_base64: Boolean(video_base64) }, null, 2);
+      } catch (e) {
+        log.textContent = "Erro: " + e.message;
+      }
+    }
+
+    async function runGod() {
+      const log = document.getElementById("godLog");
+      log.textContent = "Executando comando /GOD...";
+      try {
+        const base = getApiBase();
+        const res = await fetch(`${base}/executar`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            modo: "god",
+            prompt: document.getElementById("godCmd").value,
+            params: { command: document.getElementById("godCmd").value }
+          })
+        });
+        const data = await res.json();
+        log.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        log.textContent = "Erro: " + e.message;
+      }
+    }
   </script>
 </body>
 </html>
