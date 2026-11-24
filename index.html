@@ -346,7 +346,7 @@
           </div>
           <div class="field">
             <label for="cfg-api">URL da API FastAPI</label>
-            <input type="url" id="cfg-api" value="https://science-won-importantly-decades.trycloudflare.com" />
+            <input type="url" id="cfg-api" value="https://regards-himself-mambo-investigator.trycloudflare.com" />
           </div>
           <div class="field">
             <label for="cfg-route">Rota POST</label>
@@ -360,12 +360,14 @@
       </section>
 
       <main id="scroll-area" class="scroll-area">
-        <!-- CHAT CONVERSACIONAL + COMANDOS RÁPIDOS (/foto, /video, /voz, /web, /status) -->
         <div id="view-chat" class="container">
           <div class="hero-banner">
-            <div class="greeting">LUX-Ω v12.0 • Chat Conversacional & Estúdio Multimodal</div>
+            <div class="greeting">LUX-Ω v12.0 A100 ULTIMATE GGUF STUDIO (COMPLETO)</div>
             <div style="font-size:0.86rem;color:var(--muted);">
-              Use comandos rápidos no chat (<code>/foto</code>, <code>/video</code>, <code>/voz</code>, <code>/web</code>, <code>/status</code>) ou converse livremente com memória da sessão e renderização direta na tela.
+              API: <code>https://regards-himself-mambo-investigator.trycloudflare.com</code> •
+              ComfyUI: <code>https://kings-medium-procedure-homepage.trycloudflare.com</code> •
+              CreativeField: <code>https://biz-rose-wav-crest.trycloudflare.com</code> •
+              ntfy: <code>lux-omega-kauan-v55</code>
             </div>
             <div class="quick-row">
               <button type="button" class="chip" data-cmd="/foto cachorro astronauta em órbita da terra, iluminação cinematográfica 8k">/foto Rápido</button>
@@ -376,11 +378,14 @@
             </div>
           </div>
           <div id="chat-feed" style="display:flex;flex-direction:column;gap:14px;">
-            <div class="msg-a">Estúdio conectado ao repo <b>lux-omega-v12-a100-gguf-studio</b>. Modelos no Drive: <code>wan2.2_ti2v_5B_fp16.safetensors</code>, <code>wan2.2_vae.safetensors</code>, <code>umt5-xxl-encoder-Q5_K_M.gguf</code> e <code>inswapper_128.onnx</code>. Digite normalmente para conversar ou use <code>/foto</code>, <code>/video</code>, <code>/voz</code> e <code>/web</code>.</div>
+            <div class="msg-a">Sessão atualizada com LUX-Ω v12.0 A100 ULTIMATE GGUF STUDIO (COMPLETO).
+API URL: https://regards-himself-mambo-investigator.trycloudflare.com
+ComfyUI URL: https://kings-medium-procedure-homepage.trycloudflare.com
+CreativeField URL: https://biz-rose-wav-crest.trycloudflare.com
+Canal ntfy.sh: lux-omega-kauan-v55</div>
           </div>
         </div>
 
-        <!-- VÍDEO & GGUF COM PLAYER DIRETO NO SITE -->
         <div id="view-studio" class="container hidden">
           <div class="card">
             <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">🎬 Geração de Vídeo & GGUF (Resultado no Site)</div>
@@ -417,11 +422,10 @@
           </div>
         </div>
 
-        <!-- GERADOR DE FOTOS + ANÁLISE DE IMAGEM -->
         <div id="view-image" class="container hidden">
           <div class="card">
             <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">🎨 Gerador de Fotos & Visão Computacional</div>
-            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;">Gera imagens via API do Colab (com fallback automático visual se o endpoint retornar base64/URL ou texto) e permite anexar imagem para análise/face-swap.</p>
+            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;">Gera imagens via API do Colab e permite anexar imagem de referência.</p>
             <div class="panel-grid">
               <div class="field">
                 <label for="img-style">Estilo Rápido</label>
@@ -448,11 +452,10 @@
           </div>
         </div>
 
-        <!-- CLONAR VOZ & TTS -->
         <div id="view-voice" class="container hidden">
           <div class="card">
             <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">🎙️ Clonar Voz & Síntese de Fala (TTS)</div>
-            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;">Envia amostra de voz de referência + texto para o backend do Colab (ex.: XTTS-v2 / F5-TTS) e também oferece leitura imediata no navegador via Web Speech API.</p>
+            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;">Envia amostra de voz de referência + texto para o backend do Colab e permite ouvir no navegador.</p>
             <div class="panel-grid">
               <div class="field">
                 <label for="voice-ref">Áudio de Referência para Clonagem (WAV/MP3)</label>
@@ -479,11 +482,10 @@
           </div>
         </div>
 
-        <!-- BUSCA NA WEB -->
         <div id="view-web" class="container hidden">
           <div class="card">
             <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">🌐 Busca na Web & Pesquisa em Tempo Real</div>
-            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;">Consulta a API do Colab (<code>mode: "web_search"</code>) e, se não houver endpoint dedicado no backend, consulta fontes públicas abertas (Wikipedia / DuckDuckGo Instant Answer).</p>
+            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;">Consulta a API do Colab (<code>mode: "web_search"</code>) com fallback automático para busca aberta.</p>
             <div class="panel-grid">
               <div class="field" style="grid-column: span 2;">
                 <label for="web-q">Consulta na Web</label>
@@ -497,7 +499,6 @@
           </div>
         </div>
 
-        <!-- COLAB ACELERADOR & LOGS -->
         <div id="view-colab" class="container hidden">
           <div class="card">
             <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">⚡ Aceleração de Alocação no Terminal do Colab</div>
@@ -513,16 +514,14 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
           </div>
         </div>
 
-        <!-- STATUS & GOOGLE DRIVE -->
         <div id="view-status" class="container hidden">
           <div class="card">
             <div style="font-weight:700;font-size:1rem;margin-bottom:8px;">📊 Status do Colab & Google Drive</div>
-            <pre id="st-dump" class="code-box">Clique em "Status" no topo para verificar /status em https://science-won-importantly-decades.trycloudflare.com.</pre>
+            <pre id="st-dump" class="code-box">Clique em "Status" no topo para verificar /status em https://regards-himself-mambo-investigator.trycloudflare.com.</pre>
           </div>
         </div>
       </main>
 
-      <!-- COMPOSER COM SELETOR DE MODO E ANEXO -->
       <div id="composer" class="composer">
         <div class="composer-inner">
           <div class="mode-bar">
@@ -557,21 +556,25 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
 
       const DEFAULT_REPO = 'https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio';
       const DEFAULT_NTFY = 'lux-omega-kauan-v55';
-      const DEFAULT_API = 'https://science-won-importantly-decades.trycloudflare.com';
-      let comfyUrl = 'https://granny-well-director-explorer.trycloudflare.com';
-      let creativeUrl = 'https://routing-les-vatican-charms.trycloudflare.com';
+      const DEFAULT_API = 'https://regards-himself-mambo-investigator.trycloudflare.com';
+      let comfyUrl = 'https://kings-medium-procedure-homepage.trycloudflare.com';
+      let creativeUrl = 'https://biz-rose-wav-crest.trycloudflare.com';
       let activeMode = 'chat';
       let attachedFile = null;
       let lastPromptId = null;
       const chatHistory = [];
 
-      $('cfg-repo').value = localStorage.getItem('lux_repo_url') || DEFAULT_REPO;
-      $('cfg-ntfy').value = localStorage.getItem('lux_repo_ntfy') || DEFAULT_NTFY;
-      $('cfg-api').value = localStorage.getItem('lux_repo_api') || DEFAULT_API;
-      $('cfg-route').value = localStorage.getItem('lux_repo_route') || '/executar';
-      if (!localStorage.getItem('lux_repo_api')) {
-        localStorage.setItem('lux_repo_api', DEFAULT_API);
+      localStorage.setItem('lux_repo_url', DEFAULT_REPO);
+      localStorage.setItem('lux_repo_ntfy', DEFAULT_NTFY);
+      localStorage.setItem('lux_repo_api', DEFAULT_API);
+      if (!localStorage.getItem('lux_repo_route')) {
+        localStorage.setItem('lux_repo_route', '/executar');
       }
+
+      $('cfg-repo').value = DEFAULT_REPO;
+      $('cfg-ntfy').value = DEFAULT_NTFY;
+      $('cfg-api').value = DEFAULT_API;
+      $('cfg-route').value = localStorage.getItem('lux_repo_route') || '/executar';
 
       function getApiBase() {
         return (localStorage.getItem('lux_repo_api') || $('cfg-api').value || DEFAULT_API).trim().replace(/\/+$/, '');
@@ -682,7 +685,7 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
         try {
           const res = await fetch('https://ntfy.sh/' + encodeURIComponent(ch) + '/json?poll=1&since=24h');
           const raw = await res.text();
-          let foundApi = null;
+          let foundApi = DEFAULT_API;
           for (const line of raw.split(String.fromCharCode(10))) {
             if (!line.trim()) continue;
             try {
@@ -690,21 +693,14 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
               if (obj.api_url) foundApi = obj.api_url;
               if (obj.comfy_url) comfyUrl = obj.comfy_url;
               if (obj.creativefield_url) creativeUrl = obj.creativefield_url;
-              const urls = (obj.message || '').match(/https?:\/\/[a-zA-Z0-9.-]+\.(?:trycloudflare\.com|loca\.lt|ngrok-free\.app|ngrok\.io)|http:\/\/bore\.pub:\d+/g);
-              if (urls && urls.length && !foundApi) foundApi = urls[0];
             } catch (_) {}
           }
           refreshToolBadges();
-          if (foundApi) {
-            foundApi = foundApi.replace(/\/+$/, '');
-            localStorage.setItem('lux_repo_api', foundApi);
-            $('cfg-api').value = foundApi;
-            setPill('dot-api', 'txt-api', 'API: online', 'ok');
-            addMsg('assistant', 'Sincronizado com API: ' + foundApi + ' | ComfyUI: ' + (comfyUrl || '-') + ' | CreativeField: ' + (creativeUrl || '-'));
-          } else {
-            setPill('dot-api', 'txt-api', 'API: online (local)', 'ok');
-            addMsg('assistant', 'Sem mensagem nova no canal ' + ch + '; mantendo URLs ativas.');
-          }
+          foundApi = foundApi.replace(/\/+$/, '');
+          localStorage.setItem('lux_repo_api', foundApi);
+          $('cfg-api').value = foundApi;
+          setPill('dot-api', 'txt-api', 'API: online', 'ok');
+          addMsg('assistant', 'Sincronizado | API: ' + foundApi + ' | ComfyUI: ' + comfyUrl + ' | CreativeField: ' + creativeUrl);
         } catch (err) {
           setPill('dot-api', 'txt-api', 'API: erro', 'err');
           addMsg('assistant', 'Erro ao sincronizar: ' + err.message);
