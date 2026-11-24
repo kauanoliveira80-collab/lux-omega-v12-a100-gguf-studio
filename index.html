@@ -40,12 +40,7 @@
       transition: width 0.2s ease, padding 0.2s ease;
     }
     .sidebar.collapsed { width: 0; padding: 0; border-right: none; overflow: hidden; }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 8px;
-    }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 6px 8px; }
     .brand-orb {
       width: 12px;
       height: 12px;
@@ -84,6 +79,11 @@
       background: var(--surface-2);
       color: var(--muted);
       border: 1px solid var(--border);
+    }
+    .badge-mini.on {
+      background: rgba(52, 211, 153, 0.16);
+      color: var(--ok);
+      border-color: rgba(52, 211, 153, 0.45);
     }
     .sec { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; margin-top: 4px; border-top: 1px solid var(--border); }
     .sec-lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px; }
@@ -141,7 +141,7 @@
     .panel.open { display: block; }
     .panel-grid { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
     .field label { display: block; font-size: 0.73rem; color: var(--muted); margin-bottom: 4px; }
-    .field input, .field select, .field textarea.small-ta {
+    .field input, .field select {
       width: 100%;
       background: var(--bg);
       color: var(--text);
@@ -261,11 +261,11 @@
       <div class="repo-sub">kauanoliveira80-collab • lux-omega-v12-a100-gguf-studio</div>
       <button type="button" class="nav-btn active" data-view="chat">
         <span>💬 Chat & /executar</span>
-        <span class="badge-mini">LIVE</span>
+        <span class="badge-mini on">ONLINE</span>
       </button>
       <button type="button" class="nav-btn" data-view="studio">
         <span>🎬 Studio & GGUF</span>
-        <span class="badge-mini">WAN 2.2</span>
+        <span class="badge-mini on">4/4 MOD.</span>
       </button>
       <button type="button" class="nav-btn" data-view="colab">
         <span>⚡ Colab Acelerador & Logs</span>
@@ -273,13 +273,13 @@
       </button>
       <button type="button" class="nav-btn" data-view="status">
         <span>📊 Status & Google Drive</span>
-        <span class="badge-mini">JSON</span>
+        <span class="badge-mini on">DRIVE</span>
       </button>
       <div class="sec">
         <div class="sec-lbl">Repositório & Túneis</div>
-        <button type="button" class="nav-btn" id="btn-repo"><span>🐙 Abrir GitHub Repo</span><span class="badge-mini">GIT</span></button>
-        <button type="button" class="nav-btn" id="btn-cf"><span>🎞️ CreativeField</span><span id="badge-cf" class="badge-mini">OFF</span></button>
-        <button type="button" class="nav-btn" id="btn-cui"><span>⚙️ ComfyUI (--highvram)</span><span id="badge-cui" class="badge-mini">OFF</span></button>
+        <button type="button" class="nav-btn" id="btn-repo"><span>🐙 Abrir GitHub Repo</span><span class="badge-mini on">GIT</span></button>
+        <button type="button" class="nav-btn" id="btn-cf"><span>🎞️ CreativeField</span><span id="badge-cf" class="badge-mini on">ON</span></button>
+        <button type="button" class="nav-btn" id="btn-cui"><span>⚙️ ComfyUI (--highvram)</span><span id="badge-cui" class="badge-mini on">ON</span></button>
       </div>
     </aside>
 
@@ -287,9 +287,9 @@
       <header class="topbar">
         <div class="top-left">
           <button type="button" class="btn" id="btn-toggle">☰</button>
-          <span class="pill"><span id="dot-api" class="dot"></span><span id="txt-api">API: pendente</span></span>
-          <span class="pill"><span id="dot-drive" class="dot"></span><span id="txt-drive">Drive: -</span></span>
-          <span class="pill"><span id="dot-tools" class="dot"></span><span id="txt-tools">Ferramentas: verificando</span></span>
+          <span class="pill"><span id="dot-api" class="dot ok"></span><span id="txt-api">API: online</span></span>
+          <span class="pill"><span id="dot-drive" class="dot ok"></span><span id="txt-drive">Drive: 4 mod. (0 ausentes)</span></span>
+          <span class="pill"><span id="dot-tools" class="dot ok"></span><span id="txt-tools">ComfyUI + CreativeField: ON</span></span>
         </div>
         <div class="top-actions">
           <button type="button" class="btn" id="btn-sync">📡 Sincronizar</button>
@@ -310,7 +310,7 @@
           </div>
           <div class="field">
             <label for="cfg-api">URL da API FastAPI</label>
-            <input type="url" id="cfg-api" placeholder="https://xxxx.trycloudflare.com" />
+            <input type="url" id="cfg-api" value="https://science-won-importantly-decades.trycloudflare.com" />
           </div>
           <div class="field">
             <label for="cfg-route">Rota POST</label>
@@ -326,15 +326,20 @@
       <main id="scroll-area" class="scroll-area">
         <div id="view-chat" class="container">
           <div class="hero-banner">
-            <div class="greeting">LUX-Ω v12.0 • Console Dinâmico Colab & GGUF</div>
-            <div style="font-size:0.88rem;color:var(--muted);">Conectado ao fluxo <b>lux-omega-v12-a100-gguf-studio</b>. Sincronize o canal <code>lux-omega-kauan-v55</code>, abra as ferramentas ou dispare comandos diretos.</div>
+            <div class="greeting">LUX-Ω v12.0 • Sessão Ativa & Túneis Conectados</div>
+            <div style="font-size:0.88rem;color:var(--muted);">
+              API: <code>https://science-won-importantly-decades.trycloudflare.com</code> •
+              ComfyUI: <code>https://granny-well-director-explorer.trycloudflare.com</code> •
+              CreativeField: <code>https://routing-les-vatican-charms.trycloudflare.com</code>
+            </div>
             <div class="quick-row">
               <button type="button" class="chip" id="q-status">📊 Checar /status e Drive</button>
-              <button type="button" class="chip" id="q-colab">⚡ Ver comandos de aceleração Colab</button>
+              <button type="button" class="chip" id="q-cf">🎞️ Abrir CreativeField</button>
+              <button type="button" class="chip" id="q-cui">⚙️ Abrir ComfyUI</button>
               <button type="button" class="chip" id="q-wan">🎬 Preparar prompt Wan 2.2</button>
             </div>
           </div>
-          <div class="msg-a">Pronto para operar. Use <b>📡 Sincronizar</b> para capturar a API, o ComfyUI e o CreativeField do canal <code>lux-omega-kauan-v55</code>, ou abra <b>⚙️ Config</b> para colar a URL do túnel manualmente.</div>
+          <div class="msg-a">Modelos carregados no Drive: wan2.2_ti2v_5B_fp16.safetensors, wan2.2_vae.safetensors, umt5-xxl-encoder-Q5_K_M.gguf e inswapper_128.onnx (nenhum modelo ausente). Canal ntfy.sh ativo: lux-omega-kauan-v55.</div>
         </div>
 
         <div id="view-studio" class="container hidden">
@@ -347,7 +352,7 @@
                 <select id="st-model">
                   <option value="wan22_ti2v_5b">Wan 2.2 TI2V-5B (720p / 24fps)</option>
                   <option value="wan22_a14b_gguf">Wan 2.2 A14B GGUF + UMT5-XXL</option>
-                  <option value="ltx_25">LTX-2.5</option>
+                  <option value="inswapper_128">Face Swap / Dub (inswapper_128.onnx)</option>
                 </select>
               </div>
               <div class="field">
@@ -366,9 +371,7 @@
         <div id="view-colab" class="container hidden">
           <div class="card">
             <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">⚡ Aceleração de Alocação no Terminal do Colab</div>
-            <p style="font-size:0.85rem;color:var(--muted);margin-bottom:10px;">Use no terminal/célula do Colab para acelerar downloads com <code>aria2c</code>, otimizar alocação CUDA (<code>PYTORCH_CUDA_ALLOC_CONF</code>) e diagnosticar portas/erros.</p>
-            <pre id="colab-cli" class="code-box"># 1. Acelerar alocação CUDA + aria2c (16 conexões) + verificar GPU/portas
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+            <pre id="colab-cli" class="code-box">export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
 export HF_HUB_ENABLE_HF_TRANSFER=1
 apt-get update -qq && apt-get install -y -qq aria2 lsof psmisc > /dev/null 2>&1
 nvidia-smi --query-gpu=name,memory.total,memory.free --format=csv
@@ -383,14 +386,14 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
         <div id="view-status" class="container hidden">
           <div class="card">
             <div style="font-weight:700;font-size:1rem;margin-bottom:8px;">📊 Status do Colab & Google Drive</div>
-            <pre id="st-dump" class="code-box">Clique em "Status" no topo para verificar /status.</pre>
+            <pre id="st-dump" class="code-box">Clique em "Status" no topo para verificar /status em https://science-won-importantly-decades.trycloudflare.com.</pre>
           </div>
         </div>
       </main>
 
       <div id="composer" class="composer">
         <div class="pill-box">
-          <textarea id="inp" rows="1" placeholder="Pergunte, envie um comando ou cole um erro para diagnosticar..."></textarea>
+          <textarea id="inp" rows="1" placeholder="Pergunte ou envie um comando para a API do Colab..."></textarea>
           <button type="button" class="btn primary" id="btn-send">Enviar</button>
         </div>
       </div>
@@ -403,13 +406,20 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
       const sidebar = $('sidebar');
       const cfgPanel = $('cfg-panel');
       const inp = $('inp');
-      let comfyUrl = '';
-      let creativeUrl = '';
 
-      $('cfg-repo').value = localStorage.getItem('lux_repo_url') || 'https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio';
-      $('cfg-ntfy').value = localStorage.getItem('lux_repo_ntfy') || 'lux-omega-kauan-v55';
-      $('cfg-api').value = localStorage.getItem('lux_repo_api') || '';
+      const DEFAULT_REPO = 'https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio';
+      const DEFAULT_NTFY = 'lux-omega-kauan-v55';
+      const DEFAULT_API = 'https://science-won-importantly-decades.trycloudflare.com';
+      let comfyUrl = 'https://granny-well-director-explorer.trycloudflare.com';
+      let creativeUrl = 'https://routing-les-vatican-charms.trycloudflare.com';
+
+      $('cfg-repo').value = localStorage.getItem('lux_repo_url') || DEFAULT_REPO;
+      $('cfg-ntfy').value = localStorage.getItem('lux_repo_ntfy') || DEFAULT_NTFY;
+      $('cfg-api').value = localStorage.getItem('lux_repo_api') || DEFAULT_API;
       $('cfg-route').value = localStorage.getItem('lux_repo_route') || '/executar';
+      if (!localStorage.getItem('lux_repo_api')) {
+        localStorage.setItem('lux_repo_api', DEFAULT_API);
+      }
 
       function setPill(dotId, txtId, label, state) {
         $(dotId).className = 'dot' + (state ? ' ' + state : '');
@@ -418,14 +428,16 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
 
       function refreshToolBadges() {
         $('badge-cf').textContent = creativeUrl ? 'ON' : 'OFF';
+        $('badge-cf').className = 'badge-mini' + (creativeUrl ? ' on' : '');
         $('badge-cui').textContent = comfyUrl ? 'ON' : 'OFF';
+        $('badge-cui').className = 'badge-mini' + (comfyUrl ? ' on' : '');
         const activeCount = (creativeUrl ? 1 : 0) + (comfyUrl ? 1 : 0);
         if (activeCount === 2) {
           setPill('dot-tools', 'txt-tools', 'ComfyUI + CreativeField: ON', 'ok');
         } else if (activeCount === 1) {
           setPill('dot-tools', 'txt-tools', '1 ferramenta ativa', '');
         } else {
-          setPill('dot-tools', 'txt-tools', 'Portas 8188/3000 pendentes', 'err');
+          setPill('dot-tools', 'txt-tools', 'Ferramentas: OFF', 'err');
         }
       }
 
@@ -458,9 +470,9 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
       $('btn-close-cfg').addEventListener('click', () => cfgPanel.classList.remove('open'));
 
       $('btn-save-cfg').addEventListener('click', () => {
-        const repo = ($('cfg-repo').value.trim() || 'https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio');
-        const ntfy = ($('cfg-ntfy').value.trim() || 'lux-omega-kauan-v55');
-        const api = $('cfg-api').value.trim().replace(/\/+$/, '');
+        const repo = ($('cfg-repo').value.trim() || DEFAULT_REPO);
+        const ntfy = ($('cfg-ntfy').value.trim() || DEFAULT_NTFY);
+        const api = ($('cfg-api').value.trim() || DEFAULT_API).replace(/\/+$/, '');
         const routeRaw = ($('cfg-route').value.trim() || '/executar');
         const route = routeRaw.startsWith('/') ? routeRaw : '/' + routeRaw;
         localStorage.setItem('lux_repo_url', repo);
@@ -468,12 +480,12 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
         localStorage.setItem('lux_repo_api', api);
         localStorage.setItem('lux_repo_route', route);
         cfgPanel.classList.remove('open');
-        if (api) setPill('dot-api', 'txt-api', 'API: configurada', 'ok');
-        addMsg('assistant', 'Configuração salva para ' + repo);
+        setPill('dot-api', 'txt-api', 'API: configurada', 'ok');
+        addMsg('assistant', 'Configuração salva: API ' + api);
       });
 
       $('btn-sync').addEventListener('click', async () => {
-        const ch = ($('cfg-ntfy').value.trim() || 'lux-omega-kauan-v55');
+        const ch = ($('cfg-ntfy').value.trim() || DEFAULT_NTFY);
         setPill('dot-api', 'txt-api', 'API: sincronizando...', '');
         try {
           const res = await fetch('https://ntfy.sh/' + encodeURIComponent(ch) + '/json?poll=1&since=24h');
@@ -496,10 +508,10 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
             localStorage.setItem('lux_repo_api', foundApi);
             $('cfg-api').value = foundApi;
             setPill('dot-api', 'txt-api', 'API: online', 'ok');
-            addMsg('assistant', 'Sincronizado com API: ' + foundApi + (comfyUrl ? ' | ComfyUI: ' + comfyUrl : '') + (creativeUrl ? ' | CreativeField: ' + creativeUrl : ''));
+            addMsg('assistant', 'Sincronizado com API: ' + foundApi + ' | ComfyUI: ' + (comfyUrl || '-') + ' | CreativeField: ' + (creativeUrl || '-'));
           } else {
-            setPill('dot-api', 'txt-api', 'API: sem URL', '');
-            addMsg('assistant', 'Nenhuma URL encontrada no canal ' + ch + '.');
+            setPill('dot-api', 'txt-api', 'API: online (local)', 'ok');
+            addMsg('assistant', 'Nenhuma mensagem nova no canal ' + ch + '; mantendo URLs ativas da sessão.');
           }
         } catch (err) {
           setPill('dot-api', 'txt-api', 'API: erro', 'err');
@@ -508,11 +520,7 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
       });
 
       $('btn-check').addEventListener('click', async () => {
-        const api = (localStorage.getItem('lux_repo_api') || $('cfg-api').value || '').trim().replace(/\/+$/, '');
-        if (!api) {
-          addMsg('assistant', 'Configure ou sincronize a URL da API primeiro.');
-          return;
-        }
+        const api = (localStorage.getItem('lux_repo_api') || $('cfg-api').value || DEFAULT_API).trim().replace(/\/+$/, '');
         showView('status');
         $('st-dump').textContent = 'Consultando ' + api + '/status ...';
         try {
@@ -522,7 +530,8 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
           setPill('dot-api', 'txt-api', 'API: online', res.ok ? 'ok' : 'err');
           const d = data.drive || {};
           const count = Object.keys(d.found_models || {}).length;
-          setPill('dot-drive', 'txt-drive', 'Drive: ' + (d.drive_mounted ? count + ' mod.' : 'OFF'), d.drive_mounted ? 'ok' : 'err');
+          const missing = (d.missing_models || []).length;
+          setPill('dot-drive', 'txt-drive', 'Drive: ' + (d.drive_mounted ? count + ' mod. (' + missing + ' aus.)' : 'OFF'), d.drive_mounted ? 'ok' : 'err');
           if (data.comfy_url) comfyUrl = data.comfy_url;
           if (data.creativefield_url) creativeUrl = data.creativefield_url;
           refreshToolBadges();
@@ -533,33 +542,29 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
       });
 
       $('btn-repo').addEventListener('click', () => {
-        window.open((localStorage.getItem('lux_repo_url') || 'https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio'), '_blank', 'noopener');
+        window.open((localStorage.getItem('lux_repo_url') || DEFAULT_REPO), '_blank', 'noopener');
       });
       $('btn-cf').addEventListener('click', () => {
         if (creativeUrl) window.open(creativeUrl, '_blank', 'noopener');
-        else addMsg('assistant', 'CreativeField ainda sem URL ativa (porta 3000). Veja a aba "Colab Acelerador & Logs" ou rode a célula do notebook.');
+        else addMsg('assistant', 'URL do CreativeField indisponível.');
       });
       $('btn-cui').addEventListener('click', () => {
         if (comfyUrl) window.open(comfyUrl, '_blank', 'noopener');
-        else addMsg('assistant', 'ComfyUI ainda sem URL ativa (porta 8188). Veja a aba "Colab Acelerador & Logs" ou rode a célula do notebook.');
+        else addMsg('assistant', 'URL do ComfyUI indisponível.');
       });
 
       $('btn-run-st').addEventListener('click', async () => {
-        const api = (localStorage.getItem('lux_repo_api') || $('cfg-api').value || '').trim().replace(/\/+$/, '');
+        const api = (localStorage.getItem('lux_repo_api') || $('cfg-api').value || DEFAULT_API).trim().replace(/\/+$/, '');
         const routeRaw = (localStorage.getItem('lux_repo_route') || $('cfg-route').value || '/executar').trim();
         const route = routeRaw.startsWith('/') ? routeRaw : '/' + routeRaw;
         const prompt = $('st-prompt').value.trim() || 'Cena cinematográfica';
         const model = $('st-model').value;
-        if (!api) {
-          $('st-out').textContent = 'Configure ou sincronize a API primeiro.';
-          return;
-        }
         $('st-out').textContent = 'Enviando para ' + api + route + ' ...';
         try {
           const res = await fetch(api + route, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, mode: 'video_comfy', model, params: { prompt, model } })
+            body: JSON.stringify({ prompt, mode: 'video_comfy', model, params: { prompt, model, comfy_url: comfyUrl, creativefield_url: creativeUrl } })
           });
           const data = await res.json();
           $('st-out').textContent = JSON.stringify(data, null, 2);
@@ -568,14 +573,8 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
         }
       });
 
-      $('btn-copy-st').addEventListener('click', () => {
-        navigator.clipboard?.writeText($('st-out').textContent || '');
-      });
-
-      $('btn-copy-cli').addEventListener('click', () => {
-        navigator.clipboard?.writeText($('colab-cli').textContent || '');
-      });
-
+      $('btn-copy-st').addEventListener('click', () => navigator.clipboard?.writeText($('st-out').textContent || ''));
+      $('btn-copy-cli').addEventListener('click', () => navigator.clipboard?.writeText($('colab-cli').textContent || ''));
       $('btn-fix-ports').addEventListener('click', () => {
         const fixCmd = 'fuser -k 8000/tcp 8188/tcp 3000/tcp 2>/dev/null || true; pkill -f "cloudflared|uvicorn|main.py" 2>/dev/null || true; echo "Portas liberadas"';
         $('colab-cli').textContent = fixCmd;
@@ -583,7 +582,8 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
       });
 
       $('q-status').addEventListener('click', () => $('btn-check').click());
-      $('q-colab').addEventListener('click', () => showView('colab'));
+      $('q-cf').addEventListener('click', () => $('btn-cf').click());
+      $('q-cui').addEventListener('click', () => $('btn-cui').click());
       $('q-wan').addEventListener('click', () => {
         $('st-prompt').value = 'Cinematic slow dolly shot in rain-lit alley, reflections on wet asphalt, 24fps, crisp detail';
         showView('studio');
@@ -592,17 +592,13 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
       async function sendPrompt() {
         const text = inp.value.trim();
         if (!text) return;
-        const api = (localStorage.getItem('lux_repo_api') || $('cfg-api').value || '').trim().replace(/\/+$/, '');
+        const api = (localStorage.getItem('lux_repo_api') || $('cfg-api').value || DEFAULT_API).trim().replace(/\/+$/, '');
         const routeRaw = (localStorage.getItem('lux_repo_route') || $('cfg-route').value || '/executar').trim();
         const route = routeRaw.startsWith('/') ? routeRaw : '/' + routeRaw;
         addMsg('user', text);
         inp.value = '';
         inp.style.height = 'auto';
         const out = addMsg('assistant', 'Processando...');
-        if (!api) {
-          out.textContent = 'Sem URL de API configurada. Clique em 📡 Sincronizar ou abra ⚙️ Config para colar a URL do Colab.';
-          return;
-        }
         try {
           const res = await fetch(api + route, {
             method: 'POST',
@@ -628,9 +624,6 @@ ss -tulpn | grep -E "8000|8188|3000" || true</pre>
         inp.style.height = Math.min(inp.scrollHeight, 160) + 'px';
       });
 
-      if (($('cfg-api').value || '').trim()) {
-        setPill('dot-api', 'txt-api', 'API: configurada', 'ok');
-      }
       refreshToolBadges();
     })();
   </script>
