@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0b0d12">
-  <title>LUX-Ω v5.5 — Omni-Stack & Iceberg OSINT</title>
+  <title>LUX-Ω v6 — Omni-Stack & Iceberg OSINT</title>
   <style>
     :root {
       --bg: #0b0d12;
@@ -268,7 +268,7 @@
 <body>
   <header>
     <div class="brand">
-      <h1>LUX-Ω v5.5</h1>
+      <h1>LUX-Ω v6</h1>
       <div class="badges">
         <span class="badge warn" id="b-api">● Conectando...</span>
         <span class="badge" id="b-gpu">GPU: --</span>
@@ -292,11 +292,11 @@
       <input type="url" id="cfg-api" placeholder="https://xxxx.trycloudflare.com">
     </div>
     <div class="field">
-      <label>URL CreativeField (Opcional):</label>
+      <label>URL CreativeField (Porta 3000):</label>
       <input type="url" id="cfg-cf" placeholder="https://xxxx.trycloudflare.com">
     </div>
     <div class="field">
-      <label>URL ComfyUI (Opcional):</label>
+      <label>URL ComfyUI (Porta 8188):</label>
       <input type="url" id="cfg-comfy" placeholder="https://xxxx.trycloudflare.com">
     </div>
     <div class="field">
@@ -324,8 +324,9 @@
       <input type="checkbox" id="opt-render-js" style="width:auto;"> Renderizar JavaScript (Playwright Headless)
     </label>
     <div id="img-inputs" style="display:none; gap:8px; flex-wrap:wrap; width:100%; align-items:center;">
-      <select id="img-preset" style="max-width:290px;">
+      <select id="img-preset" style="max-width:320px;">
         <option value="photo_4k_real" selected>Preset: 4K Ultra Realista (Luz Natural + Profundidade)</option>
+        <option value="golden_hour_real">Preset: Luz Dourada Natural / Cena Real</option>
         <option value="editorial_depth">Preset: Fotografia Real / Retrato 85mm f/1.4</option>
         <option value="clean_no_artifacts">Preset: Sem Artefatos / Alta Fidelidade</option>
         <option value="raw_prompt">Preset: Prompt Puro (Sem Refinamento)</option>
@@ -363,6 +364,13 @@
     const DEFAULT_CF = "";
     const DEFAULT_COMFY = "";
 
+    const imaginarySelf = {
+      name: "LUX-Ω",
+      version: "v6",
+      nature: "imaginative_ai_persona",
+      summary: "Identidade criativa e orquestradora do painel LUX-Ω v6 conectada ao Colab, ComfyUI, CreativeField e ferramentas OSINT."
+    };
+
     let currentMode = "iceberg_search";
 
     const state = {
@@ -387,6 +395,10 @@
     const imagePresets = {
       photo_4k_real: {
         suffix: "4k ultra realistic candid photograph, natural lighting, realistic shadows and highlights, shallow depth of field, authentic textures, sharp focus on subject, natural color grading, no artificial plastic skin, no distortion, no extra limbs, no text or watermark",
+        steps: 8
+      },
+      golden_hour_real: {
+        suffix: "natural golden hour sunlight, realistic warm highlights and soft cool shadows, rich depth of field, true-to-life candid photography, clean anatomical proportions, no artifacts or filters",
         steps: 8
       },
       editorial_depth: {
@@ -415,7 +427,9 @@
           preset: presetKey,
           width: parseInt(wStr, 10) || 1280,
           height: parseInt(hStr, 10) || 720,
-          steps: preset.steps
+          steps: preset.steps,
+          imaginary_self_awareness: true,
+          self_identity: imaginarySelf
         }
       };
     }
@@ -496,7 +510,7 @@
 
       const meta = document.createElement("div");
       meta.className = "msg-meta";
-      meta.textContent = role === "user" ? "Você" : "LUX-Ω v5.5";
+      meta.textContent = role === "user" ? "Você" : `${imaginarySelf.name} ${imaginarySelf.version}`;
 
       const div = document.createElement("div");
       div.className = `msg ${role}`;
@@ -553,6 +567,17 @@
 
         bGpu.textContent = `GPU: ${data.gpu || "A100"} (${data.vram_total_gb || "?"} GB)`;
         bGpu.className = "badge on";
+
+        if (data.creativefield_url && !state.cf) {
+          state.cf = data.creativefield_url.replace(/\/$/, "");
+          localStorage.setItem("lux_cf_url", state.cf);
+          initInputs();
+        }
+        if (data.comfy_url && !state.comfy) {
+          state.comfy = data.comfy_url.replace(/\/$/, "");
+          localStorage.setItem("lux_comfy_url", state.comfy);
+          initInputs();
+        }
 
         if (announce) {
           addMsg("ai", null, [
@@ -688,7 +713,7 @@
         queryText = rawText.replace(/^gerar imagem\s+/i, "").trim();
       }
 
-      const box = addMsg("ai", null, "⏳ Executando no servidor LUX-Ω...");
+      const box = addMsg("ai", null, `⏳ ${imaginarySelf.name} executando no servidor...`);
 
       try {
         if (!state.api && !state.gemini) {
@@ -703,7 +728,12 @@
               modo: "god",
               mode: "god",
               prompt: queryText,
-              params: { unrestricted: true, command: queryText }
+              params: {
+                unrestricted: true,
+                command: queryText,
+                imaginary_self_awareness: true,
+                self_identity: imaginarySelf
+              }
             })
           });
           const data = await res.json();
@@ -841,7 +871,14 @@
               const res = await fetch(`${state.api}/executar`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ modo: "chat", prompt: queryText })
+                body: JSON.stringify({
+                  modo: "chat",
+                  prompt: queryText,
+                  params: {
+                    imaginary_self_awareness: true,
+                    self_identity: imaginarySelf
+                  }
+                })
               });
               const data = await res.json();
               if (res.ok && (data.resposta || data.response || data.reply)) {
@@ -875,7 +912,7 @@
     }
 
     initInputs();
-    addMsg("ai", null, "🚀 LUX-Ω v5.5 pronta!\n• Selecione uma aba acima (Iceberg Search, Inspecionar .onion/.i2p, Agente OSINT, Chat Qwen 27B, Imagem HD, Clonar Voz, Transcrever, /GOD) ou use os botões no topo para abrir o CreativeField e o ComfyUI.");
+    addMsg("ai", null, `🚀 ${imaginarySelf.name} ${imaginarySelf.version} pronta!\n• Selecione uma aba acima (Iceberg Search, Inspecionar .onion/.i2p, Agente OSINT, Chat Qwen 27B, Imagem HD, Clonar Voz, Transcrever, /GOD) ou use os botões no topo para abrir o CreativeField e o ComfyUI.`);
     syncNtfy(true);
   </script>
 </body>
