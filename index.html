@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LUX-Ω v12.0 — lux-omega-v12-a100-gguf-studio</title>
+  <style>
+    :root {
+      --bg: #131314;
+      --surface: #1e1f20;
+      --surface-2: #282a2c;
+      --border: #333537;
+      --text: #e3e3e3;
+      --muted: #9aa0a6;
+      --accent: #a8c7fa;
+      --accent-ink: #062e6f;
+      --ok: #81c995;
+      --warn: #fdd663;
+      --err: #f28b82;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Google Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .app { display: flex; height: 100vh; width: 100%; overflow: hidden; }
+    .sidebar {
+      width: 280px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .sidebar.collapsed { width: 0; padding: 0; border-right: none; overflow: hidden; }
+    .repo-title { font-size: 0.92rem; font-weight: 700; color: var(--accent); padding: 4px 8px; word-break: break-word; }
+    .repo-sub { font-size: 0.72rem; color: var(--muted); padding: 0 8px 8px; border-bottom: 1px solid var(--border); }
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .nav-btn:hover { background: var(--surface-2); }
+    .nav-btn.active { background: var(--surface-2); font-weight: 600; }
+    .sec { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; margin-top: 4px; border-top: 1px solid var(--border); }
+    .sec-lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 0 8px; }
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; }
+    .topbar {
+      height: 58px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+    .top-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
+    .dot.ok { background: var(--ok); }
+    .dot.err { background: var(--err); }
+    .top-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    button.btn {
+      appearance: none;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 0.81rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    button.btn:hover { background: var(--surface-2); border-color: #4a4e52; }
+    button.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+    .panel { display: none; background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 18px; flex-shrink: 0; }
+    .panel.open { display: block; }
+    .panel-grid { max-width: 860px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+    .field label { display: block; font-size: 0.73rem; color: var(--muted); margin-bottom: 4px; }
+    .field input, .field select {
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.86rem;
+      outline: none;
+    }
+    .panel-foot { max-width: 860px; margin: 10px auto 0; display: flex; justify-content: flex-end; gap: 8px; }
+    .scroll-area { flex: 1; overflow-y: auto; padding: 20px 18px 110px; }
+    .container { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    .greeting {
+      font-size: clamp(1.45rem, 2.8vw, 2rem);
+      font-weight: 600;
+      line-height: 1.25;
+      background: linear-gradient(90deg, #a8c7fa 0%, #d3e3fd 45%, #81c995 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+    .msg-u {
+      align-self: flex-end;
+      background: var(--surface-2);
+      border: 1px solid #3c4043;
+      border-radius: 20px 20px 6px 20px;
+      padding: 12px 16px;
+      max-width: 80%;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+    .msg-a {
+      align-self: flex-start;
+      width: 100%;
+      padding: 4px 2px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.95rem;
+      line-height: 1.62;
+    }
+    .composer { padding: 10px 18px 18px; background: var(--bg); flex-shrink: 0; }
+    .pill-box {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      padding: 8px 12px 8px 18px;
+    }
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      max-height: 160px;
+      min-height: 24px;
+      resize: none;
+      outline: none;
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="repo-title">lux-omega-v12-a100-gguf-studio</div>
+      <div class="repo-sub">kauanoliveira80-collab • LUX-Ω v12.0</div>
+      <button type="button" class="nav-btn active" data-view="chat">💬 Chat & /executar</button>
+      <button type="button" class="nav-btn" data-view="studio">🎬 Studio & GGUF</button>
+      <button type="button" class="nav-btn" data-view="status">📊 Status & Google Drive</button>
+      <div class="sec">
+        <div class="sec-lbl">Repositório & Túneis</div>
+        <button type="button" class="nav-btn" id="btn-repo">🐙 Abrir GitHub Repo</button>
+        <button type="button" class="nav-btn" id="btn-cf">🎞️ CreativeField</button>
+        <button type="button" class="nav-btn" id="btn-cui">⚙️ ComfyUI (--highvram)</button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="top-left">
+          <button type="button" class="btn" id="btn-toggle">☰</button>
+          <span class="pill"><span id="dot-api" class="dot"></span><span id="txt-api">API: pendente</span></span>
+          <span class="pill"><span id="dot-drive" class="dot"></span><span id="txt-drive">Drive: -</span></span>
+        </div>
+        <div class="top-actions">
+          <button type="button" class="btn" id="btn-sync">📡 Sincronizar</button>
+          <button type="button" class="btn" id="btn-check">Status</button>
+          <button type="button" class="btn primary" id="btn-cfg">⚙️ Config</button>
+        </div>
+      </header>
+
+      <section id="cfg-panel" class="panel">
+        <div class="panel-grid">
+          <div class="field">
+            <label for="cfg-repo">Repositório GitHub</label>
+            <input type="text" id="cfg-repo" value="https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio" />
+          </div>
+          <div class="field">
+            <label for="cfg-ntfy">Canal ntfy.sh</label>
+            <input type="text" id="cfg-ntfy" value="lux-omega-kauan-v55" />
+          </div>
+          <div class="field">
+            <label for="cfg-api">URL da API FastAPI</label>
+            <input type="url" id="cfg-api" placeholder="https://xxxx.trycloudflare.com" />
+          </div>
+          <div class="field">
+            <label for="cfg-route">Rota POST</label>
+            <input type="text" id="cfg-route" value="/executar" />
+          </div>
+        </div>
+        <div class="panel-foot">
+          <button type="button" class="btn" id="btn-close-cfg">Fechar</button>
+          <button type="button" class="btn primary" id="btn-save-cfg">Salvar</button>
+        </div>
+      </section>
+
+      <main id="scroll-area" class="scroll-area">
+        <div id="view-chat" class="container">
+          <div class="greeting">LUX-Ω v12.0 • lux-omega-v12-a100-gguf-studio</div>
+          <div class="msg-a">Conectado ao fluxo do repositório <b>lux-omega-v12-a100-gguf-studio</b>. Clique em <b>📡 Sincronizar</b> para capturar a API no canal <code>lux-omega-kauan-v55</code> ou abra <b>⚙️ Config</b>.</div>
+        </div>
+
+        <div id="view-studio" class="container hidden">
+          <div class="card">
+            <div style="font-weight:700;margin-bottom:6px;">Studio GGUF & ComfyUI (lux-omega-v12-a100-gguf-studio)</div>
+            <p style="font-size:0.86rem;color:var(--muted);margin-bottom:12px;">Envia comandos de geração para o backend do Colab e checa a disponibilidade de modelos no Google Drive.</p>
+            <div class="panel-grid">
+              <div class="field">
+                <label for="st-model">Preset</label>
+                <select id="st-model">
+                  <option value="wan22_a14b_gguf">Wan 2.2 A14B GGUF + UMT5-XXL</option>
+                  <option value="wan22_ti2v_5b">Wan 2.2 TI2V-5B (720p / 24fps)</option>
+                  <option value="ltx_25">LTX-2.5</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="st-prompt">Prompt</label>
+                <input type="text" id="st-prompt" placeholder="Descreva a cena..." />
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn primary" id="btn-run-st">Executar</button>
+            </div>
+            <pre id="st-out" style="margin-top:12px;white-space:pre-wrap;font-size:0.83rem;color:var(--muted);">Aguardando execução.</pre>
+          </div>
+        </div>
+
+        <div id="view-status" class="container hidden">
+          <div class="card">
+            <div style="font-weight:700;margin-bottom:8px;">Status do Colab & Arquivos no Google Drive</div>
+            <pre id="st-dump" style="white-space:pre-wrap;font-size:0.84rem;color:var(--muted);">Clique em "Status" no topo para verificar /status.</pre>
+          </div>
+        </div>
+      </main>
+
+      <div id="composer" class="composer">
+        <div class="pill-box">
+          <textarea id="inp" rows="1" placeholder="Pergunte ou envie um comando..."></textarea>
+          <button type="button" class="btn primary" id="btn-send">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      const sidebar = $('sidebar');
+      const cfgPanel = $('cfg-panel');
+      const inp = $('inp');
+      let comfyUrl = '';
+      let creativeUrl = '';
+
+      $('cfg-repo').value = localStorage.getItem('lux_repo_url') || 'https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio';
+      $('cfg-ntfy').value = localStorage.getItem('lux_repo_ntfy') || 'lux-omega-kauan-v55';
+      $('cfg-api').value = localStorage.getItem('lux_repo_api') || '';
+      $('cfg-route').value = localStorage.getItem('lux_repo_route') || '/executar';
+
+      function setPill(dotId, txtId, label, state) {
+        $(dotId).className = 'dot' + (state ? ' ' + state : '');
+        $(txtId).textContent = label;
+      }
+
+      function addMsg(role, text) {
+        const div = document.createElement('div');
+        div.className = role === 'user' ? 'msg-u' : 'msg-a';
+        div.textContent = text;
+        $('view-chat').appendChild(div);
+        $('scroll-area').scrollTop = $('scroll-area').scrollHeight;
+        return div;
+      }
+
+      function showView(name) {
+        document.querySelectorAll('.nav-btn[data-view]').forEach((b) => {
+          b.classList.toggle('active', b.dataset.view === name);
+        });
+        $('view-chat').classList.toggle('hidden', name !== 'chat');
+        $('view-studio').classList.toggle('hidden', name !== 'studio');
+        $('view-status').classList.toggle('hidden', name !== 'status');
+        $('composer').classList.toggle('hidden', name !== 'chat');
+      }
+
+      document.querySelectorAll('.nav-btn[data-view]').forEach((b) => {
+        b.addEventListener('click', () => showView(b.dataset.view));
+      });
+
+      $('btn-toggle').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+      $('btn-cfg').addEventListener('click', () => cfgPanel.classList.toggle('open'));
+      $('btn-close-cfg').addEventListener('click', () => cfgPanel.classList.remove('open'));
+
+      $('btn-save-cfg').addEventListener('click', () => {
+        const repo = ($('cfg-repo').value.trim() || 'https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio');
+        const ntfy = ($('cfg-ntfy').value.trim() || 'lux-omega-kauan-v55');
+        const api = $('cfg-api').value.trim().replace(/\/+$/, '');
+        const routeRaw = ($('cfg-route').value.trim() || '/executar');
+        const route = routeRaw.startsWith('/') ? routeRaw : '/' + routeRaw;
+        localStorage.setItem('lux_repo_url', repo);
+        localStorage.setItem('lux_repo_ntfy', ntfy);
+        localStorage.setItem('lux_repo_api', api);
+        localStorage.setItem('lux_repo_route', route);
+        cfgPanel.classList.remove('open');
+        if (api) setPill('dot-api', 'txt-api', 'API: configurada', 'ok');
+        addMsg('assistant', 'Configuração salva para lux-omega-v12-a100-gguf-studio.');
+      });
+
+      $('btn-sync').addEventListener('click', async () => {
+        const ch = ($('cfg-ntfy').value.trim() || 'lux-omega-kauan-v55');
+        setPill('dot-api', 'txt-api', 'API: sincronizando...', '');
+        try {
+          const res = await fetch('https://ntfy.sh/' + encodeURIComponent(ch) + '/json?poll=1&since=24h');
+          const raw = await res.text();
+          let found = null;
+          for (const line of raw.split(String.fromCharCode(10))) {
+            if (!line.trim()) continue;
+            try {
+              const obj = JSON.parse(line);
+              if (obj.api_url) found = obj.api_url;
+              if (obj.comfy_url) comfyUrl = obj.comfy_url;
+              if (obj.creativefield_url) creativeUrl = obj.creativefield_url;
+              const urls = (obj.message || '').match(/https?:\/\/[a-zA-Z0-9.-]+\.(?:trycloudflare\.com|loca\.lt|ngrok-free\.app|ngrok\.io)|http:\/\/bore\.pub:\d+/g);
+              if (urls && urls.length && !found) found = urls[0];
+            } catch (_) {}
+          }
+          if (found) {
+            found = found.replace(/\/+$/, '');
+            localStorage.setItem('lux_repo_api', found);
+            $('cfg-api').value = found;
+            setPill('dot-api', 'txt-api', 'API: online', 'ok');
+            addMsg('assistant', 'Sincronizado com ' + found);
+          } else {
+            setPill('dot-api', 'txt-api', 'API: sem URL', '');
+            addMsg('assistant', 'Nenhuma URL encontrada no canal ' + ch + '.');
+          }
+        } catch (err) {
+          setPill('dot-api', 'txt-api', 'API: erro', 'err');
+          addMsg('assistant', 'Erro ao sincronizar: ' + err.message);
+        }
+      });
+
+      $('btn-check').addEventListener('click', async () => {
+        const api = (localStorage.getItem('lux_repo_api') || $('cfg-api').value || '').trim().replace(/\/+$/, '');
+        if (!api) {
+          addMsg('assistant', 'Configure ou sincronize a URL da API primeiro.');
+          return;
+        }
+        showView('status');
+        $('st-dump').textContent = 'Consultando ' + api + '/status ...';
+        try {
+          const res = await fetch(api + '/status');
+          const data = await res.json();
+          $('st-dump').textContent = JSON.stringify(data, null, 2);
+          setPill('dot-api', 'txt-api', 'API: online', res.ok ? 'ok' : 'err');
+          const d = data.drive || {};
+          const count = Object.keys(d.found_models || {}).length;
+          setPill('dot-drive', 'txt-drive', 'Drive: ' + (d.drive_mounted ? count + ' mod.' : 'OFF'), d.drive_mounted ? 'ok' : 'err');
+        } catch (err) {
+          $('st-dump').textContent = 'Erro em /status: ' + err.message;
+          setPill('dot-api', 'txt-api', 'API: offline', 'err');
+        }
+      });
+
+      $('btn-repo').addEventListener('click', () => {
+        window.open((localStorage.getItem('lux_repo_url') || 'https://github.com/kauanoliveira80-collab/lux-omega-v12-a100-gguf-studio'), '_blank', 'noopener');
+      });
+      $('btn-cf').addEventListener('click', () => {
+        if (creativeUrl) window.open(creativeUrl, '_blank', 'noopener');
+        else addMsg('assistant', 'URL do CreativeField não recebida.');
+      });
+      $('btn-cui').addEventListener('click', () => {
+        if (comfyUrl) window.open(comfyUrl, '_blank', 'noopener');
+        else addMsg('assistant', 'URL do ComfyUI não recebida.');
+      });
+
+      $('btn-run-st').addEventListener('click', async () => {
+        const api = (localStorage.getItem('lux_repo_api') || $('cfg-api').value || '').trim().replace(/\/+$/, '');
+        const routeRaw = (localStorage.getItem('lux_repo_route') || $('cfg-route').value || '/executar').trim();
+        const route = routeRaw.startsWith('/') ? routeRaw : '/' + routeRaw;
+        const prompt = $('st-prompt').value.trim() || 'Cena cinematográfica';
+        const model = $('st-model').value;
+        if (!api) {
+          $('st-out').textContent = 'Configure ou sincronize a API primeiro.';
+          return;
+        }
+        $('st-out').textContent = 'Enviando...';
+        try {
+          const res = await fetch(api + route, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, mode: 'video_comfy', model, params: { prompt, model } })
+          });
+          const data = await res.json();
+          $('st-out').textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+          $('st-out').textContent = 'Erro: ' + err.message;
+        }
+      });
+
+      async function sendPrompt() {
+        const text = inp.value.trim();
+        if (!text) return;
+        const api = (localStorage.getItem('lux_repo_api') || $('cfg-api').value || '').trim().replace(/\/+$/, '');
+        const routeRaw = (localStorage.getItem('lux_repo_route') || $('cfg-route').value || '/executar').trim();
+        const route = routeRaw.startsWith('/') ? routeRaw : '/' + routeRaw;
+        addMsg('user', text);
+        inp.value = '';
+        inp.style.height = 'auto';
+        const out = addMsg('assistant', 'Processando...');
+        if (!api) {
+          out.textContent = 'Configure ou sincronize a URL da API em ⚙️ Config.';
+          return;
+        }
+        try {
+          const res = await fetch(api + route, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: text, message: text, text: text, mode: 'chat' })
+          });
+          const data = await res.json();
+          out.textContent = data.reply || data.response || data.output || data.text || JSON.stringify(data, null, 2);
+        } catch (err) {
+          out.textContent = 'Erro na API: ' + err.message;
+        }
+      }
+
+      $('btn-send').addEventListener('click', sendPrompt);
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendPrompt();
+        }
+      });
+      inp.addEventListener('input', () => {
+        inp.style.height = 'auto';
+        inp.style.height = Math.min(inp.scrollHeight, 160) + 'px';
+      });
+
+      if (($('cfg-api').value || '').trim()) {
+        setPill('dot-api', 'txt-api', 'API: configurada', 'ok');
+      }
+    })();
+  </script>
+</body>
+</html>
