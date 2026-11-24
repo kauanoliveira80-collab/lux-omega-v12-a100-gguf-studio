@@ -323,6 +323,19 @@
     <label id="lbl-render-js" style="display:none; align-items:center; gap:6px; cursor:pointer;">
       <input type="checkbox" id="opt-render-js" style="width:auto;"> Renderizar JavaScript (Playwright Headless)
     </label>
+    <div id="img-inputs" style="display:none; gap:8px; flex-wrap:wrap; width:100%; align-items:center;">
+      <select id="img-preset" style="max-width:290px;">
+        <option value="photo_4k_real" selected>Preset: 4K Ultra Realista (Luz Natural + Profundidade)</option>
+        <option value="editorial_depth">Preset: Fotografia Real / Retrato 85mm f/1.4</option>
+        <option value="clean_no_artifacts">Preset: Sem Artefatos / Alta Fidelidade</option>
+        <option value="raw_prompt">Preset: Prompt Puro (Sem Refinamento)</option>
+      </select>
+      <select id="img-res" style="max-width:170px;">
+        <option value="1280x720" selected>1280x720 (HD/4K Style)</option>
+        <option value="1024x1024">1024x1024 (1:1)</option>
+        <option value="832x1216">832x1216 (Vertical)</option>
+      </select>
+    </div>
     <div id="voice-inputs" style="display:none; gap:8px; flex-wrap:wrap; width:100%; align-items:center;">
       <input type="text" id="voice-url" placeholder="URL do vídeo/áudio de referência (YouTube/MP4/MP3)..." style="max-width:340px;">
       <input type="file" id="voice-file" accept="audio/*,video/*" style="max-width:250px;">
@@ -365,11 +378,47 @@
       osint_inspect: "Cole uma URL http://, https://, .onion ou .i2p para extrair...",
       iceberg_agent: "Tema para o Agente OSINT pesquisar, raspar e resumir...",
       chat: "Converse com o Qwen 3.8 27B na A100 (ou use: pesquisar iceberg ..., acessar onion ...)...",
-      imagem: "Descreva a imagem HD para gerar na GPU A100...",
+      imagem: "Descreva a cena real (ex: rua molhada ao entardecer, reflexos naturais, profundidade de campo)...",
       voice_clone: "Digite o texto que a voz clonada deve falar...",
       whisper: "Cole o link do vídeo/áudio para transcrever com Whisper...",
       god: "/GOD — Digite qualquer comando direto para execução irrestrita..."
     };
+
+    const imagePresets = {
+      photo_4k_real: {
+        suffix: "4k ultra realistic candid photograph, natural lighting, realistic shadows and highlights, shallow depth of field, authentic textures, sharp focus on subject, natural color grading, no artificial plastic skin, no distortion, no extra limbs, no text or watermark",
+        steps: 8
+      },
+      editorial_depth: {
+        suffix: "authentic real-world photograph shot on 85mm lens f/1.4, natural directional sunlight, rich depth of field, true-to-life skin and fabric texture, natural film grain, clean composition without artifacts or anatomical errors",
+        steps: 8
+      },
+      clean_no_artifacts: {
+        suffix: "high resolution realistic photograph, balanced exposure, natural ambient lighting, crisp detail, clean geometry, zero artifacts, zero blur on main subject, natural depth",
+        steps: 8
+      },
+      raw_prompt: {
+        suffix: "",
+        steps: 6
+      }
+    };
+
+    function buildImageRequest(rawPrompt) {
+      const presetKey = document.getElementById("img-preset")?.value || "photo_4k_real";
+      const resVal = document.getElementById("img-res")?.value || "1280x720";
+      const [wStr, hStr] = resVal.split("x");
+      const preset = imagePresets[presetKey] || imagePresets.photo_4k_real;
+      const finalPrompt = preset.suffix ? `${rawPrompt}, ${preset.suffix}` : rawPrompt;
+      return {
+        prompt: finalPrompt,
+        params: {
+          preset: presetKey,
+          width: parseInt(wStr, 10) || 1280,
+          height: parseInt(hStr, 10) || 720,
+          steps: preset.steps
+        }
+      };
+    }
 
     function initInputs() {
       document.getElementById("cfg-channel").value = state.channel;
@@ -428,11 +477,13 @@
 
         const extra = document.getElementById("extra-bar");
         const lblJs = document.getElementById("lbl-render-js");
+        const imgInputs = document.getElementById("img-inputs");
         const vInputs = document.getElementById("voice-inputs");
 
         lblJs.style.display = currentMode === "osint_inspect" ? "flex" : "none";
+        imgInputs.style.display = currentMode === "imagem" ? "flex" : "none";
         vInputs.style.display = currentMode === "voice_clone" ? "flex" : "none";
-        extra.classList.toggle("open", currentMode === "osint_inspect" || currentMode === "voice_clone");
+        extra.classList.toggle("open", currentMode === "osint_inspect" || currentMode === "imagem" || currentMode === "voice_clone");
       });
     });
 
@@ -700,15 +751,16 @@
           box.querySelector("pre").textContent = `📊 RELATÓRIO OSINT (${data.fontes_coletadas} fontes lidas):\n\n${data.relatorio}`;
 
         } else if (mode === "imagem") {
+          const imgReq = buildImageRequest(queryText);
           const res = await fetch(`${state.api}/executar`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ modo: "imagem", prompt: queryText })
+            body: JSON.stringify({ modo: "imagem", prompt: imgReq.prompt, params: imgReq.params })
           });
           const data = await res.json();
           if (!res.ok || !data.url) throw new Error(data.detail || "Erro ao gerar imagem");
           box.innerHTML = `
-            <div>🎨 Imagem gerada (${escapeHtml(data.resolucao || "1024x1024")}):</div>
+            <div>🎨 Imagem gerada (${escapeHtml(data.resolucao || `${imgReq.params.width}x${imgReq.params.height}`)}):</div>
             <img class="media-out" src="${escapeHtml(data.url)}" alt="Imagem gerada">
             <div style="margin-top:6px;"><a class="link-btn sec" href="${escapeHtml(data.url)}" target="_blank">⬇ Baixar PNG</a></div>
           `;
