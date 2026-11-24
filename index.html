@@ -449,6 +449,68 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
         });
       }
 
+      function extractPersonQuery(text) {
+        // Matches phrases like "foto de fulano com roupa azul", "imagem de fulano", "foto do fulano", etc.
+        const m = text.match(/(?:foto|imagem|retrato|rosto|pessoa)\s+(?:de|do|da|dos|das)\s+([A-ZÀ-Úa-zà-ú0-9_-]+(?:\s+[A-ZÀ-Úa-zà-ú0-9_-]+){0,3})(?=\s+(?:com|usando|vestindo|em|no|na|sorrindo|olhando|fazendo|de|por)|$|[,.!?])/i);
+        if (m && m[1]) {
+          const candidate = m[1].trim();
+          const stopWords = ['uma', 'um', 'alguma', 'alguem', 'alguém', 'mim', 'voce', 'você', 'fulano', 'ciclano', 'beltrano', 'estilo', 'tipo'];
+          if (!stopWords.includes(candidate.toLowerCase())) {
+            return candidate;
+          }
+        }
+        return null;
+      }
+
+      async function searchWebForPerson(personName, fullPrompt) {
+        const query = `${personName} photo portrait`;
+        const results = { person: personName, query, images: [], web: [], error: null };
+        try {
+          // 1) Wikimedia Commons API (open image search with CORS support)
+          const wmUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(personName + ' portrait')}&gsrnamespace=6&gsrlimit=4&prop=imageinfo&iiprop=url|extmetadata&format=json&origin=*`;
+          const wmRes = await fetch(wmUrl);
+          if (wmRes.ok) {
+            const wmData = await wmRes.json();
+            const pages = wmData?.query?.pages ? Object.values(wmData.query.pages) : [];
+            for (const p of pages) {
+              const info = p?.imageinfo?.[0];
+              if (info?.url && !/\.svg$/i.test(info.url)) {
+                results.images.push({
+                  title: p.title || personName,
+                  url: info.url,
+                  source: info.descriptionurl || info.url
+                });
+              }
+            }
+          }
+        } catch (e) {
+          results.error = e.message;
+        }
+
+        try {
+          // 2) DuckDuckGo Instant Answer API for reference summary/links
+          const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(personName)}&format=json&no_html=1&skip_disambig=1`;
+          const ddgRes = await fetch(ddgUrl);
+          if (ddgRes.ok) {
+            const ddg = await ddgRes.json();
+            if (ddg.AbstractText) {
+              results.web.push({ title: ddg.Heading || personName, snippet: ddg.AbstractText, url: ddg.AbstractURL || '' });
+            }
+            if (ddg.Image) {
+              const imgUrl = ddg.Image.startsWith('http') ? ddg.Image : `https://duckduckgo.com${ddg.Image}`;
+              results.images.unshift({ title: ddg.Heading || personName, url: imgUrl, source: ddg.AbstractURL || imgUrl });
+            }
+            for (const t of (ddg.RelatedTopics || []).slice(0, 3)) {
+              if (t.Text) {
+                results.web.push({ title: personName, snippet: t.Text, url: t.FirstURL || '' });
+              }
+            }
+          }
+        } catch (_) {}
+
+        return results;
+      }
+
       function detectIntentAndSpecs(text, hasFile) {
         const low = text.toLowerCase();
         let tool = 'chat';
@@ -485,6 +547,8 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
           fps: /30\s*fps/.test(low) ? 30 : 24,
           style: /anime/.test(low) ? 'anime studio keyframe vibrant' : (/cyberpunk/.test(low) ? 'cyberpunk neon lighting concept art' : 'cinematic photorealistic 8k'),
           language: /inglês|ingles|en-us/.test(low) ? 'en-US' : (/espanhol|es-es/.test(low) ? 'es-ES' : 'pt-BR'),
+          person_query: extractPersonQuery(text),
+          web_lookup_person: Boolean(extractPersonQuery(text)),
           auto_load_tools: true
         };
 
@@ -631,15 +695,28 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
           return;
         }
 
+        const personName = (specs && specs.person_query) || extractPersonQuery(cleanText);
+        let webPersonData = null;
+        if (personName || tool === 'web_search' || tool === 'image') {
+          const searchTarget = personName || cleanText;
+          const sDiv = addMsg('assistant', 'Pesquisando na web por "' + searchTarget + '" para localizar referências e foto...');
+          webPersonData = await searchWebForPerson(searchTarget, cleanText);
+          sDiv.remove();
+        }
+
+        const enrichedPrompt = webPersonData && webPersonData.person
+          ? `${cleanText} [Referência encontrada na web para "${webPersonData.person}": ${webPersonData.images.map(i => i.url).slice(0, 2).join(' | ') || 'sem imagem direta'}]`
+          : cleanText;
+
         const outDiv = addMsg('assistant', 'Encaminhando para o Colab (' + tool + ') — carregando/baixando ferramenta se necessário e processando...');
         try {
           const res = await fetch(api + getRoute(), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              prompt: cleanText,
-              message: cleanText,
-              text: cleanText,
+              prompt: enrichedPrompt,
+              message: enrichedPrompt,
+              text: enrichedPrompt,
               mode: tool,
               tool,
               model: specs.model,
@@ -651,7 +728,9 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
                 file_name: fileName,
                 file_base64: fileB64,
                 comfy_url: comfyUrl,
-                creativefield_url: creativeUrl
+                creativefield_url: creativeUrl,
+                person_query: personName,
+                web_person_data: webPersonData
               }
             })
           });
@@ -670,6 +749,24 @@ Basta escrever o que você quer em linguagem natural: eu entendo seu pedido, per
           const txtEl = document.createElement('div');
           txtEl.textContent = replyText;
           outDiv.appendChild(txtEl);
+
+          if (webPersonData && (webPersonData.images.length || webPersonData.web.length)) {
+            const wEl = document.createElement('div');
+            wEl.className = 'media-box';
+            let wHtml = '<div><b>Pesquisa na Web (' + (webPersonData.person || cleanText) + '):</b></div>';
+            if (webPersonData.images.length) {
+              wHtml += webPersonData.images.slice(0, 2).map((im) =>
+                '<div style="margin-top:6px;"><div style="font-size:0.75rem;color:var(--muted);">Referência encontrada: ' + im.title + '</div><img src="' + im.url + '" alt="' + im.title + '" /></div>'
+              ).join('');
+            }
+            if (webPersonData.web.length) {
+              wHtml += '<div style="margin-top:8px;font-size:0.78rem;color:var(--muted);">' +
+                webPersonData.web.slice(0, 2).map((w) => '• <b>' + w.title + '</b>: ' + w.snippet).join('<br>') +
+                '</div>';
+            }
+            wEl.innerHTML = wHtml;
+            outDiv.appendChild(wEl);
+          }
 
           if (mediaHtml) {
             const mEl = document.createElement('div');
