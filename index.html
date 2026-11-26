@@ -343,6 +343,7 @@
       const DEFAULT_URL = "https://displaying-monthly-computing-today.trycloudflare.com";
       const NTFY_TOPIC = "lux-omega-kauan-v55";
       const STORAGE_KEY = "lux_omega_active_api_url";
+      const TUNNEL_RE = new RegExp("https://[a-zA-Z0-9-]+\\.trycloudflare\\.com");
 
       const apiUrlInput = document.getElementById("apiUrl");
       const dot = document.getElementById("dot");
@@ -455,9 +456,7 @@
           const resp = await fetch(`https://ntfy.sh/${NTFY_TOPIC}/json?poll=1&since=30m`, { cache: "no-store" });
           if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
           const text = await resp.text();
-          const lines = text.split(/
-?
-/).map(s => s.trim()).filter(Boolean);
+          const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
           let found = null;
           for (let i = lines.length - 1; i >= 0; i--) {
             try {
@@ -471,7 +470,7 @@
                 found = msg.api || msg.api_url || msg.url || null;
               }
               if (!found && typeof item.message === "string") {
-                const m = item.message.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+                const m = item.message.match(TUNNEL_RE);
                 if (m) found = m[0];
               }
               if (found) break;
