@@ -1,186 +1,167 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LUX-Ω Studio — Claude Editorial Console (Tesla T4)</title>
+  <title>LUX-Ω Studio — Claude Editorial (Tesla T4)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <script>
+    // Configure Tailwind with a Claude-inspired #131314 dark editorial palette
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-            serif: ['Newsreader', 'Georgia', 'serif'],
-            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
           },
           colors: {
-            clay: {
-              50: '#FAF8F5',
-              100: '#F3EFEA',
-              200: '#E6DFD5',
-              300: '#D5CBBF',
-              700: '#5C554E',
-              800: '#2A2725',
-              850: '#211F1D',
-              900: '#191817',
-              950: '#131314',
+            claude: {
+              bg: '#131314',
+              surface: '#1b1a19',
+              card: '#21201f',
+              input: '#171615',
+              hover: '#292826',
+              border: '#2e2c2a',
+              borderStrong: '#3d3a37',
+              text: '#eceae4',
+              muted: '#9e9991',
+              faint: '#6f6b65',
+              accent: '#d97757',
+              accentHover: '#e08465',
+              accentSoft: 'rgba(217, 119, 87, 0.14)',
+              ok: '#4ade80',
+              warn: '#fbbf24',
+              err: '#f87171',
             },
-            terracotta: {
-              400: '#E08266',
-              500: '#D97757',
-              600: '#C46243',
-              700: '#A34D32',
-            }
           },
-          boxShadow: {
-            'editorial': '0 1px 3px rgba(19, 19, 20, 0.06), 0 12px 28px -12px rgba(19, 19, 20, 0.12)',
-            'editorial-dark': '0 1px 2px rgba(0, 0, 0, 0.35), 0 16px 32px -16px rgba(0, 0, 0, 0.55)',
-          }
-        }
-      }
+        },
+      },
     };
   </script>
   <style>
-    :root {
-      color-scheme: light dark;
-    }
-    * {
-      box-sizing: border-box;
-    }
+    /* Fluid editorial surfaces, clean scrollbars, and subtle motion */
     html, body {
-      margin: 0;
-      padding: 0;
+      background-color: #131314;
+      color: #eceae4;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       overflow-x: hidden;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
     }
-    .font-editorial {
-      font-family: 'Newsreader', Georgia, serif;
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: #131314; }
+    ::-webkit-scrollbar-thumb { background: #2e2c2a; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3c39; }
+    .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .panel-enter {
+      animation: panelFade 150ms ease-out;
     }
-    .font-code {
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
-    }
-    ::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(120, 113, 108, 0.32);
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(217, 119, 87, 0.55);
+    @keyframes panelFade {
+      from { opacity: 0.5; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
-<body class="min-h-screen bg-clay-50 text-clay-900 dark:bg-clay-950 dark:text-clay-100 antialiased">
-  <!-- Non-blocking Toast Container -->
-  <div id="toast-root" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 w-full max-w-xs px-4 sm:px-0 pointer-events-none"></div>
+<body class="min-h-screen bg-claude-bg text-claude-text antialiased selection:bg-claude-accent/25 selection:text-white">
+  <!-- Toast / Message Box Container (no alert/confirm dialogs) -->
+  <div id="toast-box" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 w-full max-w-sm px-4 sm:px-0 pointer-events-none"></div>
 
-  <!-- Top Editorial Bar -->
-  <header class="sticky top-0 z-30 border-b border-clay-200/90 dark:border-clay-800/90 bg-clay-50/90 dark:bg-clay-950/90 backdrop-blur-md">
+  <!-- Sticky Claude-style Header -->
+  <header class="sticky top-0 z-30 bg-claude-bg/90 backdrop-blur-md border-b border-claude-border">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-2.5">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <!-- Brand & Hardware Telemetry -->
+      <div class="flex flex-wrap items-center justify-between gap-2.5">
         <div class="flex items-center gap-3 min-w-0">
-          <div class="w-9 h-9 rounded-2xl bg-terracotta-500 text-white flex items-center justify-center font-editorial text-xl font-semibold shadow-sm shrink-0">
+          <div class="w-8 h-8 rounded-lg bg-claude-accent/15 border border-claude-accent/40 text-claude-accent flex items-center justify-center font-bold text-sm shrink-0">
             Ω
           </div>
           <div class="min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
-              <h1 class="font-editorial text-lg sm:text-xl font-semibold tracking-tight text-clay-900 dark:text-clay-50">
-                LUX-Ω Studio
-              </h1>
-              <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/12 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25">
+              <h1 class="text-sm sm:text-base font-semibold tracking-tight text-claude-text">LUX-Ω Studio</h1>
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">
                 Zero Paid Tokens
               </span>
-              <span id="poll-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-code bg-clay-100 dark:bg-clay-900 text-clay-700 dark:text-clay-300 border border-clay-200 dark:border-clay-800">
-                <span class="w-1.5 h-1.5 rounded-full bg-terracotta-500 animate-pulse"></span>
+              <span id="ntfy-live-badge" class="px-2 py-0.5 rounded-full text-[11px] mono bg-claude-card text-claude-muted border border-claude-border">
                 ntfy 8s
               </span>
             </div>
-            <p id="hw-spec" class="text-xs font-code text-clay-700 dark:text-clay-300/80 truncate">
+            <p id="hw-line" class="text-[11px] mono text-claude-muted truncate">
               Tesla T4 • 14.6 GB VRAM • 12.7 GB RAM • t4_15gb
             </p>
           </div>
         </div>
 
-        <!-- Connection Pill, Health Check & Theme Toggle -->
         <div class="flex items-center gap-2 flex-wrap">
-          <div id="status-pill" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-clay-100 dark:bg-clay-900 border border-clay-200 dark:border-clay-800 text-xs font-medium">
-            <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-            <span id="status-label" class="text-clay-800 dark:text-clay-200">API: verificando</span>
+          <div id="status-chip" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-claude-card border border-claude-border text-xs">
+            <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+            <span id="status-label" class="text-claude-muted font-medium">API: verificando</span>
           </div>
-
           <button
-            id="btn-health"
             type="button"
-            onclick="checkHealthAndStatus()"
-            class="px-3.5 py-1.5 rounded-full bg-terracotta-500 hover:bg-terracotta-600 active:scale-[0.99] text-white text-xs font-medium transition shadow-sm"
+            id="btn-check-health"
+            onclick="checkHealthAndStatus(true)"
+            class="px-3 py-1.5 rounded-lg bg-claude-accent hover:bg-claude-accentHover active:scale-[0.99] text-white text-xs font-medium transition cursor-pointer"
           >
             Testar /health &amp; /status
           </button>
-
           <button
-            id="btn-theme"
             type="button"
-            onclick="toggleTheme()"
-            aria-label="Alternar tema claro e escuro"
-            class="p-2 rounded-full bg-clay-100 hover:bg-clay-200 dark:bg-clay-900 dark:hover:bg-clay-800 border border-clay-200 dark:border-clay-800 text-clay-800 dark:text-clay-200 transition"
+            id="btn-toggle-inspector"
+            onclick="toggleInspector()"
+            class="px-2.5 py-1.5 rounded-lg bg-claude-card hover:bg-claude-hover border border-claude-border text-xs text-claude-muted hover:text-claude-text transition cursor-pointer"
+            title="Expandir ou recolher o inspetor JSON"
           >
-            <svg id="icon-sun" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1.5m0 15V21m9-9h-1.5M4.5 12H3m15.364-6.364-1.06 1.06M6.697 17.303l-1.061 1.06m12.728 0-1.06-1.06M6.697 6.697 5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-            </svg>
-            <svg id="icon-moon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-            </svg>
+            JSON
           </button>
         </div>
       </div>
 
       <!-- Compact Endpoint & ntfy Sync Strip -->
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-2 pt-0.5">
-        <div class="md:col-span-5 flex items-center gap-2 bg-clay-100 dark:bg-clay-900/90 border border-clay-200 dark:border-clay-800 rounded-xl px-3 py-1.5">
-          <span class="text-[11px] font-medium text-clay-700 dark:text-clay-300/75 shrink-0">API</span>
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-2">
+        <div class="md:col-span-5 flex items-center bg-claude-input border border-claude-border focus-within:border-claude-accent/70 rounded-lg px-2.5 py-1.5 gap-2">
+          <span class="text-[11px] mono text-claude-faint shrink-0">API</span>
           <input
             id="input-api-url"
-            type="url"
-            class="w-full bg-transparent text-xs font-code text-clay-900 dark:text-clay-100 focus:outline-none"
-            placeholder="https://ultimate-showers-operator-aquarium.trycloudflare.com"
+            type="text"
+            spellcheck="false"
+            oninput="markManualEdit('apiUrl')"
+            onchange="persistConfig()"
+            class="w-full bg-transparent text-xs mono text-claude-text focus:outline-none min-w-0"
+            placeholder="https://foundations-shareholders-recipes-dsl.trycloudflare.com"
           />
         </div>
 
-        <div class="md:col-span-4 flex items-center gap-2 bg-clay-100 dark:bg-clay-900/90 border border-clay-200 dark:border-clay-800 rounded-xl px-3 py-1.5">
-          <span class="text-[11px] font-medium text-clay-700 dark:text-clay-300/75 shrink-0">ComfyUI</span>
+        <div class="md:col-span-4 flex items-center bg-claude-input border border-claude-border focus-within:border-claude-accent/70 rounded-lg px-2.5 py-1.5 gap-2">
+          <span class="text-[11px] mono text-claude-faint shrink-0">ComfyUI</span>
           <input
             id="input-comfy-url"
-            type="url"
-            class="w-full bg-transparent text-xs font-code text-clay-900 dark:text-clay-100 focus:outline-none"
+            type="text"
+            spellcheck="false"
+            oninput="markManualEdit('comfyUrl')"
+            onchange="persistConfig()"
+            class="w-full bg-transparent text-xs mono text-claude-text focus:outline-none min-w-0"
             placeholder="http://127.0.0.1:8188"
           />
         </div>
 
-        <div class="md:col-span-3 flex items-center gap-1.5 bg-clay-100 dark:bg-clay-900/90 border border-clay-200 dark:border-clay-800 rounded-xl pl-3 pr-1.5 py-1">
-          <span class="text-[11px] font-medium text-clay-700 dark:text-clay-300/75 shrink-0">ntfy</span>
-          <input
-            id="input-ntfy-channel"
-            type="text"
-            class="w-full bg-transparent text-xs font-code text-clay-900 dark:text-clay-100 focus:outline-none min-w-0"
-            placeholder="lux-omega-kauan-v55"
-          />
+        <div class="md:col-span-3 flex items-center gap-1.5">
+          <div class="flex-1 flex items-center bg-claude-input border border-claude-border focus-within:border-claude-accent/70 rounded-lg px-2.5 py-1.5 gap-1.5 min-w-0">
+            <span class="text-[11px] mono text-claude-faint shrink-0">ntfy</span>
+            <input
+              id="input-ntfy-channel"
+              type="text"
+              spellcheck="false"
+              onchange="persistConfig(); syncNtfy(true);"
+              class="w-full bg-transparent text-xs mono text-claude-text focus:outline-none min-w-0"
+              placeholder="lux-omega-kauan-v55"
+            />
+          </div>
           <button
-            id="btn-sync"
             type="button"
+            id="btn-sync-ntfy"
             onclick="syncNtfy(true)"
-            class="px-2.5 py-1 rounded-lg bg-clay-200/80 hover:bg-clay-300/80 dark:bg-clay-800 dark:hover:bg-clay-700 text-[11px] font-semibold text-clay-900 dark:text-clay-100 transition shrink-0"
+            class="px-3 py-1.5 rounded-lg bg-claude-card hover:bg-claude-hover border border-claude-border text-xs font-medium text-claude-text transition shrink-0 cursor-pointer"
           >
             Sync
           </button>
@@ -189,504 +170,451 @@
     </div>
   </header>
 
-  <!-- Main Workspace -->
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
-    <!-- Mode Tabs -->
-    <nav aria-label="Modos de trabalho" class="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-clay-200/80 dark:border-clay-800/80">
-      <button type="button" data-mode="imagem" onclick="setMode('imagem')" class="mode-tab px-4 py-2 rounded-t-xl text-xs sm:text-sm font-medium transition whitespace-nowrap">
+  <!-- Main Editorial Workspace -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col gap-5">
+    <!-- Mode Switcher Bar -->
+    <nav aria-label="Modos do estúdio" class="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-claude-border">
+      <button type="button" data-mode="imagem" onclick="selectTab('imagem')" class="mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer">
         Imagem
       </button>
-      <button type="button" data-mode="video" onclick="setMode('video')" class="mode-tab px-4 py-2 rounded-t-xl text-xs sm:text-sm font-medium transition whitespace-nowrap">
+      <button type="button" data-mode="video" onclick="selectTab('video')" class="mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer">
         Vídeo com Som
       </button>
-      <button type="button" data-mode="memoria" onclick="setMode('memoria')" class="mode-tab px-4 py-2 rounded-t-xl text-xs sm:text-sm font-medium transition whitespace-nowrap">
+      <button type="button" data-mode="memoria" onclick="selectTab('memoria')" class="mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer">
         Memoria MD
       </button>
-      <button type="button" data-mode="scraper" onclick="setMode('scraper')" class="mode-tab px-4 py-2 rounded-t-xl text-xs sm:text-sm font-medium transition whitespace-nowrap">
+      <button type="button" data-mode="scraper" onclick="selectTab('scraper')" class="mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer">
         Scraper Free
       </button>
-      <button type="button" data-mode="comfy" onclick="setMode('comfy')" class="mode-tab px-4 py-2 rounded-t-xl text-xs sm:text-sm font-medium transition whitespace-nowrap">
+      <button type="button" data-mode="comfy" onclick="selectTab('comfy')" class="mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer">
         ComfyUI (8188)
       </button>
     </nav>
 
-    <!-- MODE 1: IMAGEM -->
-    <section id="view-imagem" class="mode-view grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      <div class="lg:col-span-6 rounded-2xl bg-white dark:bg-clay-900 border border-clay-200/90 dark:border-clay-800 p-5 sm:p-6 shadow-editorial dark:shadow-editorial-dark flex flex-col gap-4">
-        <div class="flex items-baseline justify-between gap-2">
-          <h2 class="font-editorial text-xl font-semibold text-clay-900 dark:text-clay-50">Compor Imagem</h2>
-          <span class="text-[11px] font-code text-terracotta-600 dark:text-terracotta-400">modo: "imagem"</span>
-        </div>
-
-        <div class="flex flex-wrap gap-1.5">
-          <button type="button" onclick="applyQuickPrompt('img', 'Nave espacial minimalista sobre oceano tempestuoso ao crepúsculo, luz volumétrica suave, fotografia editorial de alta definição')" class="px-2.5 py-1 rounded-full text-[11px] bg-clay-100 hover:bg-clay-200 dark:bg-clay-850 dark:hover:bg-clay-800 text-clay-800 dark:text-clay-200 transition">
-            + Nave &amp; Oceano
-          </button>
-          <button type="button" onclick="applyQuickPrompt('img', 'Estúdio arquitetônico em concreto polido e madeira quente, luz natural lateral, composição limpa e detalhada')" class="px-2.5 py-1 rounded-full text-[11px] bg-clay-100 hover:bg-clay-200 dark:bg-clay-850 dark:hover:bg-clay-800 text-clay-800 dark:text-clay-200 transition">
-            + Estúdio Editorial
-          </button>
-          <button type="button" onclick="applyQuickPrompt('img', 'Retrato cinematográfico em rua chuvosa à noite com reflexos âmbar e ciano, foco nítido, granulação sutil')" class="px-2.5 py-1 rounded-full text-[11px] bg-clay-100 hover:bg-clay-200 dark:bg-clay-850 dark:hover:bg-clay-800 text-clay-800 dark:text-clay-200 transition">
-            + Retrato Noturno
-          </button>
-        </div>
-
-        <div class="flex flex-col gap-1.5">
-          <label for="img-prompt" class="text-xs font-medium text-clay-700 dark:text-clay-300">Prompt (Ctrl/Cmd + Enter para gerar)</label>
-          <textarea
-            id="img-prompt"
-            rows="4"
-            onkeydown="handleShortcut(event, 'image')"
-            placeholder="Descreva a cena, iluminação, enquadramento e estilo..."
-            class="w-full p-3.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 focus:border-terracotta-500 focus:outline-none text-sm leading-relaxed text-clay-900 dark:text-clay-100"
-          ></textarea>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <div class="flex flex-col gap-1">
-            <label for="img-w" class="text-[11px] text-clay-700 dark:text-clay-400">Largura</label>
-            <input id="img-w" type="number" step="64" min="256" max="1536" value="896" class="px-3 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none" />
+    <!-- Active Workspace Grid -->
+    <div id="workspace-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <!-- Primary Control Column -->
+      <section id="controls-column" class="lg:col-span-7 flex flex-col gap-4">
+        <!-- 1. IMAGEM (modo: "imagem") -->
+        <div id="tab-imagem" class="tab-view panel-enter rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-4">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-semibold text-claude-text">Compor Imagem</h2>
+              <p class="text-xs text-claude-muted">Executa <span class="mono text-claude-accent">modo: "imagem"</span> na GPU local sem tokens pagos.</p>
+            </div>
+            <span class="text-[11px] mono px-2 py-0.5 rounded bg-claude-card border border-claude-border text-claude-muted">
+              Ctrl/Cmd + Enter
+            </span>
           </div>
-          <div class="flex flex-col gap-1">
-            <label for="img-h" class="text-[11px] text-clay-700 dark:text-clay-400">Altura</label>
-            <input id="img-h" type="number" step="64" min="256" max="1536" value="896" class="px-3 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none" />
-          </div>
-          <div class="flex flex-col gap-1">
-            <label for="img-steps" class="text-[11px] text-clay-700 dark:text-clay-400">Steps</label>
-            <input id="img-steps" type="number" min="1" max="50" value="4" class="px-3 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none" />
-          </div>
-          <div class="flex flex-col gap-1">
-            <label for="img-seed" class="text-[11px] text-clay-700 dark:text-clay-400">Seed</label>
-            <input id="img-seed" type="number" placeholder="Auto" class="px-3 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none" />
-          </div>
-        </div>
 
-        <div class="flex flex-col gap-1">
-          <label for="img-model" class="text-[11px] text-clay-700 dark:text-clay-400">Modelo opcional (fallback local automático)</label>
-          <input id="img-model" type="text" placeholder="Ex.: stabilityai/sdxl-turbo" class="px-3 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none" />
-        </div>
-
-        <div class="flex items-center gap-2.5 pt-1">
-          <button
-            id="btn-run-image"
-            type="button"
-            onclick="runImage()"
-            class="px-5 py-2.5 rounded-xl bg-terracotta-500 hover:bg-terracotta-600 active:scale-[0.99] text-white text-xs sm:text-sm font-semibold transition shadow-sm"
-          >
-            Gerar Imagem
-          </button>
-          <a
-            id="img-dl"
-            href="#"
-            download="lux_omega_image.png"
-            class="hidden px-3.5 py-2.5 rounded-xl bg-clay-100 hover:bg-clay-200 dark:bg-clay-850 dark:hover:bg-clay-800 border border-clay-200 dark:border-clay-700 text-xs font-semibold text-clay-900 dark:text-clay-100 transition"
-          >
-            Baixar PNG
-          </a>
-        </div>
-      </div>
-
-      <div class="lg:col-span-6 rounded-2xl bg-white dark:bg-clay-900 border border-clay-200/90 dark:border-clay-800 p-5 sm:p-6 shadow-editorial dark:shadow-editorial-dark flex flex-col gap-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold uppercase tracking-wider text-clay-700 dark:text-clay-400">Prévia Visual</span>
-          <span id="img-caption" class="text-[11px] font-code text-clay-700 dark:text-clay-400 truncate max-w-[65%]">Aguardando geração</span>
-        </div>
-        <div class="rounded-xl bg-clay-100/80 dark:bg-clay-950 border border-clay-200/70 dark:border-clay-800/80 min-h-[320px] flex items-center justify-center p-3">
-          <img id="img-out" alt="Imagem gerada pelo LUX-Ω" class="hidden max-h-[440px] w-auto rounded-lg object-contain" />
-          <p id="img-empty" class="font-editorial italic text-sm text-clay-700/70 dark:text-clay-400">
-            Sua imagem aparecerá aqui assim que o servidor concluir.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- MODE 2: VÍDEO COM SOM -->
-    <section id="view-video" class="mode-view hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      <div class="lg:col-span-6 rounded-2xl bg-white dark:bg-clay-900 border border-clay-200/90 dark:border-clay-800 p-5 sm:p-6 shadow-editorial dark:shadow-editorial-dark flex flex-col gap-4">
-        <div class="flex items-baseline justify-between gap-2">
-          <h2 class="font-editorial text-xl font-semibold text-clay-900 dark:text-clay-50">Compor Vídeo com Som</h2>
-          <span class="text-[11px] font-code text-terracotta-600 dark:text-terracotta-400">modo: "video"</span>
-        </div>
-
-        <div class="flex flex-wrap gap-1.5">
-          <button type="button" onclick="applyQuickPrompt('vid', 'Movimento fluido de câmera sobre ondas e névoa ao pôr do sol, trilha harmônica suave e textura cinematográfica')" class="px-2.5 py-1 rounded-full text-[11px] bg-clay-100 hover:bg-clay-200 dark:bg-clay-850 dark:hover:bg-clay-800 text-clay-800 dark:text-clay-200 transition">
-            + Horizonte &amp; Som
-          </button>
-          <button type="button" onclick="applyQuickPrompt('vid', 'Partículas luminosas em movimento contínuo sobre superfície escura reflexiva com ambiência sonora profunda')" class="px-2.5 py-1 rounded-full text-[11px] bg-clay-100 hover:bg-clay-200 dark:bg-clay-850 dark:hover:bg-clay-800 text-clay-800 dark:text-clay-200 transition">
-            + Fluxo Abstrato
-          </button>
-        </div>
-
-        <div class="flex flex-col gap-1.5">
-          <label for="vid-prompt" class="text-xs font-medium text-clay-700 dark:text-clay-300">Prompt de cena e áudio (Ctrl/Cmd + Enter)</label>
-          <textarea
-            id="vid-prompt"
-            rows="4"
-            onkeydown="handleShortcut(event, 'video')"
-            placeholder="Descreva o movimento visual e o clima sonoro do clipe..."
-            class="w-full p-3.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 focus:border-terracotta-500 focus:outline-none text-sm leading-relaxed text-clay-900 dark:text-clay-100"
-          ></textarea>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-          <div class="flex flex-col gap-1">
-            <label for="vid-w" class="text-[11px] text-clay-700 dark:text-clay-400">Largura</label>
-            <input id="vid-w" type="number" step="32" min="256" max="1280" value="768" class="px-2.5 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none" />
+          <!-- Quick prompt starters -->
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="setQuickPrompt('img-prompt', 'Nave espacial elegante cruzando órbita ao entardecer com iluminação volumétrica, detalhe fotográfico, 85mm')" class="px-2.5 py-1 rounded-full text-[11px] bg-claude-card hover:bg-claude-hover border border-claude-border text-claude-muted hover:text-claude-text transition cursor-pointer">
+              + Nave orbital
+            </button>
+            <button type="button" onclick="setQuickPrompt('img-prompt', 'Fotografia editorial de estúdio minimalista, luz lateral suave, textura natural, alta nitidez')" class="px-2.5 py-1 rounded-full text-[11px] bg-claude-card hover:bg-claude-hover border border-claude-border text-claude-muted hover:text-claude-text transition cursor-pointer">
+              + Estúdio editorial
+            </button>
+            <button type="button" onclick="setQuickPrompt('img-prompt', 'Cena noturna urbana após chuva leve, reflexos quentes e frios no asfalto, profundidade de campo cinematográfica')" class="px-2.5 py-1 rounded-full text-[11px] bg-claude-card hover:bg-claude-hover border border-claude-border text-claude-muted hover:text-claude-text transition cursor-pointer">
+              + Cena noturna
+            </button>
           </div>
-          <div class="flex flex-col gap-1">
-            <label for="vid-h" class="text-[11px] text-clay-700 dark:text-clay-400">Altura</label>
-            <input id="vid-h" type="number" step="32" min="256" max="1024" value="448" class="px-2.5 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none" />
+
+          <div class="flex flex-col gap-1.5">
+            <label for="img-prompt" class="text-xs font-medium text-claude-muted">Prompt</label>
+            <textarea
+              id="img-prompt"
+              rows="3"
+              onkeydown="handleShortcut(event, runImageGeneration)"
+              placeholder="Descreva o que deseja gerar..."
+              class="w-full rounded-xl bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none p-3 text-sm text-claude-text placeholder-claude-faint resize-y"
+            ></textarea>
           </div>
-          <div class="flex flex-col gap-1">
-            <label for="vid-frames" class="text-[11px] text-clay-700 dark:text-clay-400">Frames</label>
-            <input id="vid-frames" type="number" min="9" max="161" value="65" class="px-2.5 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none" />
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div class="flex flex-col gap-1">
+              <label for="img-width" class="text-[11px] text-claude-muted">Largura</label>
+              <input id="img-width" type="number" step="64" min="256" max="1536" value="896"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="img-height" class="text-[11px] text-claude-muted">Altura</label>
+              <input id="img-height" type="number" step="64" min="256" max="1536" value="896"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="img-steps" class="text-[11px] text-claude-muted">Steps</label>
+              <input id="img-steps" type="number" min="1" max="50" value="4"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="img-seed" class="text-[11px] text-claude-muted">Seed</label>
+              <input id="img-seed" type="number" placeholder="Auto"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text placeholder-claude-faint" />
+            </div>
           </div>
+
           <div class="flex flex-col gap-1">
-            <label for="vid-fps" class="text-[11px] text-clay-700 dark:text-clay-400">FPS</label>
-            <input id="vid-fps" type="number" min="6" max="60" value="16" class="px-2.5 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none" />
+            <label for="img-model" class="text-[11px] text-claude-muted">Model override (opcional)</label>
+            <input id="img-model" type="text" placeholder="Ex.: stabilityai/sdxl-turbo"
+              class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-3 py-1.5 text-xs mono text-claude-text placeholder-claude-faint" />
           </div>
-          <div class="flex flex-col gap-1">
-            <label for="vid-seed" class="text-[11px] text-clay-700 dark:text-clay-400">Seed</label>
-            <input id="vid-seed" type="number" placeholder="Auto" class="px-2.5 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none" />
+
+          <div class="flex flex-wrap items-center gap-2.5 pt-1">
+            <button
+              type="button"
+              id="btn-gen-img"
+              onclick="runImageGeneration()"
+              class="px-4 py-2 rounded-xl bg-claude-accent hover:bg-claude-accentHover active:scale-[0.99] text-white text-xs sm:text-sm font-medium transition cursor-pointer"
+            >
+              Gerar Imagem
+            </button>
+            <a id="img-download" href="#" download="lux_omega_imagem.png"
+              class="hidden px-3 py-2 rounded-xl bg-claude-card hover:bg-claude-hover border border-claude-border text-xs text-claude-text transition">
+              Baixar PNG
+            </a>
           </div>
         </div>
 
-        <div class="flex items-center gap-2.5 pt-1">
-          <button
-            id="btn-run-video"
-            type="button"
-            onclick="runVideo()"
-            class="px-5 py-2.5 rounded-xl bg-terracotta-500 hover:bg-terracotta-600 active:scale-[0.99] text-white text-xs sm:text-sm font-semibold transition shadow-sm"
-          >
-            Gerar Vídeo com Som
-          </button>
-          <a
-            id="vid-dl"
-            href="#"
-            download="lux_omega_video.mp4"
-            class="hidden px-3.5 py-2.5 rounded-xl bg-clay-100 hover:bg-clay-200 dark:bg-clay-850 dark:hover:bg-clay-800 border border-clay-200 dark:border-clay-700 text-xs font-semibold text-clay-900 dark:text-clay-100 transition"
-          >
-            Baixar MP4
-          </a>
-        </div>
-      </div>
-
-      <div class="lg:col-span-6 rounded-2xl bg-white dark:bg-clay-900 border border-clay-200/90 dark:border-clay-800 p-5 sm:p-6 shadow-editorial dark:shadow-editorial-dark flex flex-col gap-3">
-        <div class="flex items-center justify-between gap-2">
-          <span class="text-xs font-semibold uppercase tracking-wider text-clay-700 dark:text-clay-400">Reprodutor de Mídia</span>
-          <span id="vid-caption" class="text-[11px] font-code text-clay-700 dark:text-clay-400 truncate max-w-[65%]">Aguardando clipe</span>
-        </div>
-        <div class="rounded-xl bg-clay-100/80 dark:bg-clay-950 border border-clay-200/70 dark:border-clay-800/80 min-h-[320px] flex flex-col items-center justify-center p-3 gap-3">
-          <video id="vid-out" controls playsinline class="hidden max-h-[360px] w-full rounded-lg bg-black"></video>
-          <audio id="aud-out" controls class="hidden w-full"></audio>
-          <p id="vid-empty" class="font-editorial italic text-sm text-clay-700/70 dark:text-clay-400">
-            O vídeo com trilha/áudio aparecerá aqui após a geração.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- MODE 3: MEMORIA MD -->
-    <section id="view-memoria" class="mode-view hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      <div class="lg:col-span-6 rounded-2xl bg-white dark:bg-clay-900 border border-clay-200/90 dark:border-clay-800 p-5 sm:p-6 shadow-editorial dark:shadow-editorial-dark flex flex-col gap-4">
-        <div class="flex items-baseline justify-between">
-          <h2 class="font-editorial text-xl font-semibold text-clay-900 dark:text-clay-50">Escrever Nota Markdown</h2>
-          <span class="text-[11px] font-code text-terracotta-600 dark:text-terracotta-400">modo: "memoria"</span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="flex flex-col gap-1">
-            <label for="mem-title" class="text-xs font-medium text-clay-700 dark:text-clay-300">Título</label>
-            <input id="mem-title" type="text" placeholder="Ex.: notas_t4_sessao" class="px-3.5 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs focus:border-terracotta-500 focus:outline-none" />
+        <!-- 2. VÍDEO COM SOM (modo: "video") -->
+        <div id="tab-video" class="tab-view panel-enter hidden rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-4">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-semibold text-claude-text">Vídeo com Som</h2>
+              <p class="text-xs text-claude-muted">Executa <span class="mono text-claude-accent">modo: "video"</span> com áudio mixado para perfil <span class="mono text-claude-text">t4_15gb</span>.</p>
+            </div>
+            <span class="text-[11px] mono px-2 py-0.5 rounded bg-claude-card border border-claude-border text-claude-muted">
+              Ctrl/Cmd + Enter
+            </span>
           </div>
-          <div class="flex flex-col gap-1">
-            <label for="mem-folder" class="text-xs font-medium text-clay-700 dark:text-clay-300">Pasta no Vault</label>
-            <select id="mem-folder" class="px-3.5 py-2 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none">
-              <option value="notas">notas</option>
-              <option value="contexto">contexto</option>
-              <option value="execucoes">execucoes</option>
-              <option value="scraping">scraping</option>
-            </select>
+
+          <div class="flex flex-col gap-1.5">
+            <label for="vid-prompt" class="text-xs font-medium text-claude-muted">Prompt da cena e som</label>
+            <textarea
+              id="vid-prompt"
+              rows="3"
+              onkeydown="handleShortcut(event, runVideoGeneration)"
+              placeholder="Descreva o movimento da cena e a atmosfera sonora..."
+              class="w-full rounded-xl bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none p-3 text-sm text-claude-text placeholder-claude-faint resize-y"
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+            <div class="flex flex-col gap-1">
+              <label for="vid-width" class="text-[11px] text-claude-muted">Largura</label>
+              <input id="vid-width" type="number" step="32" min="256" max="1280" value="768"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="vid-height" class="text-[11px] text-claude-muted">Altura</label>
+              <input id="vid-height" type="number" step="32" min="256" max="1024" value="448"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="vid-frames" class="text-[11px] text-claude-muted">Frames</label>
+              <input id="vid-frames" type="number" min="9" max="161" value="65"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="vid-fps" class="text-[11px] text-claude-muted">FPS</label>
+              <input id="vid-fps" type="number" min="6" max="60" value="16"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="vid-seed" class="text-[11px] text-claude-muted">Seed</label>
+              <input id="vid-seed" type="number" placeholder="Auto"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text placeholder-claude-faint" />
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5 pt-1">
+            <button
+              type="button"
+              id="btn-gen-vid"
+              onclick="runVideoGeneration()"
+              class="px-4 py-2 rounded-xl bg-claude-accent hover:bg-claude-accentHover active:scale-[0.99] text-white text-xs sm:text-sm font-medium transition cursor-pointer"
+            >
+              Gerar Vídeo com Som
+            </button>
+            <a id="vid-download" href="#" download="lux_omega_video.mp4"
+              class="hidden px-3 py-2 rounded-xl bg-claude-card hover:bg-claude-hover border border-claude-border text-xs text-claude-text transition">
+              Baixar MP4
+            </a>
           </div>
         </div>
 
-        <div class="flex flex-col gap-1.5">
-          <label for="mem-body" class="text-xs font-medium text-clay-700 dark:text-clay-300">Conteúdo (Ctrl/Cmd + Enter para salvar)</label>
-          <textarea
-            id="mem-body"
-            rows="5"
-            onkeydown="handleShortcut(event, 'saveMem')"
-            placeholder="Registre decisões, prompts, dados de treino ou contexto..."
-            class="w-full p-3.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 focus:border-terracotta-500 focus:outline-none text-sm leading-relaxed"
-          ></textarea>
+        <!-- 3. MEMORIA MD (modo: "memoria" e "buscar_memoria") -->
+        <div id="tab-memoria" class="tab-view panel-enter hidden rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-5">
+          <div>
+            <h2 class="text-base font-semibold text-claude-text">Memoria MD (Vault Obsidian no Drive)</h2>
+            <p class="text-xs text-claude-muted">Salva e recupera notas Markdown usando <span class="mono text-claude-accent">memoria</span> e <span class="mono text-claude-accent">buscar_memoria</span>.</p>
+          </div>
+
+          <div class="rounded-xl bg-claude-card/70 border border-claude-border p-4 flex flex-col gap-3">
+            <div class="text-xs font-medium text-claude-text">Salvar nota (<span class="mono text-claude-accent">modo: "memoria"</span>)</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <input id="mem-title" type="text" placeholder="Título da nota"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-3 py-1.5 text-xs text-claude-text placeholder-claude-faint" />
+              <select id="mem-folder"
+                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-3 py-1.5 text-xs mono text-claude-text">
+                <option value="notas">notas</option>
+                <option value="contexto">contexto</option>
+                <option value="execucoes">execucoes</option>
+                <option value="scraping">scraping</option>
+              </select>
+            </div>
+            <textarea id="mem-content" rows="3" onkeydown="handleShortcut(event, runSaveMemory)" placeholder="Conteúdo em Markdown..."
+              class="w-full rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none p-2.5 text-xs text-claude-text placeholder-claude-faint"></textarea>
+            <div>
+              <button type="button" id="btn-save-mem" onclick="runSaveMemory()"
+                class="px-3.5 py-2 rounded-lg bg-claude-accent hover:bg-claude-accentHover text-white text-xs font-medium transition cursor-pointer">
+                Salvar Nota
+              </button>
+            </div>
+          </div>
+
+          <div class="rounded-xl bg-claude-card/70 border border-claude-border p-4 flex flex-col gap-3">
+            <div class="text-xs font-medium text-claude-text">Buscar memória (<span class="mono text-claude-accent">modo: "buscar_memoria"</span>)</div>
+            <div class="flex gap-2">
+              <input id="mem-query" type="text" onkeydown="if(event.key==='Enter') runSearchMemory()" placeholder="Filtrar termo (vazio lista recentes)..."
+                class="flex-1 rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-3 py-1.5 text-xs text-claude-text placeholder-claude-faint" />
+              <button type="button" id="btn-search-mem" onclick="runSearchMemory()"
+                class="px-3.5 py-1.5 rounded-lg bg-claude-card hover:bg-claude-hover border border-claude-border text-xs font-medium text-claude-text transition cursor-pointer">
+                Buscar
+              </button>
+            </div>
+            <div id="mem-results" class="flex flex-col gap-2 max-h-60 overflow-y-auto">
+              <p class="text-xs text-claude-faint">Nenhuma busca realizada ainda.</p>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <button
-            id="btn-save-mem"
-            type="button"
-            onclick="saveMemory()"
-            class="px-5 py-2.5 rounded-xl bg-terracotta-500 hover:bg-terracotta-600 active:scale-[0.99] text-white text-xs sm:text-sm font-semibold transition shadow-sm"
-          >
-            Salvar no Drive (.md)
-          </button>
-        </div>
-      </div>
+        <!-- 4. SCRAPER FREE (modo: "scraper") -->
+        <div id="tab-scraper" class="tab-view panel-enter hidden rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-4">
+          <div>
+            <h2 class="text-base font-semibold text-claude-text">Scraper Free</h2>
+            <p class="text-xs text-claude-muted">Coleta gratuita via <span class="mono text-claude-accent">modo: "scraper"</span> e registra em Markdown no Vault.</p>
+          </div>
 
-      <div class="lg:col-span-6 rounded-2xl bg-white dark:bg-clay-900 border border-clay-200/90 dark:border-clay-800 p-5 sm:p-6 shadow-editorial dark:shadow-editorial-dark flex flex-col gap-4">
-        <div class="flex items-baseline justify-between">
-          <h2 class="font-editorial text-xl font-semibold text-clay-900 dark:text-clay-50">Buscar na Memória</h2>
-          <span class="text-[11px] font-code text-clay-700 dark:text-clay-400">modo: "buscar_memoria"</span>
-        </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="scraper-url" type="url" onkeydown="if(event.key==='Enter') runScraperTask()" placeholder="https://example.com"
+              class="flex-1 rounded-xl bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-3 py-2 text-xs mono text-claude-text placeholder-claude-faint" />
+            <button type="button" id="btn-run-scraper" onclick="runScraperTask()"
+              class="px-4 py-2 rounded-xl bg-claude-accent hover:bg-claude-accentHover text-white text-xs font-medium transition shrink-0 cursor-pointer">
+              Extrair Página
+            </button>
+          </div>
 
-        <div class="flex gap-2">
-          <input
-            id="mem-search-input"
-            type="text"
-            onkeydown="if(event.key==='Enter') searchMemory()"
-            placeholder="Filtrar palavra-chave ou deixar vazio para recentes..."
-            class="flex-1 px-3.5 py-2.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs focus:border-terracotta-500 focus:outline-none"
-          />
-          <button
-            id="btn-search-mem"
-            type="button"
-            onclick="searchMemory()"
-            class="px-4 py-2.5 rounded-xl bg-clay-900 hover:bg-clay-800 dark:bg-clay-100 dark:hover:bg-white text-white dark:text-clay-950 text-xs font-semibold transition shrink-0"
-          >
-            Buscar
-          </button>
+          <div id="scraper-box" class="rounded-xl bg-claude-input border border-claude-border p-3.5 text-xs text-claude-muted min-h-[140px]">
+            Informe uma URL pública para extrair título, texto e links.
+          </div>
         </div>
 
-        <div id="mem-list" class="flex flex-col gap-2.5 max-h-[340px] overflow-y-auto pr-1">
-          <p class="font-editorial italic text-sm text-clay-700/70 dark:text-clay-400">
-            Pesquise notas salvas no Google Drive sem gastar tokens.
-          </p>
-        </div>
-      </div>
-    </section>
+        <!-- 5. COMFYUI (8188) -->
+        <div id="tab-comfy" class="tab-view panel-enter hidden rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-semibold text-claude-text">ComfyUI &amp; Modelos (Porta 8188)</h2>
+              <p class="text-xs text-claude-muted">Cache local no Drive pronto para vídeo, áudio e codificadores na Tesla T4.</p>
+            </div>
+            <a id="comfy-launch-link" href="http://127.0.0.1:8188" target="_blank" rel="noopener noreferrer"
+              class="px-3.5 py-2 rounded-xl bg-claude-accent hover:bg-claude-accentHover text-white text-xs font-medium transition">
+              Abrir ComfyUI
+            </a>
+          </div>
 
-    <!-- MODE 4: SCRAPER FREE -->
-    <section id="view-scraper" class="mode-view hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      <div class="lg:col-span-5 rounded-2xl bg-white dark:bg-clay-900 border border-clay-200/90 dark:border-clay-800 p-5 sm:p-6 shadow-editorial dark:shadow-editorial-dark flex flex-col gap-4">
-        <div class="flex items-baseline justify-between">
-          <h2 class="font-editorial text-xl font-semibold text-clay-900 dark:text-clay-50">Coleta Web Gratuita</h2>
-          <span class="text-[11px] font-code text-terracotta-600 dark:text-terracotta-400">modo: "scraper"</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+            <div class="p-3 rounded-xl bg-claude-card border border-claude-border">
+              <div class="font-medium text-claude-text">LTX-2.3 22B GGUF + VAE</div>
+              <div class="mono text-[11px] text-claude-muted mt-0.5 break-all">ltx-2.3-22b-dev-Q4_K_M.gguf</div>
+            </div>
+            <div class="p-3 rounded-xl bg-claude-card border border-claude-border">
+              <div class="font-medium text-claude-text">Wan 2.2 I2V A14B (High / Low)</div>
+              <div class="mono text-[11px] text-claude-muted mt-0.5 break-all">Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf</div>
+            </div>
+            <div class="p-3 rounded-xl bg-claude-card border border-claude-border">
+              <div class="font-medium text-claude-text">UMT5-XXL Encoder + Wan 2.1 VAE</div>
+              <div class="mono text-[11px] text-claude-muted mt-0.5 break-all">umt5-xxl-encoder-Q5_K_M.gguf</div>
+            </div>
+            <div class="p-3 rounded-xl bg-claude-card border border-claude-border">
+              <div class="font-medium text-claude-text">Stable Audio Open 1.0</div>
+              <div class="mono text-[11px] text-claude-muted mt-0.5 break-all">stable-audio-open-1.0.safetensors</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Visual Preview + Collapsible JSON Inspector Column -->
+      <aside id="side-column" class="lg:col-span-5 flex flex-col gap-4">
+        <!-- Media Preview Card -->
+        <div class="rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-claude-muted">Prévia</span>
+            <span id="preview-badge" class="text-[11px] mono text-claude-faint">Aguardando</span>
+          </div>
+
+          <div class="rounded-xl bg-claude-input border border-claude-border min-h-[240px] p-3 flex flex-col items-center justify-center">
+            <img id="preview-img" alt="Imagem gerada" class="hidden max-h-[360px] w-auto rounded-lg object-contain" />
+            <video id="preview-video" controls playsinline class="hidden max-h-[340px] w-full rounded-lg bg-black"></video>
+            <p id="preview-empty" class="text-xs text-claude-faint text-center px-4">
+              A imagem ou o vídeo com som aparecerá aqui ao concluir.
+            </p>
+          </div>
+          <p id="preview-caption" class="text-[11px] mono text-claude-muted break-all"></p>
         </div>
 
-        <div class="flex flex-col gap-1.5">
-          <label for="scraper-url" class="text-xs font-medium text-clay-700 dark:text-clay-300">URL da página pública</label>
-          <input
-            id="scraper-url"
-            type="url"
-            onkeydown="if(event.key==='Enter') runScraper()"
-            placeholder="https://example.com"
-            class="w-full px-3.5 py-2.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 text-xs font-code focus:border-terracotta-500 focus:outline-none"
-          />
-        </div>
+        <!-- Collapsible JSON Inspector -->
+        <div id="inspector-card" class="rounded-2xl bg-claude-surface border border-claude-border p-4 flex flex-col gap-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <button type="button" onclick="toggleInspector()" class="flex items-center gap-2 text-xs font-medium text-claude-text cursor-pointer">
+              <span id="inspector-caret" class="mono text-claude-muted">▾</span>
+              <span>JSON Inspector</span>
+            </button>
+            <div class="flex items-center gap-1.5">
+              <span id="inspector-meta" class="text-[11px] mono text-claude-faint"></span>
+              <button type="button" onclick="copyInspectorJson()" class="px-2 py-1 rounded-md bg-claude-card hover:bg-claude-hover border border-claude-border text-[11px] text-claude-muted hover:text-claude-text transition cursor-pointer">
+                Copiar
+              </button>
+              <button type="button" onclick="clearInspectorJson()" class="px-2 py-1 rounded-md bg-claude-card hover:bg-claude-hover border border-claude-border text-[11px] text-claude-muted hover:text-claude-text transition cursor-pointer">
+                Limpar
+              </button>
+            </div>
+          </div>
 
-        <div>
-          <button
-            id="btn-run-scraper"
-            type="button"
-            onclick="runScraper()"
-            class="px-5 py-2.5 rounded-xl bg-terracotta-500 hover:bg-terracotta-600 active:scale-[0.99] text-white text-xs sm:text-sm font-semibold transition shadow-sm"
-          >
-            Extrair Texto e Links
-          </button>
-        </div>
-      </div>
-
-      <div class="lg:col-span-7 rounded-2xl bg-white dark:bg-clay-900 border border-clay-200/90 dark:border-clay-800 p-5 sm:p-6 shadow-editorial dark:shadow-editorial-dark flex flex-col gap-3">
-        <span class="text-xs font-semibold uppercase tracking-wider text-clay-700 dark:text-clay-400">Resultado Extraído</span>
-        <div id="scraper-result" class="rounded-xl bg-clay-100/70 dark:bg-clay-950 border border-clay-200/70 dark:border-clay-800/80 p-4 min-h-[240px] flex flex-col gap-3">
-          <p class="font-editorial italic text-sm text-clay-700/70 dark:text-clay-400">
-            Insira uma URL e clique em Extrair Texto e Links.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- MODE 5: COMFYUI (8188) -->
-    <section id="view-comfy" class="mode-view hidden rounded-2xl bg-white dark:bg-clay-900 border border-clay-200/90 dark:border-clay-800 p-5 sm:p-6 shadow-editorial dark:shadow-editorial-dark flex flex-col gap-4">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 class="font-editorial text-xl font-semibold text-clay-900 dark:text-clay-50">ComfyUI &amp; Modelos Locais (8188)</h2>
-          <p class="text-xs text-clay-700 dark:text-clay-300/80">
-            Arquivos vinculados ao cache do Drive para execução local sem tokens pagos.
-          </p>
-        </div>
-        <a
-          id="comfy-external-btn"
-          href="http://127.0.0.1:8188"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="px-4 py-2 rounded-xl bg-terracotta-500 hover:bg-terracotta-600 text-white text-xs font-semibold transition"
-        >
-          Abrir ComfyUI
-        </a>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-        <div class="p-3.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800">
-          <div class="font-semibold text-clay-900 dark:text-clay-100">LTX-2.3 22B GGUF</div>
-          <div class="font-code text-[11px] text-clay-700 dark:text-clay-400 mt-1 break-all">ltx-2.3-22b-dev-Q4_K_M.gguf</div>
-        </div>
-        <div class="p-3.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800">
-          <div class="font-semibold text-clay-900 dark:text-clay-100">LTX-2.3 Video VAE</div>
-          <div class="font-code text-[11px] text-clay-700 dark:text-clay-400 mt-1 break-all">ltx-2.3-22b-dev_video_vae.safetensors</div>
-        </div>
-        <div class="p-3.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800">
-          <div class="font-semibold text-clay-900 dark:text-clay-100">Wan 2.2 HighNoise GGUF</div>
-          <div class="font-code text-[11px] text-clay-700 dark:text-clay-400 mt-1 break-all">Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf</div>
-        </div>
-        <div class="p-3.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800">
-          <div class="font-semibold text-clay-900 dark:text-clay-100">Wan 2.2 LowNoise GGUF</div>
-          <div class="font-code text-[11px] text-clay-700 dark:text-clay-400 mt-1 break-all">Wan2.2-I2V-A14B-LowNoise-Q4_K_M.gguf</div>
-        </div>
-        <div class="p-3.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800">
-          <div class="font-semibold text-clay-900 dark:text-clay-100">UMT5-XXL Encoder</div>
-          <div class="font-code text-[11px] text-clay-700 dark:text-clay-400 mt-1 break-all">umt5-xxl-encoder-Q5_K_M.gguf</div>
-        </div>
-        <div class="p-3.5 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800">
-          <div class="font-semibold text-clay-900 dark:text-clay-100">Wan 2.1 VAE &amp; Stable Audio</div>
-          <div class="font-code text-[11px] text-clay-700 dark:text-clay-400 mt-1 break-all">wan_2.1_vae.safetensors • stable-audio-open-1.0.safetensors</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Collapsible Live JSON & Response Inspector -->
-    <section class="rounded-2xl bg-white dark:bg-clay-900 border border-clay-200/90 dark:border-clay-800 shadow-editorial dark:shadow-editorial-dark overflow-hidden">
-      <div class="px-5 py-3.5 flex flex-wrap items-center justify-between gap-2 bg-clay-100/60 dark:bg-clay-900">
-        <button
-          type="button"
-          onclick="toggleInspector()"
-          class="flex items-center gap-2 text-left text-xs font-semibold uppercase tracking-wider text-clay-800 dark:text-clay-200"
-        >
-          <span id="inspector-chevron" class="font-code text-terracotta-600 dark:text-terracotta-400">−</span>
-          <span>Live JSON &amp; Response Inspector</span>
-        </button>
-
-        <div class="flex items-center gap-2">
-          <span id="inspector-meta" class="text-[11px] font-code text-clay-700 dark:text-clay-400">pronto</span>
-          <button
-            type="button"
-            onclick="copyInspector()"
-            class="px-2.5 py-1 rounded-lg bg-clay-200/80 hover:bg-clay-300/80 dark:bg-clay-800 dark:hover:bg-clay-700 text-[11px] font-medium transition"
-          >
-            Copiar
-          </button>
-          <button
-            type="button"
-            onclick="clearInspector()"
-            class="px-2.5 py-1 rounded-lg bg-clay-200/60 hover:bg-clay-300/60 dark:bg-clay-800/70 dark:hover:bg-clay-700 text-[11px] text-clay-700 dark:text-clay-300 transition"
-          >
-            Limpar
-          </button>
-        </div>
-      </div>
-
-      <div id="inspector-body" class="p-4 border-t border-clay-200/80 dark:border-clay-800/80 bg-clay-50 dark:bg-clay-950">
-        <pre id="inspector-pre" class="font-code text-xs leading-relaxed text-clay-900 dark:text-clay-100 max-h-72 overflow-auto whitespace-pre-wrap break-words">{
-  "console": "LUX-Ω Claude Editorial Studio",
-  "target": "Tesla T4 (14.6 GB VRAM • 12.7 GB RAM • t4_15gb)",
-  "ntfy_poll_interval_ms": 8000,
-  "paid_tokens_required": false
+          <div id="inspector-body" class="flex flex-col gap-2">
+            <pre id="inspector-pre" class="mono text-xs leading-relaxed rounded-xl bg-claude-input border border-claude-border p-3 text-claude-text overflow-auto max-h-72 whitespace-pre-wrap break-words">{
+  "studio": "LUX-Ω",
+  "tier": "t4_15gb",
+  "paid_tokens": false
 }</pre>
-      </div>
-    </section>
+          </div>
+        </div>
+      </aside>
+    </div>
   </main>
 
   <script>
-    const CONFIG_DEFAULTS = {
-      apiUrl: 'https://ultimate-showers-operator-aquarium.trycloudflare.com',
+    const STORAGE_KEY = 'lux_omega_claude_t4_v2';
+    const DEFAULTS = {
+      apiUrl: 'https://foundations-shareholders-recipes-dsl.trycloudflare.com',
       comfyUrl: 'http://127.0.0.1:8188',
+      creativefieldUrl: '',
       ntfyChannel: 'lux-omega-kauan-v55',
-      mode: 'imagem',
-      theme: 'dark',
-      inspectorOpen: true,
+      activeTab: 'imagem',
+      inspectorCollapsed: false,
     };
 
-    const STORE_KEY = 'lux_omega_claude_t4_v1';
-    let activeMode = CONFIG_DEFAULTS.mode;
+    // Track user edits so periodic ntfy polls only update when a genuinely newer tunnel arrives
+    const userEdited = { apiUrl: false, comfyUrl: false };
+    let lastSeenNtfyToken = '';
+    let currentTab = 'imagem';
     let inspectorCollapsed = false;
-    let lastPublishedFingerprint = '';
 
-    function showToast(msg, tone = 'info') {
-      const root = document.getElementById('toast-root');
+    function notify(msg, tone = 'info') {
+      const box = document.getElementById('toast-box');
       const styles = {
-        ok: 'bg-emerald-950/95 text-emerald-100 border-emerald-500/40',
-        err: 'bg-rose-950/95 text-rose-100 border-rose-500/40',
-        info: 'bg-clay-900/95 dark:bg-clay-850/95 text-clay-50 border-terracotta-500/40',
+        ok: 'bg-claude-card border-emerald-500/40 text-emerald-200',
+        err: 'bg-claude-card border-rose-500/40 text-rose-200',
+        info: 'bg-claude-card border-claude-accent/40 text-claude-text',
       };
-      const el = document.createElement('div');
-      el.className = `pointer-events-auto px-3.5 py-2.5 rounded-xl border text-xs font-medium shadow-lg transition-all duration-200 ${styles[tone] || styles.info}`;
-      el.textContent = msg;
-      root.appendChild(el);
+      const item = document.createElement('div');
+      item.className = `pointer-events-auto rounded-xl border px-3.5 py-2.5 text-xs shadow-lg transition-all duration-200 ${styles[tone] || styles.info}`;
+      item.textContent = msg;
+      box.appendChild(item);
       setTimeout(() => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(6px)';
-        setTimeout(() => el.remove(), 220);
-      }, 3000);
+        item.style.opacity = '0';
+        setTimeout(() => item.remove(), 220);
+      }, 3200);
     }
 
-    function applyTheme(theme) {
-      const isDark = theme === 'dark';
-      document.documentElement.classList.toggle('dark', isDark);
-      persistConfig();
+    function markManualEdit(field) {
+      if (field in userEdited) userEdited[field] = true;
     }
 
-    function toggleTheme() {
-      const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
-      applyTheme(next);
-    }
-
-    function readConfig() {
-      let parsed = {};
-      try {
-        parsed = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
-      } catch (_) {}
-      return { ...CONFIG_DEFAULTS, ...parsed };
+    function getState() {
+      return {
+        apiUrl: (document.getElementById('input-api-url').value || DEFAULTS.apiUrl).trim(),
+        comfyUrl: (document.getElementById('input-comfy-url').value || DEFAULTS.comfyUrl).trim(),
+        creativefieldUrl: DEFAULTS.creativefieldUrl,
+        ntfyChannel: (document.getElementById('input-ntfy-channel').value || DEFAULTS.ntfyChannel).trim(),
+        activeTab: currentTab,
+        inspectorCollapsed,
+      };
     }
 
     function persistConfig() {
-      const cfg = {
-        apiUrl: (document.getElementById('input-api-url').value || '').trim() || CONFIG_DEFAULTS.apiUrl,
-        comfyUrl: (document.getElementById('input-comfy-url').value || '').trim() || CONFIG_DEFAULTS.comfyUrl,
-        ntfyChannel: (document.getElementById('input-ntfy-channel').value || '').trim() || CONFIG_DEFAULTS.ntfyChannel,
-        mode: activeMode,
-        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-        inspectorOpen: !inspectorCollapsed,
-      };
+      const st = getState();
       try {
-        localStorage.setItem(STORE_KEY, JSON.stringify(cfg));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
       } catch (_) {}
-      const comfyBtn = document.getElementById('comfy-external-btn');
-      if (comfyBtn) comfyBtn.href = cfg.comfyUrl;
-      return cfg;
+      const link = document.getElementById('comfy-launch-link');
+      if (link) link.href = st.comfyUrl || DEFAULTS.comfyUrl;
+      return st;
     }
 
-    function getApiBase() {
-      return persistConfig().apiUrl.replace(/\/+$/, '');
+    function loadSavedConfig() {
+      let parsed = {};
+      try {
+        parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      } catch (_) {
+        parsed = {};
+      }
+      const cfg = { ...DEFAULTS, ...parsed };
+      if (parsed.creativefieldUrl) DEFAULTS.creativefieldUrl = parsed.creativefieldUrl;
+      document.getElementById('input-api-url').value = cfg.apiUrl;
+      document.getElementById('input-comfy-url').value = cfg.comfyUrl;
+      document.getElementById('input-ntfy-channel').value = cfg.ntfyChannel;
+      inspectorCollapsed = Boolean(cfg.inspectorCollapsed);
+      applyInspectorCollapse();
+      selectTab(cfg.activeTab || 'imagem', false);
+      persistConfig();
     }
 
-    function setMode(mode, save = true) {
-      activeMode = mode;
-      document.querySelectorAll('.mode-view').forEach((sec) => {
-        sec.classList.toggle('hidden', sec.id !== `view-${mode}`);
+    function selectTab(mode, save = true) {
+      currentTab = mode;
+      document.querySelectorAll('.tab-view').forEach((el) => {
+        el.classList.toggle('hidden', el.id !== `tab-${mode}`);
       });
       document.querySelectorAll('.mode-tab').forEach((btn) => {
-        const selected = btn.dataset.mode === mode;
-        btn.className = selected
-          ? 'mode-tab px-4 py-2 rounded-t-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap bg-white dark:bg-clay-900 text-terracotta-600 dark:text-terracotta-400 border-t border-x border-clay-200/90 dark:border-clay-800 -mb-px'
-          : 'mode-tab px-4 py-2 rounded-t-xl text-xs sm:text-sm font-medium transition whitespace-nowrap text-clay-700 hover:text-clay-950 dark:text-clay-400 dark:hover:text-clay-100';
+        const active = btn.dataset.mode === mode;
+        btn.className = active
+          ? 'mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer bg-claude-surface text-claude-text border-t border-x border-claude-border -mb-px'
+          : 'mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer text-claude-muted hover:text-claude-text';
       });
       if (save) persistConfig();
     }
 
-    function toggleInspector(forceState = null) {
-      inspectorCollapsed = forceState !== null ? !forceState : !inspectorCollapsed;
-      document.getElementById('inspector-body').classList.toggle('hidden', inspectorCollapsed);
-      document.getElementById('inspector-chevron').textContent = inspectorCollapsed ? '+' : '−';
+    function setQuickPrompt(inputId, text) {
+      const el = document.getElementById(inputId);
+      if (!el) return;
+      el.value = text;
+      el.focus();
+    }
+
+    function handleShortcut(event, fn) {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+        event.preventDefault();
+        fn();
+      }
+    }
+
+    function toggleInspector() {
+      inspectorCollapsed = !inspectorCollapsed;
+      applyInspectorCollapse();
       persistConfig();
+    }
+
+    function applyInspectorCollapse() {
+      const body = document.getElementById('inspector-body');
+      const caret = document.getElementById('inspector-caret');
+      const controlsCol = document.getElementById('controls-column');
+      const sideCol = document.getElementById('side-column');
+      body.classList.toggle('hidden', inspectorCollapsed);
+      caret.textContent = inspectorCollapsed ? '▸' : '▾';
+      if (inspectorCollapsed) {
+        controlsCol.className = 'lg:col-span-7 flex flex-col gap-4';
+        sideCol.className = 'lg:col-span-5 flex flex-col gap-4';
+      }
     }
 
     function writeInspector(label, payload, ms = null) {
@@ -695,47 +623,55 @@
         typeof payload === 'string' ? payload : JSON.stringify(payload, null, 2);
     }
 
-    function clearInspector() {
-      writeInspector('limpo', { cleared_at: new Date().toISOString() }, null);
-    }
-
-    function copyInspector() {
-      const txt = document.getElementById('inspector-pre').textContent;
+    function copyInspectorJson() {
+      const txt = document.getElementById('inspector-pre').textContent || '';
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(txt).then(() => showToast('JSON copiado.', 'ok')).catch(() => legacyCopy(txt));
+        navigator.clipboard.writeText(txt).then(() => notify('JSON copiado.', 'ok')).catch(() => execCopy(txt));
       } else {
-        legacyCopy(txt);
+        execCopy(txt);
       }
     }
 
-    function legacyCopy(txt) {
+    function execCopy(txt) {
       const ta = document.createElement('textarea');
       ta.value = txt;
       document.body.appendChild(ta);
       ta.select();
       try {
         document.execCommand('copy');
-        showToast('JSON copiado.', 'ok');
+        notify('JSON copiado.', 'ok');
       } catch (_) {
-        showToast('Falha ao copiar.', 'err');
+        notify('Falha ao copiar.', 'err');
       }
       ta.remove();
     }
 
-    function setApiPill(state, text) {
+    function clearInspectorJson() {
+      writeInspector('limpo', { status: 'cleared', at: new Date().toISOString() }, null);
+    }
+
+    function setApiBadge(state, label) {
       const dot = document.getElementById('status-dot');
-      const label = document.getElementById('status-label');
-      label.textContent = text;
+      const txt = document.getElementById('status-label');
+      txt.textContent = label;
       dot.className = 'w-2 h-2 rounded-full ' + (
-        state === 'online' ? 'bg-emerald-500' :
-        state === 'offline' ? 'bg-rose-500' :
-        'bg-amber-500 animate-pulse'
+        state === 'online' ? 'bg-emerald-400' :
+        state === 'offline' ? 'bg-rose-400' :
+        'bg-amber-400 animate-pulse'
       );
     }
 
-    async function checkHealthAndStatus(silent = false) {
-      const base = getApiBase();
-      if (!silent) setApiPill('pending', 'API: testando');
+    function explainNetworkError(err, targetUrl) {
+      const msg = String(err || '');
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
+        return `Falha de rede ao acessar ${targetUrl}. Verifique se o túnel cloudflared e a API (8000) estão ativos no Colab, se a URL do túnel não mudou ou se bloqueadores/extensões no navegador bloquearam a requisição.`;
+      }
+      return msg;
+    }
+
+    async function checkHealthAndStatus(showFeedback = false) {
+      const base = persistConfig().apiUrl.replace(/\/+$/, '');
+      setApiBadge('checking', 'API: verificando');
       const t0 = performance.now();
       const out = {};
       let ok = false;
@@ -744,354 +680,341 @@
         try {
           const resp = await fetch(`${base}${route}`, { method: 'GET' });
           const raw = await resp.text();
-          let body = raw;
-          try { body = JSON.parse(raw); } catch (_) {}
-          out[route] = { http: resp.status, ok: resp.ok, data: body };
+          let parsed = raw;
+          try { parsed = JSON.parse(raw); } catch (_) {}
+          out[route] = { status: resp.status, ok: resp.ok, data: parsed };
           if (resp.ok) ok = true;
         } catch (err) {
-          out[route] = { ok: false, error: String(err) };
+          out[route] = { ok: false, diagnostic: explainNetworkError(err, `${base}${route}`) };
         }
       }
 
       const elapsed = Math.round(performance.now() - t0);
-      writeInspector(`GET ${base} (/health, /status)`, out, elapsed);
+      writeInspector('GET /health & /status', out, elapsed);
 
       if (ok) {
-        const hw = out['/status']?.data?.hardware || out['/health']?.data?.hardware || {};
-        if (hw.gpu || hw.vram_gb) {
-          document.getElementById('hw-spec').textContent =
-            `${hw.gpu || 'Tesla T4'} • ${hw.vram_gb ?? 14.6} GB VRAM • ${hw.ram_gb ?? 12.7} GB RAM • ${hw.tier || 't4_15gb'}`;
+        const st = out['/status']?.data || out['/health']?.data || {};
+        if (st.hardware) {
+          document.getElementById('hw-line').textContent =
+            `${st.hardware.gpu || 'Tesla T4'} • ${st.hardware.vram_gb ?? 14.6} GB VRAM • ${st.hardware.ram_gb ?? 12.7} GB RAM • ${st.hardware.tier || 't4_15gb'}`;
         }
-        setApiPill('online', 'API: online');
-        if (!silent) showToast('API online e respondendo.', 'ok');
+        setApiBadge('online', 'API: online');
+        if (showFeedback) notify('API conectada e saudável.', 'ok');
       } else {
-        setApiPill('offline', 'API: offline');
-        if (!silent) showToast('API não respondeu. Confira o túnel ou clique em Sync.', 'err');
+        setApiBadge('offline', 'API: offline');
+        if (showFeedback) notify('API offline ou inacessível. Clique em Sync ou confira o Colab.', 'err');
       }
-      return ok;
     }
 
     async function syncNtfy(manual = false) {
-      const cfg = persistConfig();
-      const url = `https://ntfy.sh/${encodeURIComponent(cfg.ntfyChannel)}/json?poll=1&since=30m`;
+      const channel = (document.getElementById('input-ntfy-channel').value || DEFAULTS.ntfyChannel).trim();
+      if (!channel) return;
+      const badge = document.getElementById('ntfy-live-badge');
+      const url = `https://ntfy.sh/${encodeURIComponent(channel)}/json?poll=1&since=30m`;
       const t0 = performance.now();
-      try {
-        const resp = await fetch(url);
-        const txt = await resp.text();
-        const elapsed = Math.round(performance.now() - t0);
-        const lines = txt.trim().split('\n').filter(Boolean);
-        let latest = null;
 
+      try {
+        const resp = await fetch(url, { cache: 'no-store' });
+        const raw = await resp.text();
+        const elapsed = Math.round(performance.now() - t0);
+        const lines = raw.trim().split('\n').filter(Boolean);
+
+        let latest = null;
+        let latestId = '';
         for (let i = lines.length - 1; i >= 0; i--) {
           try {
             const ev = JSON.parse(lines[i]);
-            if (ev.message) {
-              const parsedMsg = typeof ev.message === 'string' ? JSON.parse(ev.message) : ev.message;
-              if (parsedMsg && (parsedMsg.api_url || parsedMsg.api || parsedMsg.comfy_url || parsedMsg.comfyui)) {
-                latest = parsedMsg;
-                break;
-              }
+            const candidate = typeof ev.message === 'string' ? JSON.parse(ev.message) : ev.message;
+            if (candidate && (candidate.api_url || candidate.api || candidate.comfy_url || candidate.comfyui || candidate.creativefield_url || candidate.creativefield)) {
+              latest = candidate;
+              latestId = String(ev.id || ev.time || lines[i]);
+              break;
             }
           } catch (_) {}
         }
 
-        if (latest) {
-          const nextApi = (latest.api_url || latest.api || '').trim();
-          const nextComfy = (latest.comfy_url || latest.comfyui || '').trim();
-          const fp = `${nextApi}|${nextComfy}`;
-          let changed = false;
+        if (manual) {
+          writeInspector(`GET ntfy/${channel}`, latest || { events: lines.length }, elapsed);
+        }
 
-          if (nextApi && nextApi !== document.getElementById('input-api-url').value.trim()) {
-            document.getElementById('input-api-url').value = nextApi;
-            changed = true;
-          }
-          if (nextComfy && nextComfy !== document.getElementById('input-comfy-url').value.trim()) {
-            document.getElementById('input-comfy-url').value = nextComfy;
-            changed = true;
-          }
+        if (!latest) {
+          if (manual) notify('Nenhuma URL recente encontrada no canal ntfy.sh.', 'info');
+          return;
+        }
+
+        const token = `${latestId}|${latest.api_url || latest.api || ''}|${latest.comfy_url || latest.comfyui || ''}|${latest.creativefield_url || latest.creativefield || ''}`;
+        const isNewEvent = token !== lastSeenNtfyToken;
+        lastSeenNtfyToken = token;
+
+        const apiInput = document.getElementById('input-api-url');
+        const comfyInput = document.getElementById('input-comfy-url');
+        let updatedAny = false;
+
+        const incomingApi = (latest.api_url || latest.api || '').trim();
+        const incomingComfy = (latest.comfy_url || latest.comfyui || '').trim();
+        const incomingCf = (latest.creativefield_url || latest.creativefield || '').trim();
+
+        if (incomingApi && incomingApi !== apiInput.value.trim() && (manual || isNewEvent || !userEdited.apiUrl)) {
+          apiInput.value = incomingApi;
+          userEdited.apiUrl = false;
+          updatedAny = true;
+        }
+        if (incomingComfy && incomingComfy !== comfyInput.value.trim() && (manual || isNewEvent || !userEdited.comfyUrl)) {
+          comfyInput.value = incomingComfy;
+          userEdited.comfyUrl = false;
+          updatedAny = true;
+        }
+        if (incomingCf) {
+          DEFAULTS.creativefieldUrl = incomingCf;
+          updatedAny = true;
+        }
+
+        if (updatedAny) {
           persistConfig();
-
-          if (changed || (manual && fp !== lastPublishedFingerprint)) {
-            lastPublishedFingerprint = fp;
-            writeInspector(`ntfy sync (${cfg.ntfyChannel})`, latest, elapsed);
-            if (changed) {
-              showToast('Nova URL detectada via ntfy.sh!', 'ok');
-              await checkHealthAndStatus(true);
-            } else if (manual) {
-              showToast('URLs já sincronizadas com o canal ntfy.sh.', 'info');
-            }
-          } else if (manual) {
-            writeInspector(`ntfy sync (${cfg.ntfyChannel})`, latest, elapsed);
-            showToast('Canal ntfy.sh verificado.', 'info');
-          }
-        } else if (manual) {
-          writeInspector(`ntfy sync (${cfg.ntfyChannel})`, { events: lines.length }, elapsed);
-          showToast('Nenhuma URL recente nos últimos 30m no canal ntfy.sh.', 'info');
+          badge.textContent = 'ntfy synced';
+          notify('Novas URLs aplicadas via ntfy.sh.', 'ok');
+          checkHealthAndStatus(false);
+        } else {
+          badge.textContent = 'ntfy 8s';
+          if (manual) notify('URLs já sincronizadas.', 'info');
         }
       } catch (err) {
+        badge.textContent = 'ntfy retry';
         if (manual) {
-          writeInspector(`ntfy sync (${cfg.ntfyChannel})`, { error: String(err) }, Math.round(performance.now() - t0));
-          showToast('Erro ao consultar ntfy.sh.', 'err');
+          writeInspector(`GET ntfy/${channel}`, { error: explainNetworkError(err, url) }, Math.round(performance.now() - t0));
+          notify('Falha ao consultar o canal ntfy.sh.', 'err');
         }
       }
     }
 
-    async function postExecutar(body, btn = null) {
-      const base = getApiBase();
-      const payload = { ...body, mode: body.modo };
+    async function postExecutar(bodyObj, btn = null) {
+      const base = persistConfig().apiUrl.replace(/\/+$/, '');
+      const payload = { ...bodyObj, mode: bodyObj.modo };
       const t0 = performance.now();
 
       if (btn) {
         btn.disabled = true;
-        btn.dataset.label = btn.textContent;
-        btn.textContent = 'Processando...';
+        btn.dataset.prevHtml = btn.innerHTML;
+        btn.innerHTML = 'Processando...';
       }
 
       try {
-        let res = await fetch(`${base}/executar`, {
+        let resp = await fetch(`${base}/executar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-        if (res.status === 404 || res.status === 405) {
-          res = await fetch(`${base}/run`, {
+        if (resp.status === 404 || resp.status === 405) {
+          resp = await fetch(`${base}/run`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           });
         }
         const elapsed = Math.round(performance.now() - t0);
-        const raw = await res.text();
-        let data = raw;
-        try { data = JSON.parse(raw); } catch (_) {}
-        writeInspector(`POST ${body.modo}`, { http: res.status, response: data }, elapsed);
-        if (!res.ok) {
-          showToast(`Erro HTTP ${res.status} na API.`, 'err');
+        const text = await resp.text();
+        let data = text;
+        try { data = JSON.parse(text); } catch (_) {}
+        writeInspector(`POST ${bodyObj.modo}`, { httpStatus: resp.status, response: data }, elapsed);
+
+        if (!resp.ok) {
+          notify(`Erro HTTP ${resp.status} em /executar.`, 'err');
           return null;
         }
+        setApiBadge('online', 'API: online');
         return data;
       } catch (err) {
-        writeInspector(`POST ${body.modo}`, { error: String(err) }, Math.round(performance.now() - t0));
-        showToast('Falha de conexão com /executar.', 'err');
+        const elapsed = Math.round(performance.now() - t0);
+        const diag = explainNetworkError(err, `${base}/executar`);
+        writeInspector(`POST ${bodyObj.modo}`, { error: String(err), diagnostic: diag }, elapsed);
+        setApiBadge('offline', 'API: offline');
+        notify('Failed to fetch em /executar. Veja o diagnóstico no JSON Inspector.', 'err');
         return null;
       } finally {
-        if (btn && btn.dataset.label) {
+        if (btn && btn.dataset.prevHtml) {
           btn.disabled = false;
-          btn.textContent = btn.dataset.label;
+          btn.innerHTML = btn.dataset.prevHtml;
         }
       }
     }
 
-    function toMediaUrl(urlOrPath, savedPath) {
-      const base = getApiBase();
-      if (urlOrPath && /^https?:\/\//i.test(urlOrPath)) return urlOrPath;
-      if (urlOrPath && urlOrPath.startsWith('/')) return `${base}${urlOrPath}`;
+    function resolveMediaUrl(rawUrl, savedPath) {
+      const base = persistConfig().apiUrl.replace(/\/+$/, '');
+      if (rawUrl && /^https?:\/\//i.test(rawUrl)) return rawUrl;
+      if (rawUrl && rawUrl.startsWith('/')) return `${base}${rawUrl}`;
       if (savedPath && savedPath.includes('/content/outputs/')) {
         return `${base}/outputs/${savedPath.split('/content/outputs/')[1]}`;
       }
-      return urlOrPath || '';
+      return rawUrl || '';
     }
 
-    function applyQuickPrompt(kind, text) {
-      if (kind === 'img') {
-        document.getElementById('img-prompt').value = text;
-        document.getElementById('img-prompt').focus();
-      } else if (kind === 'vid') {
-        document.getElementById('vid-prompt').value = text;
-        document.getElementById('vid-prompt').focus();
-      }
-    }
+    function showPreviewImage(src, caption) {
+      const img = document.getElementById('preview-img');
+      const vid = document.getElementById('preview-video');
+      const empty = document.getElementById('preview-empty');
+      const dl = document.getElementById('img-download');
+      const vidDl = document.getElementById('vid-download');
 
-    function handleShortcut(ev, action) {
-      if ((ev.metaKey || ev.ctrlKey) && ev.key === 'Enter') {
-        ev.preventDefault();
-        if (action === 'image') runImage();
-        if (action === 'video') runVideo();
-        if (action === 'saveMem') saveMemory();
-      }
-    }
+      vid.pause();
+      vid.classList.add('hidden');
+      vidDl.classList.add('hidden');
 
-    async function runImage() {
-      const prompt = document.getElementById('img-prompt').value.trim();
-      if (!prompt) {
-        showToast('Digite um prompt de imagem.', 'err');
-        return;
-      }
-      const params = {
-        width: Number(document.getElementById('img-w').value) || 896,
-        height: Number(document.getElementById('img-h').value) || 896,
-        steps: Number(document.getElementById('img-steps').value) || 4,
-      };
-      const seed = document.getElementById('img-seed').value.trim();
-      if (seed !== '') params.seed = Number(seed);
-      const model = document.getElementById('img-model').value.trim() || null;
-
-      const data = await postExecutar(
-        { modo: 'imagem', prompt, model, params },
-        document.getElementById('btn-run-image')
-      );
-      if (!data) return;
-
-      const src = toMediaUrl(data.image_url || data.url, data.saved_path);
-      const img = document.getElementById('img-out');
-      const dl = document.getElementById('img-dl');
       if (src) {
         img.src = src;
         img.classList.remove('hidden');
-        document.getElementById('img-empty').classList.add('hidden');
+        empty.classList.add('hidden');
         dl.href = src;
         dl.classList.remove('hidden');
       }
-      document.getElementById('img-caption').textContent =
-        data.saved_path ? `${data.saved_path} (seed ${data.seed ?? '-'})` : (data.reply || 'Concluído');
-      showToast('Imagem gerada!', 'ok');
+      document.getElementById('preview-badge').textContent = 'Imagem';
+      document.getElementById('preview-caption').textContent = caption || '';
     }
 
-    async function runVideo() {
-      const prompt = document.getElementById('vid-prompt').value.trim();
+    function showPreviewVideo(src, caption) {
+      const img = document.getElementById('preview-img');
+      const vid = document.getElementById('preview-video');
+      const empty = document.getElementById('preview-empty');
+      const imgDl = document.getElementById('img-download');
+      const vidDl = document.getElementById('vid-download');
+
+      img.classList.add('hidden');
+      imgDl.classList.add('hidden');
+
+      if (src) {
+        vid.src = src;
+        vid.load();
+        vid.classList.remove('hidden');
+        empty.classList.add('hidden');
+        vidDl.href = src;
+        vidDl.classList.remove('hidden');
+      }
+      document.getElementById('preview-badge').textContent = 'Vídeo + Som';
+      document.getElementById('preview-caption').textContent = caption || '';
+    }
+
+    async function runImageGeneration() {
+      const prompt = document.getElementById('img-prompt').value.trim();
       if (!prompt) {
-        showToast('Digite um prompt para o vídeo com som.', 'err');
+        notify('Digite um prompt para gerar a imagem.', 'err');
         return;
       }
       const params = {
-        width: Number(document.getElementById('vid-w').value) || 768,
-        height: Number(document.getElementById('vid-h').value) || 448,
+        width: Number(document.getElementById('img-width').value) || 896,
+        height: Number(document.getElementById('img-height').value) || 896,
+        steps: Number(document.getElementById('img-steps').value) || 4,
+      };
+      const seedRaw = document.getElementById('img-seed').value.trim();
+      if (seedRaw !== '') params.seed = Number(seedRaw);
+      const model = document.getElementById('img-model').value.trim();
+
+      const btn = document.getElementById('btn-gen-img');
+      const data = await postExecutar({ modo: 'imagem', prompt, model: model || null, params }, btn);
+      if (!data) return;
+
+      const src = resolveMediaUrl(data.image_url || data.url, data.saved_path);
+      showPreviewImage(src, data.saved_path ? `${data.saved_path} • seed ${data.seed ?? '-'}` : (data.reply || ''));
+      notify('Imagem gerada.', 'ok');
+    }
+
+    async function runVideoGeneration() {
+      const prompt = document.getElementById('vid-prompt').value.trim();
+      if (!prompt) {
+        notify('Digite um prompt para gerar o vídeo com som.', 'err');
+        return;
+      }
+      const params = {
+        width: Number(document.getElementById('vid-width').value) || 768,
+        height: Number(document.getElementById('vid-height').value) || 448,
         frames: Number(document.getElementById('vid-frames').value) || 65,
         fps: Number(document.getElementById('vid-fps').value) || 16,
       };
-      const seed = document.getElementById('vid-seed').value.trim();
-      if (seed !== '') params.seed = Number(seed);
+      const seedRaw = document.getElementById('vid-seed').value.trim();
+      if (seedRaw !== '') params.seed = Number(seedRaw);
 
-      const data = await postExecutar(
-        { modo: 'video', prompt, params },
-        document.getElementById('btn-run-video')
-      );
+      const btn = document.getElementById('btn-gen-vid');
+      const data = await postExecutar({ modo: 'video', prompt, params }, btn);
       if (!data) return;
 
-      const vidUrl = toMediaUrl(data.video_url || data.url, data.saved_path);
-      const vidEl = document.getElementById('vid-out');
-      const dl = document.getElementById('vid-dl');
-      if (vidUrl) {
-        vidEl.src = vidUrl;
-        vidEl.load();
-        vidEl.classList.remove('hidden');
-        document.getElementById('vid-empty').classList.add('hidden');
-        dl.href = vidUrl;
-        dl.classList.remove('hidden');
-      }
-
-      const audEl = document.getElementById('aud-out');
-      const audUrl = toMediaUrl(data.audio_url, data.audio_path);
-      if (audUrl) {
-        audEl.src = audUrl;
-        audEl.classList.remove('hidden');
-      } else {
-        audEl.classList.add('hidden');
-      }
-
-      document.getElementById('vid-caption').textContent =
-        data.saved_path ? `${data.saved_path} • áudio: ${data.has_audio ? 'sim' : 'check'}` : (data.reply || 'Concluído');
-      showToast('Vídeo com som processado!', 'ok');
+      const src = resolveMediaUrl(data.video_url || data.url, data.saved_path);
+      showPreviewVideo(src, data.saved_path ? `${data.saved_path} • áudio: ${data.has_audio ? 'sim' : 'não'}` : (data.reply || ''));
+      notify('Vídeo com som concluído.', 'ok');
     }
 
-    async function saveMemory() {
+    async function runSaveMemory() {
       const title = document.getElementById('mem-title').value.trim() || 'nota_lux_t4';
       const folder = document.getElementById('mem-folder').value;
-      const content = document.getElementById('mem-body').value.trim();
+      const content = document.getElementById('mem-content').value.trim();
       if (!content) {
-        showToast('Escreva o conteúdo da nota.', 'err');
+        notify('Preencha o conteúdo da nota.', 'err');
         return;
       }
-      const data = await postExecutar(
-        { modo: 'memoria', prompt: title, params: { title, folder, content } },
-        document.getElementById('btn-save-mem')
-      );
+      const btn = document.getElementById('btn-save-mem');
+      const data = await postExecutar({ modo: 'memoria', prompt: title, params: { title, folder, content } }, btn);
       if (data && data.ok !== false) {
-        showToast(`Salvo em ${data.saved_path || folder}`, 'ok');
-        searchMemory();
+        notify(`Salvo em ${data.saved_path || folder}.`, 'ok');
       }
     }
 
-    async function searchMemory() {
-      const query = document.getElementById('mem-search-input').value.trim();
-      const data = await postExecutar(
-        { modo: 'buscar_memoria', prompt: query, params: { query } },
-        document.getElementById('btn-search-mem')
-      );
+    async function runSearchMemory() {
+      const query = document.getElementById('mem-query').value.trim();
+      const btn = document.getElementById('btn-search-mem');
+      const data = await postExecutar({ modo: 'buscar_memoria', prompt: query, params: { query } }, btn);
       if (!data) return;
 
-      const list = document.getElementById('mem-list');
+      const list = document.getElementById('mem-results');
       const matches = Array.isArray(data.matches) ? data.matches : [];
       if (!matches.length) {
-        list.innerHTML = '<p class="font-editorial italic text-sm text-clay-700/70 dark:text-clay-400">Nenhuma nota encontrada.</p>';
+        list.innerHTML = '<p class="text-xs text-claude-faint">Nenhuma nota encontrada.</p>';
         return;
       }
       list.innerHTML = matches.map((m) => `
-        <article class="p-3 rounded-xl bg-clay-50 dark:bg-clay-950 border border-clay-200 dark:border-clay-800 flex flex-col gap-1">
-          <div class="font-code text-[11px] text-terracotta-600 dark:text-terracotta-400 break-all">${esc(m.file || '')}</div>
-          <pre class="font-code text-xs text-clay-800 dark:text-clay-200 whitespace-pre-wrap break-words">${esc(m.excerpt || '')}</pre>
-        </article>
+        <div class="p-2.5 rounded-lg bg-claude-input border border-claude-border flex flex-col gap-1">
+          <div class="text-[11px] mono text-claude-accent break-all">${escapeHtml(m.file || '')}</div>
+          <pre class="text-xs mono text-claude-text whitespace-pre-wrap break-words">${escapeHtml(m.excerpt || '')}</pre>
+        </div>
       `).join('');
+      notify(`${matches.length} nota(s) encontrada(s).`, 'ok');
     }
 
-    async function runScraper() {
+    async function runScraperTask() {
       const url = document.getElementById('scraper-url').value.trim();
       if (!url) {
-        showToast('Informe uma URL válida.', 'err');
+        notify('Informe uma URL válida.', 'err');
         return;
       }
-      const data = await postExecutar(
-        { modo: 'scraper', prompt: url, params: { url } },
-        document.getElementById('btn-run-scraper')
-      );
+      const btn = document.getElementById('btn-run-scraper');
+      const data = await postExecutar({ modo: 'scraper', prompt: url, params: { url } }, btn);
       if (!data) return;
 
       const links = Array.isArray(data.links) ? data.links : [];
-      document.getElementById('scraper-result').innerHTML = `
-        <div class="border-b border-clay-200 dark:border-clay-800 pb-2">
-          <div class="font-editorial text-base font-semibold">${esc(data.title || url)}</div>
-          <div class="font-code text-[11px] text-clay-700 dark:text-clay-400 break-all">${esc(data.url || url)}</div>
-          ${data.saved_memory ? `<div class="font-code text-[11px] text-emerald-700 dark:text-emerald-300 mt-0.5 break-all">Vault: ${esc(data.saved_memory)}</div>` : ''}
-        </div>
-        <pre class="font-code text-xs whitespace-pre-wrap break-words max-h-44 overflow-y-auto">${esc(data.content || data.reply || '')}</pre>
-        <div class="flex flex-col gap-1 max-h-28 overflow-y-auto">
-          <span class="text-[11px] font-semibold text-clay-700 dark:text-clay-400">Links (${links.length})</span>
-          ${links.map((l) => `<a href="${escAttr(l)}" target="_blank" rel="noopener noreferrer" class="font-code text-[11px] text-terracotta-600 dark:text-terracotta-400 hover:underline break-all">${esc(l)}</a>`).join('')}
+      document.getElementById('scraper-box').innerHTML = `
+        <div class="flex flex-col gap-2.5 text-claude-text">
+          <div class="font-medium text-claude-accent">${escapeHtml(data.title || url)}</div>
+          ${data.saved_memory ? `<div class="text-[11px] mono text-emerald-300 break-all">Salvo: ${escapeHtml(data.saved_memory)}</div>` : ''}
+          <pre class="text-xs mono bg-claude-surface border border-claude-border rounded-lg p-2.5 max-h-44 overflow-y-auto whitespace-pre-wrap break-words">${escapeHtml(data.content || data.reply || '')}</pre>
+          ${links.length ? `<div class="text-[11px] mono text-claude-muted max-h-28 overflow-y-auto flex flex-col gap-1">${links.map((l) => `<a href="${escapeAttr(l)}" target="_blank" rel="noopener noreferrer" class="hover:underline break-all">${escapeHtml(l)}</a>`).join('')}</div>` : ''}
         </div>
       `;
-      showToast('Coleta concluída!', 'ok');
+      notify('Extração concluída.', 'ok');
     }
 
-    function esc(v) {
-      return String(v ?? '')
+    function escapeHtml(str) {
+      return String(str ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
     }
 
-    function escAttr(v) {
-      return esc(v).replace(/'/g, '&#39;');
+    function escapeAttr(str) {
+      return escapeHtml(str).replace(/'/g, '&#39;');
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      const cfg = readConfig();
-      document.getElementById('input-api-url').value = cfg.apiUrl;
-      document.getElementById('input-comfy-url').value = cfg.comfyUrl;
-      document.getElementById('input-ntfy-channel').value = cfg.ntfyChannel;
-      document.documentElement.classList.toggle('dark', cfg.theme === 'dark');
-      toggleInspector(cfg.inspectorOpen);
-      setMode(cfg.mode, false);
-      persistConfig();
-
-      ['input-api-url', 'input-comfy-url', 'input-ntfy-channel'].forEach((id) => {
-        document.getElementById(id).addEventListener('change', () => {
-          persistConfig();
-          checkHealthAndStatus(true);
-        });
-      });
-
-      syncNtfy(false).finally(() => checkHealthAndStatus(true));
+      loadSavedConfig();
+      syncNtfy(false);
+      checkHealthAndStatus(false);
+      // Poll ntfy every 8 seconds for rapid tunnel updates without paid tokens
       setInterval(() => syncNtfy(false), 8000);
     });
   </script>
