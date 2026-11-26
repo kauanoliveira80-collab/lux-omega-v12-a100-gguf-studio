@@ -300,7 +300,7 @@
     </header>
 
     <div class="bar-url">
-      <input id="apiInput" class="mono-input" type="url" placeholder="https://seu-tunel.trycloudflare.com" />
+      <input id="apiInput" class="mono-input" type="url" placeholder="https://displaying-monthly-computing-today.trycloudflare.com" />
       <button id="btnSync" type="button">Sync ntfy</button>
       <button id="btnSaveUrl" type="button">Salvar URL</button>
     </div>
@@ -318,7 +318,7 @@
       <section class="card">
         <div class="card-head">
           <h2 id="panelTitle">ELA — Diálogo &amp; Direção</h2>
-          <span id="modeBadge" class="tag-mode">modo: "ela"</span>
+          <span id="modeBadge" class="tag-mode">modo: "ela"</span> <span id="engineBadge" class="tag-mode">GPU/ComfyUI</span>
         </div>
 
         <div id="formEla">
@@ -823,7 +823,9 @@
 
       renderChat();
       const saved = localStorage.getItem(API_KEY);
+      const DEFAULT_TUNNEL_URL = "https://displaying-monthly-computing-today.trycloudflare.com";
       if (saved) setApiBase(saved, false);
+      else if (DEFAULT_TUNNEL_URL) setApiBase(DEFAULT_TUNNEL_URL, true);
       syncFromNtfy(true);
       setInterval(() => syncFromNtfy(true), 8000);
     })();
