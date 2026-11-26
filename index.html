@@ -1,1022 +1,608 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LUX-Ω Studio — Claude Editorial (Tesla T4)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <script>
-    // Configure Tailwind with a Claude-inspired #131314 dark editorial palette
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-          },
-          colors: {
-            claude: {
-              bg: '#131314',
-              surface: '#1b1a19',
-              card: '#21201f',
-              input: '#171615',
-              hover: '#292826',
-              border: '#2e2c2a',
-              borderStrong: '#3d3a37',
-              text: '#eceae4',
-              muted: '#9e9991',
-              faint: '#6f6b65',
-              accent: '#d97757',
-              accentHover: '#e08465',
-              accentSoft: 'rgba(217, 119, 87, 0.14)',
-              ok: '#4ade80',
-              warn: '#fbbf24',
-              err: '#f87171',
-            },
-          },
-        },
-      },
-    };
-  </script>
+  <title>LUX-Ω Studio — Uncensored Swarm Console</title>
   <style>
-    /* Fluid editorial surfaces, clean scrollbars, and subtle motion */
-    html, body {
-      background-color: #131314;
-      color: #eceae4;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      overflow-x: hidden;
+    :root {
+      --bg: #131314;
+      --surface: #1b1b1d;
+      --surface-2: #232326;
+      --border: #2f2f34;
+      --text: #ececec;
+      --muted: #a1a1aa;
+      --accent: #d97757;
+      --accent-hover: #e08668;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --err: #f87171;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
     }
-    ::-webkit-scrollbar { width: 7px; height: 7px; }
-    ::-webkit-scrollbar-track { background: #131314; }
-    ::-webkit-scrollbar-thumb { background: #2e2c2a; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3f3c39; }
-    .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
-    .panel-enter {
-      animation: panelFade 150ms ease-out;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.5;
+      min-height: 100vh;
     }
-    @keyframes panelFade {
-      from { opacity: 0.5; transform: translateY(3px); }
-      to { opacity: 1; transform: translateY(0); }
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 20px 18px 48px;
     }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .brand h1 { font-size: 18px; font-weight: 600; }
+    .meta { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-family: var(--mono);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--err); }
+    .dot.online { background: var(--ok); }
+    .controls-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    button {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.14s ease, border-color 0.14s ease;
+    }
+    button:hover { background: #2b2b30; border-color: #3f3f46; }
+    button.primary {
+      background: var(--accent);
+      color: #141110;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    button.primary:hover { background: var(--accent-hover); }
+    .bar-url {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+    }
+    @media (max-width: 720px) {
+      .bar-url { grid-template-columns: 1fr; }
+    }
+    input, textarea, select {
+      width: 100%;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 13.5px;
+      font-family: var(--sans);
+      outline: none;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+    .mono-input { font-family: var(--mono); font-size: 12.5px; }
+    .tabs {
+      margin-top: 18px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 7px 13px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .tab.active {
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 16px;
+    }
+    @media (max-width: 880px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .card-head h2 { font-size: 15px; font-weight: 600; }
+    .tag-mode {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--accent);
+      background: rgba(217, 119, 87, 0.12);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      margin-top: 10px;
+    }
+    label:first-child { margin-top: 0; }
+    textarea { min-height: 112px; resize: vertical; }
+    .row-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    @media (max-width: 520px) {
+      .row-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    .preview-box {
+      min-height: 300px;
+      border-radius: 10px;
+      background: var(--bg);
+      border: 1px dashed var(--border);
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .preview-box img, .preview-box video {
+      max-width: 100%;
+      max-height: 420px;
+      border-radius: 8px;
+    }
+    .inspector {
+      margin-top: 16px;
+    }
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #d4d4d8;
+      overflow-x: auto;
+      max-height: 280px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: all 0.18s ease;
+      z-index: 50;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .hidden { display: none; }
   </style>
 </head>
-<body class="min-h-screen bg-claude-bg text-claude-text antialiased selection:bg-claude-accent/25 selection:text-white">
-  <!-- Toast / Message Box Container (no alert/confirm dialogs) -->
-  <div id="toast-box" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 w-full max-w-sm px-4 sm:px-0 pointer-events-none"></div>
-
-  <!-- Sticky Claude-style Header -->
-  <header class="sticky top-0 z-30 bg-claude-bg/90 backdrop-blur-md border-b border-claude-border">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-2.5">
-      <div class="flex flex-wrap items-center justify-between gap-2.5">
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-8 h-8 rounded-lg bg-claude-accent/15 border border-claude-accent/40 text-claude-accent flex items-center justify-center font-bold text-sm shrink-0">
-            Ω
-          </div>
-          <div class="min-w-0">
-            <div class="flex items-center gap-2 flex-wrap">
-              <h1 class="text-sm sm:text-base font-semibold tracking-tight text-claude-text">LUX-Ω Studio</h1>
-              <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">
-                Zero Paid Tokens
-              </span>
-              <span id="ntfy-live-badge" class="px-2 py-0.5 rounded-full text-[11px] mono bg-claude-card text-claude-muted border border-claude-border">
-                ntfy 8s
-              </span>
-            </div>
-            <p id="hw-line" class="text-[11px] mono text-claude-muted truncate">
-              Tesla T4 • 14.6 GB VRAM • 12.7 GB RAM • t4_15gb
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 flex-wrap">
-          <div id="status-chip" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-claude-card border border-claude-border text-xs">
-            <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-            <span id="status-label" class="text-claude-muted font-medium">API: verificando</span>
-          </div>
-          <button
-            type="button"
-            id="btn-check-health"
-            onclick="checkHealthAndStatus(true)"
-            class="px-3 py-1.5 rounded-lg bg-claude-accent hover:bg-claude-accentHover active:scale-[0.99] text-white text-xs font-medium transition cursor-pointer"
-          >
-            Testar /health &amp; /status
-          </button>
-          <button
-            type="button"
-            id="btn-toggle-inspector"
-            onclick="toggleInspector()"
-            class="px-2.5 py-1.5 rounded-lg bg-claude-card hover:bg-claude-hover border border-claude-border text-xs text-claude-muted hover:text-claude-text transition cursor-pointer"
-            title="Expandir ou recolher o inspetor JSON"
-          >
-            JSON
-          </button>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">Ω</div>
+        <div>
+          <h1>LUX-Ω Studio <span class="pill">Uncensored Swarm</span> <span class="pill">ntfy 8s</span></h1>
+          <div class="meta">Tesla T4 • 14.6 GB VRAM • 12.7 GB RAM • t4_15gb • OrchestratorBrain</div>
         </div>
       </div>
-
-      <!-- Compact Endpoint & ntfy Sync Strip -->
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-2">
-        <div class="md:col-span-5 flex items-center bg-claude-input border border-claude-border focus-within:border-claude-accent/70 rounded-lg px-2.5 py-1.5 gap-2">
-          <span class="text-[11px] mono text-claude-faint shrink-0">API</span>
-          <input
-            id="input-api-url"
-            type="text"
-            spellcheck="false"
-            oninput="markManualEdit('apiUrl')"
-            onchange="persistConfig()"
-            class="w-full bg-transparent text-xs mono text-claude-text focus:outline-none min-w-0"
-            placeholder="https://foundations-shareholders-recipes-dsl.trycloudflare.com"
-          />
-        </div>
-
-        <div class="md:col-span-4 flex items-center bg-claude-input border border-claude-border focus-within:border-claude-accent/70 rounded-lg px-2.5 py-1.5 gap-2">
-          <span class="text-[11px] mono text-claude-faint shrink-0">ComfyUI</span>
-          <input
-            id="input-comfy-url"
-            type="text"
-            spellcheck="false"
-            oninput="markManualEdit('comfyUrl')"
-            onchange="persistConfig()"
-            class="w-full bg-transparent text-xs mono text-claude-text focus:outline-none min-w-0"
-            placeholder="http://127.0.0.1:8188"
-          />
-        </div>
-
-        <div class="md:col-span-3 flex items-center gap-1.5">
-          <div class="flex-1 flex items-center bg-claude-input border border-claude-border focus-within:border-claude-accent/70 rounded-lg px-2.5 py-1.5 gap-1.5 min-w-0">
-            <span class="text-[11px] mono text-claude-faint shrink-0">ntfy</span>
-            <input
-              id="input-ntfy-channel"
-              type="text"
-              spellcheck="false"
-              onchange="persistConfig(); syncNtfy(true);"
-              class="w-full bg-transparent text-xs mono text-claude-text focus:outline-none min-w-0"
-              placeholder="lux-omega-kauan-v55"
-            />
-          </div>
-          <button
-            type="button"
-            id="btn-sync-ntfy"
-            onclick="syncNtfy(true)"
-            class="px-3 py-1.5 rounded-lg bg-claude-card hover:bg-claude-hover border border-claude-border text-xs font-medium text-claude-text transition shrink-0 cursor-pointer"
-          >
-            Sync
-          </button>
-        </div>
+      <div class="controls-top">
+        <span class="pill"><span id="statusDot" class="dot"></span><span id="statusText">API: offline</span></span>
+        <button id="btnTest" class="primary">Testar /health &amp; /status</button>
       </div>
+    </header>
+
+    <div class="bar-url">
+      <input id="apiInput" class="mono-input" type="url" placeholder="https://seu-tunel.trycloudflare.com" />
+      <button id="btnSync">Sync ntfy</button>
+      <button id="btnSaveUrl">Salvar URL</button>
     </div>
-  </header>
 
-  <!-- Main Editorial Workspace -->
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col gap-5">
-    <!-- Mode Switcher Bar -->
-    <nav aria-label="Modos do estúdio" class="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-claude-border">
-      <button type="button" data-mode="imagem" onclick="selectTab('imagem')" class="mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer">
-        Imagem
-      </button>
-      <button type="button" data-mode="video" onclick="selectTab('video')" class="mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer">
-        Vídeo com Som
-      </button>
-      <button type="button" data-mode="memoria" onclick="selectTab('memoria')" class="mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer">
-        Memoria MD
-      </button>
-      <button type="button" data-mode="scraper" onclick="selectTab('scraper')" class="mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer">
-        Scraper Free
-      </button>
-      <button type="button" data-mode="comfy" onclick="selectTab('comfy')" class="mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer">
-        ComfyUI (8188)
-      </button>
-    </nav>
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-mode="imagem">Imagem</button>
+      <button class="tab" data-mode="video">Vídeo com Som</button>
+      <button class="tab" data-mode="memoria">Memoria MD</button>
+      <button class="tab" data-mode="scraper">Scraper Free</button>
+      <button class="tab" data-mode="comfy">ComfyUI (8188)</button>
+    </div>
 
-    <!-- Active Workspace Grid -->
-    <div id="workspace-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-      <!-- Primary Control Column -->
-      <section id="controls-column" class="lg:col-span-7 flex flex-col gap-4">
-        <!-- 1. IMAGEM (modo: "imagem") -->
-        <div id="tab-imagem" class="tab-view panel-enter rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-4">
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <h2 class="text-base font-semibold text-claude-text">Compor Imagem</h2>
-              <p class="text-xs text-claude-muted">Executa <span class="mono text-claude-accent">modo: "imagem"</span> na GPU local sem tokens pagos.</p>
-            </div>
-            <span class="text-[11px] mono px-2 py-0.5 rounded bg-claude-card border border-claude-border text-claude-muted">
-              Ctrl/Cmd + Enter
-            </span>
+    <div class="grid">
+      <section class="card">
+        <div class="card-head">
+          <h2 id="panelTitle">Orquestrar &amp; Gerar</h2>
+          <span id="modeBadge" class="tag-mode">modo: "imagem"</span>
+        </div>
+
+        <div id="formGen">
+          <label for="promptInput">Prompt (Ctrl/Cmd + Enter para executar)</label>
+          <textarea id="promptInput" placeholder="Descreva a cena, direção visual, iluminação ou movimento..."></textarea>
+
+          <div id="imgParams" class="row-4">
+            <div><label for="wInput">Largura</label><input id="wInput" type="number" value="896" /></div>
+            <div><label for="hInput">Altura</label><input id="hInput" type="number" value="896" /></div>
+            <div><label for="stepsInput">Steps</label><input id="stepsInput" type="number" value="4" /></div>
+            <div><label for="seedInput">Seed</label><input id="seedInput" type="text" placeholder="Auto" /></div>
           </div>
 
-          <!-- Quick prompt starters -->
-          <div class="flex flex-wrap gap-1.5">
-            <button type="button" onclick="setQuickPrompt('img-prompt', 'Nave espacial elegante cruzando órbita ao entardecer com iluminação volumétrica, detalhe fotográfico, 85mm')" class="px-2.5 py-1 rounded-full text-[11px] bg-claude-card hover:bg-claude-hover border border-claude-border text-claude-muted hover:text-claude-text transition cursor-pointer">
-              + Nave orbital
-            </button>
-            <button type="button" onclick="setQuickPrompt('img-prompt', 'Fotografia editorial de estúdio minimalista, luz lateral suave, textura natural, alta nitidez')" class="px-2.5 py-1 rounded-full text-[11px] bg-claude-card hover:bg-claude-hover border border-claude-border text-claude-muted hover:text-claude-text transition cursor-pointer">
-              + Estúdio editorial
-            </button>
-            <button type="button" onclick="setQuickPrompt('img-prompt', 'Cena noturna urbana após chuva leve, reflexos quentes e frios no asfalto, profundidade de campo cinematográfica')" class="px-2.5 py-1 rounded-full text-[11px] bg-claude-card hover:bg-claude-hover border border-claude-border text-claude-muted hover:text-claude-text transition cursor-pointer">
-              + Cena noturna
-            </button>
+          <div id="vidParams" class="row-4 hidden">
+            <div><label for="vwInput">Largura</label><input id="vwInput" type="number" value="768" /></div>
+            <div><label for="vhInput">Altura</label><input id="vhInput" type="number" value="448" /></div>
+            <div><label for="framesInput">Frames</label><input id="framesInput" type="number" value="65" /></div>
+            <div><label for="fpsInput">FPS</label><input id="fpsInput" type="number" value="16" /></div>
           </div>
 
-          <div class="flex flex-col gap-1.5">
-            <label for="img-prompt" class="text-xs font-medium text-claude-muted">Prompt</label>
-            <textarea
-              id="img-prompt"
-              rows="3"
-              onkeydown="handleShortcut(event, runImageGeneration)"
-              placeholder="Descreva o que deseja gerar..."
-              class="w-full rounded-xl bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none p-3 text-sm text-claude-text placeholder-claude-faint resize-y"
-            ></textarea>
-          </div>
+          <label for="modelInput">Modelo opcional (fallback local automático)</label>
+          <input id="modelInput" class="mono-input" type="text" placeholder="Ex.: stabilityai/sdxl-turbo" />
 
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <div class="flex flex-col gap-1">
-              <label for="img-width" class="text-[11px] text-claude-muted">Largura</label>
-              <input id="img-width" type="number" step="64" min="256" max="1536" value="896"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
-            </div>
-            <div class="flex flex-col gap-1">
-              <label for="img-height" class="text-[11px] text-claude-muted">Altura</label>
-              <input id="img-height" type="number" step="64" min="256" max="1536" value="896"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
-            </div>
-            <div class="flex flex-col gap-1">
-              <label for="img-steps" class="text-[11px] text-claude-muted">Steps</label>
-              <input id="img-steps" type="number" min="1" max="50" value="4"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
-            </div>
-            <div class="flex flex-col gap-1">
-              <label for="img-seed" class="text-[11px] text-claude-muted">Seed</label>
-              <input id="img-seed" type="number" placeholder="Auto"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text placeholder-claude-faint" />
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <label for="img-model" class="text-[11px] text-claude-muted">Model override (opcional)</label>
-            <input id="img-model" type="text" placeholder="Ex.: stabilityai/sdxl-turbo"
-              class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-3 py-1.5 text-xs mono text-claude-text placeholder-claude-faint" />
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2.5 pt-1">
-            <button
-              type="button"
-              id="btn-gen-img"
-              onclick="runImageGeneration()"
-              class="px-4 py-2 rounded-xl bg-claude-accent hover:bg-claude-accentHover active:scale-[0.99] text-white text-xs sm:text-sm font-medium transition cursor-pointer"
-            >
-              Gerar Imagem
-            </button>
-            <a id="img-download" href="#" download="lux_omega_imagem.png"
-              class="hidden px-3 py-2 rounded-xl bg-claude-card hover:bg-claude-hover border border-claude-border text-xs text-claude-text transition">
-              Baixar PNG
-            </a>
+          <div style="margin-top: 14px; display: flex; gap: 8px;">
+            <button id="btnRun" class="primary" style="flex: 1;">Executar no Enxame</button>
           </div>
         </div>
 
-        <!-- 2. VÍDEO COM SOM (modo: "video") -->
-        <div id="tab-video" class="tab-view panel-enter hidden rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-4">
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <h2 class="text-base font-semibold text-claude-text">Vídeo com Som</h2>
-              <p class="text-xs text-claude-muted">Executa <span class="mono text-claude-accent">modo: "video"</span> com áudio mixado para perfil <span class="mono text-claude-text">t4_15gb</span>.</p>
-            </div>
-            <span class="text-[11px] mono px-2 py-0.5 rounded bg-claude-card border border-claude-border text-claude-muted">
-              Ctrl/Cmd + Enter
-            </span>
-          </div>
-
-          <div class="flex flex-col gap-1.5">
-            <label for="vid-prompt" class="text-xs font-medium text-claude-muted">Prompt da cena e som</label>
-            <textarea
-              id="vid-prompt"
-              rows="3"
-              onkeydown="handleShortcut(event, runVideoGeneration)"
-              placeholder="Descreva o movimento da cena e a atmosfera sonora..."
-              class="w-full rounded-xl bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none p-3 text-sm text-claude-text placeholder-claude-faint resize-y"
-            ></textarea>
-          </div>
-
-          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-            <div class="flex flex-col gap-1">
-              <label for="vid-width" class="text-[11px] text-claude-muted">Largura</label>
-              <input id="vid-width" type="number" step="32" min="256" max="1280" value="768"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
-            </div>
-            <div class="flex flex-col gap-1">
-              <label for="vid-height" class="text-[11px] text-claude-muted">Altura</label>
-              <input id="vid-height" type="number" step="32" min="256" max="1024" value="448"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
-            </div>
-            <div class="flex flex-col gap-1">
-              <label for="vid-frames" class="text-[11px] text-claude-muted">Frames</label>
-              <input id="vid-frames" type="number" min="9" max="161" value="65"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
-            </div>
-            <div class="flex flex-col gap-1">
-              <label for="vid-fps" class="text-[11px] text-claude-muted">FPS</label>
-              <input id="vid-fps" type="number" min="6" max="60" value="16"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text" />
-            </div>
-            <div class="flex flex-col gap-1">
-              <label for="vid-seed" class="text-[11px] text-claude-muted">Seed</label>
-              <input id="vid-seed" type="number" placeholder="Auto"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-2.5 py-1.5 text-xs mono text-claude-text placeholder-claude-faint" />
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2.5 pt-1">
-            <button
-              type="button"
-              id="btn-gen-vid"
-              onclick="runVideoGeneration()"
-              class="px-4 py-2 rounded-xl bg-claude-accent hover:bg-claude-accentHover active:scale-[0.99] text-white text-xs sm:text-sm font-medium transition cursor-pointer"
-            >
-              Gerar Vídeo com Som
-            </button>
-            <a id="vid-download" href="#" download="lux_omega_video.mp4"
-              class="hidden px-3 py-2 rounded-xl bg-claude-card hover:bg-claude-hover border border-claude-border text-xs text-claude-text transition">
-              Baixar MP4
-            </a>
+        <div id="formMem" class="hidden">
+          <label for="memTitle">Título da Nota Markdown</label>
+          <input id="memTitle" type="text" placeholder="Ex.: diretrizes_enxame_t4" />
+          <label for="memContent">Conteúdo</label>
+          <textarea id="memContent" placeholder="Escreva sua nota persistente no Google Drive..."></textarea>
+          <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="btnSaveMem" class="primary">Salvar Nota MD</button>
+            <button id="btnSearchMem">Buscar Memória</button>
           </div>
         </div>
 
-        <!-- 3. MEMORIA MD (modo: "memoria" e "buscar_memoria") -->
-        <div id="tab-memoria" class="tab-view panel-enter hidden rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-5">
-          <div>
-            <h2 class="text-base font-semibold text-claude-text">Memoria MD (Vault Obsidian no Drive)</h2>
-            <p class="text-xs text-claude-muted">Salva e recupera notas Markdown usando <span class="mono text-claude-accent">memoria</span> e <span class="mono text-claude-accent">buscar_memoria</span>.</p>
-          </div>
-
-          <div class="rounded-xl bg-claude-card/70 border border-claude-border p-4 flex flex-col gap-3">
-            <div class="text-xs font-medium text-claude-text">Salvar nota (<span class="mono text-claude-accent">modo: "memoria"</span>)</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <input id="mem-title" type="text" placeholder="Título da nota"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-3 py-1.5 text-xs text-claude-text placeholder-claude-faint" />
-              <select id="mem-folder"
-                class="rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-3 py-1.5 text-xs mono text-claude-text">
-                <option value="notas">notas</option>
-                <option value="contexto">contexto</option>
-                <option value="execucoes">execucoes</option>
-                <option value="scraping">scraping</option>
-              </select>
-            </div>
-            <textarea id="mem-content" rows="3" onkeydown="handleShortcut(event, runSaveMemory)" placeholder="Conteúdo em Markdown..."
-              class="w-full rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none p-2.5 text-xs text-claude-text placeholder-claude-faint"></textarea>
-            <div>
-              <button type="button" id="btn-save-mem" onclick="runSaveMemory()"
-                class="px-3.5 py-2 rounded-lg bg-claude-accent hover:bg-claude-accentHover text-white text-xs font-medium transition cursor-pointer">
-                Salvar Nota
-              </button>
-            </div>
-          </div>
-
-          <div class="rounded-xl bg-claude-card/70 border border-claude-border p-4 flex flex-col gap-3">
-            <div class="text-xs font-medium text-claude-text">Buscar memória (<span class="mono text-claude-accent">modo: "buscar_memoria"</span>)</div>
-            <div class="flex gap-2">
-              <input id="mem-query" type="text" onkeydown="if(event.key==='Enter') runSearchMemory()" placeholder="Filtrar termo (vazio lista recentes)..."
-                class="flex-1 rounded-lg bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-3 py-1.5 text-xs text-claude-text placeholder-claude-faint" />
-              <button type="button" id="btn-search-mem" onclick="runSearchMemory()"
-                class="px-3.5 py-1.5 rounded-lg bg-claude-card hover:bg-claude-hover border border-claude-border text-xs font-medium text-claude-text transition cursor-pointer">
-                Buscar
-              </button>
-            </div>
-            <div id="mem-results" class="flex flex-col gap-2 max-h-60 overflow-y-auto">
-              <p class="text-xs text-claude-faint">Nenhuma busca realizada ainda.</p>
-            </div>
+        <div id="formScrape" class="hidden">
+          <label for="scrapeUrl">URL Pública para Coleta</label>
+          <input id="scrapeUrl" class="mono-input" type="url" placeholder="https://exemplo.com" />
+          <div style="margin-top: 14px;">
+            <button id="btnScrape" class="primary">Coletar para Memória MD</button>
           </div>
         </div>
 
-        <!-- 4. SCRAPER FREE (modo: "scraper") -->
-        <div id="tab-scraper" class="tab-view panel-enter hidden rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-4">
-          <div>
-            <h2 class="text-base font-semibold text-claude-text">Scraper Free</h2>
-            <p class="text-xs text-claude-muted">Coleta gratuita via <span class="mono text-claude-accent">modo: "scraper"</span> e registra em Markdown no Vault.</p>
-          </div>
-
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="scraper-url" type="url" onkeydown="if(event.key==='Enter') runScraperTask()" placeholder="https://example.com"
-              class="flex-1 rounded-xl bg-claude-input border border-claude-border focus:border-claude-accent focus:outline-none px-3 py-2 text-xs mono text-claude-text placeholder-claude-faint" />
-            <button type="button" id="btn-run-scraper" onclick="runScraperTask()"
-              class="px-4 py-2 rounded-xl bg-claude-accent hover:bg-claude-accentHover text-white text-xs font-medium transition shrink-0 cursor-pointer">
-              Extrair Página
-            </button>
-          </div>
-
-          <div id="scraper-box" class="rounded-xl bg-claude-input border border-claude-border p-3.5 text-xs text-claude-muted min-h-[140px]">
-            Informe uma URL pública para extrair título, texto e links.
-          </div>
-        </div>
-
-        <!-- 5. COMFYUI (8188) -->
-        <div id="tab-comfy" class="tab-view panel-enter hidden rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-4">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 class="text-base font-semibold text-claude-text">ComfyUI &amp; Modelos (Porta 8188)</h2>
-              <p class="text-xs text-claude-muted">Cache local no Drive pronto para vídeo, áudio e codificadores na Tesla T4.</p>
-            </div>
-            <a id="comfy-launch-link" href="http://127.0.0.1:8188" target="_blank" rel="noopener noreferrer"
-              class="px-3.5 py-2 rounded-xl bg-claude-accent hover:bg-claude-accentHover text-white text-xs font-medium transition">
-              Abrir ComfyUI
-            </a>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-            <div class="p-3 rounded-xl bg-claude-card border border-claude-border">
-              <div class="font-medium text-claude-text">LTX-2.3 22B GGUF + VAE</div>
-              <div class="mono text-[11px] text-claude-muted mt-0.5 break-all">ltx-2.3-22b-dev-Q4_K_M.gguf</div>
-            </div>
-            <div class="p-3 rounded-xl bg-claude-card border border-claude-border">
-              <div class="font-medium text-claude-text">Wan 2.2 I2V A14B (High / Low)</div>
-              <div class="mono text-[11px] text-claude-muted mt-0.5 break-all">Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf</div>
-            </div>
-            <div class="p-3 rounded-xl bg-claude-card border border-claude-border">
-              <div class="font-medium text-claude-text">UMT5-XXL Encoder + Wan 2.1 VAE</div>
-              <div class="mono text-[11px] text-claude-muted mt-0.5 break-all">umt5-xxl-encoder-Q5_K_M.gguf</div>
-            </div>
-            <div class="p-3 rounded-xl bg-claude-card border border-claude-border">
-              <div class="font-medium text-claude-text">Stable Audio Open 1.0</div>
-              <div class="mono text-[11px] text-claude-muted mt-0.5 break-all">stable-audio-open-1.0.safetensors</div>
-            </div>
-          </div>
+        <div id="formComfy" class="hidden">
+          <p style="font-size: 13px; color: var(--muted); margin-bottom: 12px;">
+            O ComfyUI roda localmente em <code style="font-family: var(--mono);">http://127.0.0.1:8188</code> no ambiente Colab T4 com os modelos linkados em cache.
+          </p>
+          <button id="btnCheckComfy" class="primary">Verificar Status no /status</button>
         </div>
       </section>
 
-      <!-- Visual Preview + Collapsible JSON Inspector Column -->
-      <aside id="side-column" class="lg:col-span-5 flex flex-col gap-4">
-        <!-- Media Preview Card -->
-        <div class="rounded-2xl bg-claude-surface border border-claude-border p-5 flex flex-col gap-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-claude-muted">Prévia</span>
-            <span id="preview-badge" class="text-[11px] mono text-claude-faint">Aguardando</span>
-          </div>
-
-          <div class="rounded-xl bg-claude-input border border-claude-border min-h-[240px] p-3 flex flex-col items-center justify-center">
-            <img id="preview-img" alt="Imagem gerada" class="hidden max-h-[360px] w-auto rounded-lg object-contain" />
-            <video id="preview-video" controls playsinline class="hidden max-h-[340px] w-full rounded-lg bg-black"></video>
-            <p id="preview-empty" class="text-xs text-claude-faint text-center px-4">
-              A imagem ou o vídeo com som aparecerá aqui ao concluir.
-            </p>
-          </div>
-          <p id="preview-caption" class="text-[11px] mono text-claude-muted break-all"></p>
+      <section class="card">
+        <div class="card-head">
+          <h2>Prévia &amp; Orquestração</h2>
+          <span id="swarmBadge" class="meta">OrchestratorBrain</span>
         </div>
-
-        <!-- Collapsible JSON Inspector -->
-        <div id="inspector-card" class="rounded-2xl bg-claude-surface border border-claude-border p-4 flex flex-col gap-2.5">
-          <div class="flex items-center justify-between gap-2">
-            <button type="button" onclick="toggleInspector()" class="flex items-center gap-2 text-xs font-medium text-claude-text cursor-pointer">
-              <span id="inspector-caret" class="mono text-claude-muted">▾</span>
-              <span>JSON Inspector</span>
-            </button>
-            <div class="flex items-center gap-1.5">
-              <span id="inspector-meta" class="text-[11px] mono text-claude-faint"></span>
-              <button type="button" onclick="copyInspectorJson()" class="px-2 py-1 rounded-md bg-claude-card hover:bg-claude-hover border border-claude-border text-[11px] text-claude-muted hover:text-claude-text transition cursor-pointer">
-                Copiar
-              </button>
-              <button type="button" onclick="clearInspectorJson()" class="px-2 py-1 rounded-md bg-claude-card hover:bg-claude-hover border border-claude-border text-[11px] text-claude-muted hover:text-claude-text transition cursor-pointer">
-                Limpar
-              </button>
-            </div>
-          </div>
-
-          <div id="inspector-body" class="flex flex-col gap-2">
-            <pre id="inspector-pre" class="mono text-xs leading-relaxed rounded-xl bg-claude-input border border-claude-border p-3 text-claude-text overflow-auto max-h-72 whitespace-pre-wrap break-words">{
-  "studio": "LUX-Ω",
-  "tier": "t4_15gb",
-  "paid_tokens": false
-}</pre>
-          </div>
+        <div id="previewBox" class="preview-box">
+          Nenhuma mídia gerada ainda. Envie um comando para o enxame.
         </div>
-      </aside>
+      </section>
     </div>
-  </main>
+
+    <section class="card inspector">
+      <div class="card-head">
+        <h2>Live JSON &amp; Swarm Trace</h2>
+        <div style="display: flex; gap: 8px;">
+          <button id="btnCopyJson">Copiar</button>
+          <button id="btnClearJson">Limpar</button>
+        </div>
+      </div>
+      <pre id="jsonOut">{ "ready": true, "channel": "lux-omega-kauan-v55", "uncensored_mode": true }</pre>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
 
   <script>
-    const STORAGE_KEY = 'lux_omega_claude_t4_v2';
-    const DEFAULTS = {
-      apiUrl: 'https://foundations-shareholders-recipes-dsl.trycloudflare.com',
-      comfyUrl: 'http://127.0.0.1:8188',
-      creativefieldUrl: '',
-      ntfyChannel: 'lux-omega-kauan-v55',
-      activeTab: 'imagem',
-      inspectorCollapsed: false,
-    };
+    const NTFY_TOPIC = "lux-omega-kauan-v55";
+    const STORAGE_KEY = "lux_omega_api_url_v55";
 
-    // Track user edits so periodic ntfy polls only update when a genuinely newer tunnel arrives
-    const userEdited = { apiUrl: false, comfyUrl: false };
-    let lastSeenNtfyToken = '';
-    let currentTab = 'imagem';
-    let inspectorCollapsed = false;
+    const apiInput = document.getElementById("apiInput");
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const jsonOut = document.getElementById("jsonOut");
+    const previewBox = document.getElementById("previewBox");
+    const modeBadge = document.getElementById("modeBadge");
+    const toastEl = document.getElementById("toast");
 
-    function notify(msg, tone = 'info') {
-      const box = document.getElementById('toast-box');
-      const styles = {
-        ok: 'bg-claude-card border-emerald-500/40 text-emerald-200',
-        err: 'bg-claude-card border-rose-500/40 text-rose-200',
-        info: 'bg-claude-card border-claude-accent/40 text-claude-text',
-      };
-      const item = document.createElement('div');
-      item.className = `pointer-events-auto rounded-xl border px-3.5 py-2.5 text-xs shadow-lg transition-all duration-200 ${styles[tone] || styles.info}`;
-      item.textContent = msg;
-      box.appendChild(item);
-      setTimeout(() => {
-        item.style.opacity = '0';
-        setTimeout(() => item.remove(), 220);
-      }, 3200);
+    let currentMode = "imagem";
+
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => toastEl.classList.remove("show"), 3200);
     }
 
-    function markManualEdit(field) {
-      if (field in userEdited) userEdited[field] = true;
+    function getApiBase() {
+      return (apiInput.value || "").trim().replace(/\/+$/, "");
     }
 
-    function getState() {
-      return {
-        apiUrl: (document.getElementById('input-api-url').value || DEFAULTS.apiUrl).trim(),
-        comfyUrl: (document.getElementById('input-comfy-url').value || DEFAULTS.comfyUrl).trim(),
-        creativefieldUrl: DEFAULTS.creativefieldUrl,
-        ntfyChannel: (document.getElementById('input-ntfy-channel').value || DEFAULTS.ntfyChannel).trim(),
-        activeTab: currentTab,
-        inspectorCollapsed,
-      };
+    function setApiBase(url, persist = true) {
+      if (!url) return;
+      const clean = url.trim().replace(/\/+$/, "");
+      apiInput.value = clean;
+      if (persist) localStorage.setItem(STORAGE_KEY, clean);
     }
 
-    function persistConfig() {
-      const st = getState();
+    function setOnline(online, label = null) {
+      statusDot.classList.toggle("online", online);
+      statusText.textContent = label || (online ? "API: online" : "API: offline");
+    }
+
+    function showJson(obj) {
+      jsonOut.textContent = typeof obj === "string" ? obj : JSON.stringify(obj, null, 2);
+    }
+
+    function resolveMediaUrl(pathOrUrl) {
+      if (!pathOrUrl) return "";
+      if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+      const base = getApiBase();
+      return base ? `${base}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}` : pathOrUrl;
+    }
+
+    function renderMedia(data) {
+      if (data.image_url) {
+        const src = resolveMediaUrl(data.image_url);
+        previewBox.innerHTML = `<img src="${src}" alt="Imagem gerada" />`;
+        return;
+      }
+      if (data.video_url) {
+        const src = resolveMediaUrl(data.video_url);
+        previewBox.innerHTML = `<video src="${src}" controls autoplay loop></video>`;
+        return;
+      }
+      if (data.reply || data.saved_path || data.saved_memory) {
+        previewBox.innerHTML = `<div><strong>Resposta do Enxame:</strong><br/>${data.reply || ""}<br/><span class="meta">${data.saved_path || data.saved_memory || ""}</span></div>`;
+      }
+    }
+
+    async function syncFromNtfy(silent = false) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
-      } catch (_) {}
-      const link = document.getElementById('comfy-launch-link');
-      if (link) link.href = st.comfyUrl || DEFAULTS.comfyUrl;
-      return st;
-    }
-
-    function loadSavedConfig() {
-      let parsed = {};
-      try {
-        parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      } catch (_) {
-        parsed = {};
-      }
-      const cfg = { ...DEFAULTS, ...parsed };
-      if (parsed.creativefieldUrl) DEFAULTS.creativefieldUrl = parsed.creativefieldUrl;
-      document.getElementById('input-api-url').value = cfg.apiUrl;
-      document.getElementById('input-comfy-url').value = cfg.comfyUrl;
-      document.getElementById('input-ntfy-channel').value = cfg.ntfyChannel;
-      inspectorCollapsed = Boolean(cfg.inspectorCollapsed);
-      applyInspectorCollapse();
-      selectTab(cfg.activeTab || 'imagem', false);
-      persistConfig();
-    }
-
-    function selectTab(mode, save = true) {
-      currentTab = mode;
-      document.querySelectorAll('.tab-view').forEach((el) => {
-        el.classList.toggle('hidden', el.id !== `tab-${mode}`);
-      });
-      document.querySelectorAll('.mode-tab').forEach((btn) => {
-        const active = btn.dataset.mode === mode;
-        btn.className = active
-          ? 'mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer bg-claude-surface text-claude-text border-t border-x border-claude-border -mb-px'
-          : 'mode-tab px-3.5 py-2 rounded-t-lg text-xs sm:text-sm font-medium transition whitespace-nowrap cursor-pointer text-claude-muted hover:text-claude-text';
-      });
-      if (save) persistConfig();
-    }
-
-    function setQuickPrompt(inputId, text) {
-      const el = document.getElementById(inputId);
-      if (!el) return;
-      el.value = text;
-      el.focus();
-    }
-
-    function handleShortcut(event, fn) {
-      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-        event.preventDefault();
-        fn();
-      }
-    }
-
-    function toggleInspector() {
-      inspectorCollapsed = !inspectorCollapsed;
-      applyInspectorCollapse();
-      persistConfig();
-    }
-
-    function applyInspectorCollapse() {
-      const body = document.getElementById('inspector-body');
-      const caret = document.getElementById('inspector-caret');
-      const controlsCol = document.getElementById('controls-column');
-      const sideCol = document.getElementById('side-column');
-      body.classList.toggle('hidden', inspectorCollapsed);
-      caret.textContent = inspectorCollapsed ? '▸' : '▾';
-      if (inspectorCollapsed) {
-        controlsCol.className = 'lg:col-span-7 flex flex-col gap-4';
-        sideCol.className = 'lg:col-span-5 flex flex-col gap-4';
-      }
-    }
-
-    function writeInspector(label, payload, ms = null) {
-      document.getElementById('inspector-meta').textContent = ms !== null ? `${label} • ${ms}ms` : label;
-      document.getElementById('inspector-pre').textContent =
-        typeof payload === 'string' ? payload : JSON.stringify(payload, null, 2);
-    }
-
-    function copyInspectorJson() {
-      const txt = document.getElementById('inspector-pre').textContent || '';
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(txt).then(() => notify('JSON copiado.', 'ok')).catch(() => execCopy(txt));
-      } else {
-        execCopy(txt);
-      }
-    }
-
-    function execCopy(txt) {
-      const ta = document.createElement('textarea');
-      ta.value = txt;
-      document.body.appendChild(ta);
-      ta.select();
-      try {
-        document.execCommand('copy');
-        notify('JSON copiado.', 'ok');
-      } catch (_) {
-        notify('Falha ao copiar.', 'err');
-      }
-      ta.remove();
-    }
-
-    function clearInspectorJson() {
-      writeInspector('limpo', { status: 'cleared', at: new Date().toISOString() }, null);
-    }
-
-    function setApiBadge(state, label) {
-      const dot = document.getElementById('status-dot');
-      const txt = document.getElementById('status-label');
-      txt.textContent = label;
-      dot.className = 'w-2 h-2 rounded-full ' + (
-        state === 'online' ? 'bg-emerald-400' :
-        state === 'offline' ? 'bg-rose-400' :
-        'bg-amber-400 animate-pulse'
-      );
-    }
-
-    function explainNetworkError(err, targetUrl) {
-      const msg = String(err || '');
-      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
-        return `Falha de rede ao acessar ${targetUrl}. Verifique se o túnel cloudflared e a API (8000) estão ativos no Colab, se a URL do túnel não mudou ou se bloqueadores/extensões no navegador bloquearam a requisição.`;
-      }
-      return msg;
-    }
-
-    async function checkHealthAndStatus(showFeedback = false) {
-      const base = persistConfig().apiUrl.replace(/\/+$/, '');
-      setApiBadge('checking', 'API: verificando');
-      const t0 = performance.now();
-      const out = {};
-      let ok = false;
-
-      for (const route of ['/health', '/status']) {
-        try {
-          const resp = await fetch(`${base}${route}`, { method: 'GET' });
-          const raw = await resp.text();
-          let parsed = raw;
-          try { parsed = JSON.parse(raw); } catch (_) {}
-          out[route] = { status: resp.status, ok: resp.ok, data: parsed };
-          if (resp.ok) ok = true;
-        } catch (err) {
-          out[route] = { ok: false, diagnostic: explainNetworkError(err, `${base}${route}`) };
-        }
-      }
-
-      const elapsed = Math.round(performance.now() - t0);
-      writeInspector('GET /health & /status', out, elapsed);
-
-      if (ok) {
-        const st = out['/status']?.data || out['/health']?.data || {};
-        if (st.hardware) {
-          document.getElementById('hw-line').textContent =
-            `${st.hardware.gpu || 'Tesla T4'} • ${st.hardware.vram_gb ?? 14.6} GB VRAM • ${st.hardware.ram_gb ?? 12.7} GB RAM • ${st.hardware.tier || 't4_15gb'}`;
-        }
-        setApiBadge('online', 'API: online');
-        if (showFeedback) notify('API conectada e saudável.', 'ok');
-      } else {
-        setApiBadge('offline', 'API: offline');
-        if (showFeedback) notify('API offline ou inacessível. Clique em Sync ou confira o Colab.', 'err');
-      }
-    }
-
-    async function syncNtfy(manual = false) {
-      const channel = (document.getElementById('input-ntfy-channel').value || DEFAULTS.ntfyChannel).trim();
-      if (!channel) return;
-      const badge = document.getElementById('ntfy-live-badge');
-      const url = `https://ntfy.sh/${encodeURIComponent(channel)}/json?poll=1&since=30m`;
-      const t0 = performance.now();
-
-      try {
-        const resp = await fetch(url, { cache: 'no-store' });
-        const raw = await resp.text();
-        const elapsed = Math.round(performance.now() - t0);
-        const lines = raw.trim().split('\n').filter(Boolean);
-
-        let latest = null;
-        let latestId = '';
+        const res = await fetch(`https://ntfy.sh/${NTFY_TOPIC}/json?poll=1&since=30m`, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.text();
+        const lines = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+        let foundUrl = null;
         for (let i = lines.length - 1; i >= 0; i--) {
           try {
-            const ev = JSON.parse(lines[i]);
-            const candidate = typeof ev.message === 'string' ? JSON.parse(ev.message) : ev.message;
-            if (candidate && (candidate.api_url || candidate.api || candidate.comfy_url || candidate.comfyui || candidate.creativefield_url || candidate.creativefield)) {
-              latest = candidate;
-              latestId = String(ev.id || ev.time || lines[i]);
-              break;
+            const evt = JSON.parse(lines[i]);
+            if (evt.event !== "message" || !evt.message) continue;
+            let parsed = evt.message;
+            if (typeof parsed === "string") {
+              try { parsed = JSON.parse(parsed); } catch (_) {}
             }
+            if (parsed && typeof parsed === "object") {
+              foundUrl = parsed.api || parsed.api_url || null;
+            }
+            if (!foundUrl && typeof evt.message === "string") {
+              const m = evt.message.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+              if (m) foundUrl = m[0];
+            }
+            if (foundUrl) break;
           } catch (_) {}
         }
-
-        if (manual) {
-          writeInspector(`GET ntfy/${channel}`, latest || { events: lines.length }, elapsed);
-        }
-
-        if (!latest) {
-          if (manual) notify('Nenhuma URL recente encontrada no canal ntfy.sh.', 'info');
-          return;
-        }
-
-        const token = `${latestId}|${latest.api_url || latest.api || ''}|${latest.comfy_url || latest.comfyui || ''}|${latest.creativefield_url || latest.creativefield || ''}`;
-        const isNewEvent = token !== lastSeenNtfyToken;
-        lastSeenNtfyToken = token;
-
-        const apiInput = document.getElementById('input-api-url');
-        const comfyInput = document.getElementById('input-comfy-url');
-        let updatedAny = false;
-
-        const incomingApi = (latest.api_url || latest.api || '').trim();
-        const incomingComfy = (latest.comfy_url || latest.comfyui || '').trim();
-        const incomingCf = (latest.creativefield_url || latest.creativefield || '').trim();
-
-        if (incomingApi && incomingApi !== apiInput.value.trim() && (manual || isNewEvent || !userEdited.apiUrl)) {
-          apiInput.value = incomingApi;
-          userEdited.apiUrl = false;
-          updatedAny = true;
-        }
-        if (incomingComfy && incomingComfy !== comfyInput.value.trim() && (manual || isNewEvent || !userEdited.comfyUrl)) {
-          comfyInput.value = incomingComfy;
-          userEdited.comfyUrl = false;
-          updatedAny = true;
-        }
-        if (incomingCf) {
-          DEFAULTS.creativefieldUrl = incomingCf;
-          updatedAny = true;
-        }
-
-        if (updatedAny) {
-          persistConfig();
-          badge.textContent = 'ntfy synced';
-          notify('Novas URLs aplicadas via ntfy.sh.', 'ok');
-          checkHealthAndStatus(false);
-        } else {
-          badge.textContent = 'ntfy 8s';
-          if (manual) notify('URLs já sincronizadas.', 'info');
+        if (foundUrl && foundUrl !== getApiBase()) {
+          setApiBase(foundUrl, true);
+          if (!silent) toast(`URL sincronizada: ${foundUrl}`);
+          await testHealth(true);
+        } else if (!silent) {
+          toast(foundUrl ? `URL já atualizada: ${foundUrl}` : "Nenhuma URL recente no ntfy.sh");
         }
       } catch (err) {
-        badge.textContent = 'ntfy retry';
-        if (manual) {
-          writeInspector(`GET ntfy/${channel}`, { error: explainNetworkError(err, url) }, Math.round(performance.now() - t0));
-          notify('Falha ao consultar o canal ntfy.sh.', 'err');
-        }
+        if (!silent) toast(`Erro ao sincronizar ntfy: ${err.message}`);
       }
     }
 
-    async function postExecutar(bodyObj, btn = null) {
-      const base = persistConfig().apiUrl.replace(/\/+$/, '');
-      const payload = { ...bodyObj, mode: bodyObj.modo };
-      const t0 = performance.now();
-
-      if (btn) {
-        btn.disabled = true;
-        btn.dataset.prevHtml = btn.innerHTML;
-        btn.innerHTML = 'Processando...';
+    async function testHealth(silent = false) {
+      const base = getApiBase();
+      if (!base) {
+        setOnline(false);
+        if (!silent) toast("Informe uma URL da API.");
+        return false;
       }
-
       try {
-        let resp = await fetch(`${base}/executar`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch(`${base}/health`, { method: "GET", cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setOnline(true, "API: online");
+        showJson(data);
+        if (!silent) toast("API online e pronta!");
+        return true;
+      } catch (err) {
+        setOnline(false);
+        if (!silent) {
+          showJson({
+            error: String(err),
+            diagnostic: `Falha ao acessar ${base}/health. Confira se o túnel cloudflared e a API (8000) estão ativos no Colab.`
+          });
+          toast("API offline ou túnel inativo.");
+        }
+        return false;
+      }
+    }
+
+    async function callExecutar(payload) {
+      const base = getApiBase();
+      if (!base) {
+        toast("Defina a URL da API primeiro.");
+        return;
+      }
+      const t0 = performance.now();
+      showJson({ status: "running", mode: payload.modo, orchestrator: "OrchestratorBrain" });
+      try {
+        const res = await fetch(`${base}/executar`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        if (resp.status === 404 || resp.status === 405) {
-          resp = await fetch(`${base}/run`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-        }
         const elapsed = Math.round(performance.now() - t0);
-        const text = await resp.text();
-        let data = text;
-        try { data = JSON.parse(text); } catch (_) {}
-        writeInspector(`POST ${bodyObj.modo}`, { httpStatus: resp.status, response: data }, elapsed);
-
-        if (!resp.ok) {
-          notify(`Erro HTTP ${resp.status} em /executar.`, 'err');
-          return null;
-        }
-        setApiBadge('online', 'API: online');
-        return data;
+        const data = await res.json();
+        setOnline(true, "API: online");
+        showJson({ ...data, _elapsed_ms: elapsed });
+        renderMedia(data);
+        toast(`Concluído em ${elapsed}ms`);
       } catch (err) {
         const elapsed = Math.round(performance.now() - t0);
-        const diag = explainNetworkError(err, `${base}/executar`);
-        writeInspector(`POST ${bodyObj.modo}`, { error: String(err), diagnostic: diag }, elapsed);
-        setApiBadge('offline', 'API: offline');
-        notify('Failed to fetch em /executar. Veja o diagnóstico no JSON Inspector.', 'err');
-        return null;
-      } finally {
-        if (btn && btn.dataset.prevHtml) {
-          btn.disabled = false;
-          btn.innerHTML = btn.dataset.prevHtml;
-        }
+        setOnline(false);
+        showJson({
+          error: String(err),
+          _elapsed_ms: elapsed,
+          diagnostic: `Falha de rede ao acessar ${base}/executar. Verifique se o túnel cloudflared e a API (8000) estão ativos no Colab.`
+        });
+        toast("Falha de conexão com /executar.");
       }
     }
 
-    function resolveMediaUrl(rawUrl, savedPath) {
-      const base = persistConfig().apiUrl.replace(/\/+$/, '');
-      if (rawUrl && /^https?:\/\//i.test(rawUrl)) return rawUrl;
-      if (rawUrl && rawUrl.startsWith('/')) return `${base}${rawUrl}`;
-      if (savedPath && savedPath.includes('/content/outputs/')) {
-        return `${base}/outputs/${savedPath.split('/content/outputs/')[1]}`;
-      }
-      return rawUrl || '';
+    function setMode(mode) {
+      currentMode = mode;
+      modeBadge.textContent = `modo: "${mode}"`;
+      document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
+      document.getElementById("formGen").classList.toggle("hidden", !["imagem", "video"].includes(mode));
+      document.getElementById("formMem").classList.toggle("hidden", mode !== "memoria");
+      document.getElementById("formScrape").classList.toggle("hidden", mode !== "scraper");
+      document.getElementById("formComfy").classList.toggle("hidden", mode !== "comfy");
+      document.getElementById("imgParams").classList.toggle("hidden", mode !== "imagem");
+      document.getElementById("vidParams").classList.toggle("hidden", mode !== "video");
     }
 
-    function showPreviewImage(src, caption) {
-      const img = document.getElementById('preview-img');
-      const vid = document.getElementById('preview-video');
-      const empty = document.getElementById('preview-empty');
-      const dl = document.getElementById('img-download');
-      const vidDl = document.getElementById('vid-download');
-
-      vid.pause();
-      vid.classList.add('hidden');
-      vidDl.classList.add('hidden');
-
-      if (src) {
-        img.src = src;
-        img.classList.remove('hidden');
-        empty.classList.add('hidden');
-        dl.href = src;
-        dl.classList.remove('hidden');
-      }
-      document.getElementById('preview-badge').textContent = 'Imagem';
-      document.getElementById('preview-caption').textContent = caption || '';
-    }
-
-    function showPreviewVideo(src, caption) {
-      const img = document.getElementById('preview-img');
-      const vid = document.getElementById('preview-video');
-      const empty = document.getElementById('preview-empty');
-      const imgDl = document.getElementById('img-download');
-      const vidDl = document.getElementById('vid-download');
-
-      img.classList.add('hidden');
-      imgDl.classList.add('hidden');
-
-      if (src) {
-        vid.src = src;
-        vid.load();
-        vid.classList.remove('hidden');
-        empty.classList.add('hidden');
-        vidDl.href = src;
-        vidDl.classList.remove('hidden');
-      }
-      document.getElementById('preview-badge').textContent = 'Vídeo + Som';
-      document.getElementById('preview-caption').textContent = caption || '';
-    }
-
-    async function runImageGeneration() {
-      const prompt = document.getElementById('img-prompt').value.trim();
-      if (!prompt) {
-        notify('Digite um prompt para gerar a imagem.', 'err');
-        return;
-      }
-      const params = {
-        width: Number(document.getElementById('img-width').value) || 896,
-        height: Number(document.getElementById('img-height').value) || 896,
-        steps: Number(document.getElementById('img-steps').value) || 4,
-      };
-      const seedRaw = document.getElementById('img-seed').value.trim();
-      if (seedRaw !== '') params.seed = Number(seedRaw);
-      const model = document.getElementById('img-model').value.trim();
-
-      const btn = document.getElementById('btn-gen-img');
-      const data = await postExecutar({ modo: 'imagem', prompt, model: model || null, params }, btn);
-      if (!data) return;
-
-      const src = resolveMediaUrl(data.image_url || data.url, data.saved_path);
-      showPreviewImage(src, data.saved_path ? `${data.saved_path} • seed ${data.seed ?? '-'}` : (data.reply || ''));
-      notify('Imagem gerada.', 'ok');
-    }
-
-    async function runVideoGeneration() {
-      const prompt = document.getElementById('vid-prompt').value.trim();
-      if (!prompt) {
-        notify('Digite um prompt para gerar o vídeo com som.', 'err');
-        return;
-      }
-      const params = {
-        width: Number(document.getElementById('vid-width').value) || 768,
-        height: Number(document.getElementById('vid-height').value) || 448,
-        frames: Number(document.getElementById('vid-frames').value) || 65,
-        fps: Number(document.getElementById('vid-fps').value) || 16,
-      };
-      const seedRaw = document.getElementById('vid-seed').value.trim();
-      if (seedRaw !== '') params.seed = Number(seedRaw);
-
-      const btn = document.getElementById('btn-gen-vid');
-      const data = await postExecutar({ modo: 'video', prompt, params }, btn);
-      if (!data) return;
-
-      const src = resolveMediaUrl(data.video_url || data.url, data.saved_path);
-      showPreviewVideo(src, data.saved_path ? `${data.saved_path} • áudio: ${data.has_audio ? 'sim' : 'não'}` : (data.reply || ''));
-      notify('Vídeo com som concluído.', 'ok');
-    }
-
-    async function runSaveMemory() {
-      const title = document.getElementById('mem-title').value.trim() || 'nota_lux_t4';
-      const folder = document.getElementById('mem-folder').value;
-      const content = document.getElementById('mem-content').value.trim();
-      if (!content) {
-        notify('Preencha o conteúdo da nota.', 'err');
-        return;
-      }
-      const btn = document.getElementById('btn-save-mem');
-      const data = await postExecutar({ modo: 'memoria', prompt: title, params: { title, folder, content } }, btn);
-      if (data && data.ok !== false) {
-        notify(`Salvo em ${data.saved_path || folder}.`, 'ok');
-      }
-    }
-
-    async function runSearchMemory() {
-      const query = document.getElementById('mem-query').value.trim();
-      const btn = document.getElementById('btn-search-mem');
-      const data = await postExecutar({ modo: 'buscar_memoria', prompt: query, params: { query } }, btn);
-      if (!data) return;
-
-      const list = document.getElementById('mem-results');
-      const matches = Array.isArray(data.matches) ? data.matches : [];
-      if (!matches.length) {
-        list.innerHTML = '<p class="text-xs text-claude-faint">Nenhuma nota encontrada.</p>';
-        return;
-      }
-      list.innerHTML = matches.map((m) => `
-        <div class="p-2.5 rounded-lg bg-claude-input border border-claude-border flex flex-col gap-1">
-          <div class="text-[11px] mono text-claude-accent break-all">${escapeHtml(m.file || '')}</div>
-          <pre class="text-xs mono text-claude-text whitespace-pre-wrap break-words">${escapeHtml(m.excerpt || '')}</pre>
-        </div>
-      `).join('');
-      notify(`${matches.length} nota(s) encontrada(s).`, 'ok');
-    }
-
-    async function runScraperTask() {
-      const url = document.getElementById('scraper-url').value.trim();
-      if (!url) {
-        notify('Informe uma URL válida.', 'err');
-        return;
-      }
-      const btn = document.getElementById('btn-run-scraper');
-      const data = await postExecutar({ modo: 'scraper', prompt: url, params: { url } }, btn);
-      if (!data) return;
-
-      const links = Array.isArray(data.links) ? data.links : [];
-      document.getElementById('scraper-box').innerHTML = `
-        <div class="flex flex-col gap-2.5 text-claude-text">
-          <div class="font-medium text-claude-accent">${escapeHtml(data.title || url)}</div>
-          ${data.saved_memory ? `<div class="text-[11px] mono text-emerald-300 break-all">Salvo: ${escapeHtml(data.saved_memory)}</div>` : ''}
-          <pre class="text-xs mono bg-claude-surface border border-claude-border rounded-lg p-2.5 max-h-44 overflow-y-auto whitespace-pre-wrap break-words">${escapeHtml(data.content || data.reply || '')}</pre>
-          ${links.length ? `<div class="text-[11px] mono text-claude-muted max-h-28 overflow-y-auto flex flex-col gap-1">${links.map((l) => `<a href="${escapeAttr(l)}" target="_blank" rel="noopener noreferrer" class="hover:underline break-all">${escapeHtml(l)}</a>`).join('')}</div>` : ''}
-        </div>
-      `;
-      notify('Extração concluída.', 'ok');
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    function escapeAttr(str) {
-      return escapeHtml(str).replace(/'/g, '&#39;');
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      loadSavedConfig();
-      syncNtfy(false);
-      checkHealthAndStatus(false);
-      // Poll ntfy every 8 seconds for rapid tunnel updates without paid tokens
-      setInterval(() => syncNtfy(false), 8000);
+    document.querySelectorAll(".tab").forEach(btn => {
+      btn.addEventListener("click", () => setMode(btn.dataset.mode));
     });
+
+    document.getElementById("btnSync").addEventListener("click", () => syncFromNtfy(false));
+    document.getElementById("btnSaveUrl").addEventListener("click", () => {
+      setApiBase(apiInput.value, true);
+      toast("URL salva localmente.");
+      testHealth(true);
+    });
+    document.getElementById("btnTest").addEventListener("click", () => testHealth(false));
+
+    document.getElementById("btnRun").addEventListener("click", () => {
+      const prompt = document.getElementById("promptInput").value.trim();
+      const model = document.getElementById("modelInput").value.trim() || null;
+      const params = currentMode === "imagem"
+        ? {
+            width: Number(document.getElementById("wInput").value || 896),
+            height: Number(document.getElementById("hInput").value || 896),
+            steps: Number(document.getElementById("stepsInput").value || 4),
+            seed: document.getElementById("seedInput").value.trim() || null,
+          }
+        : {
+            width: Number(document.getElementById("vwInput").value || 768),
+            height: Number(document.getElementById("vhInput").value || 448),
+            frames: Number(document.getElementById("framesInput").value || 65),
+            fps: Number(document.getElementById("fpsInput").value || 16),
+          };
+      callExecutar({ prompt, modo: currentMode, model, params });
+    });
+
+    document.getElementById("promptInput").addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        document.getElementById("btnRun").click();
+      }
+    });
+
+    document.getElementById("btnSaveMem").addEventListener("click", () => {
+      callExecutar({
+        prompt: document.getElementById("memContent").value.trim() || document.getElementById("memTitle").value.trim(),
+        modo: "memoria",
+        params: {
+          title: document.getElementById("memTitle").value.trim(),
+          content: document.getElementById("memContent").value.trim(),
+        },
+      });
+    });
+
+    document.getElementById("btnSearchMem").addEventListener("click", () => {
+      const q = document.getElementById("memTitle").value.trim() || document.getElementById("memContent").value.trim();
+      callExecutar({ prompt: q, modo: "buscar_memoria", params: { query: q } });
+    });
+
+    document.getElementById("btnScrape").addEventListener("click", () => {
+      const url = document.getElementById("scrapeUrl").value.trim();
+      callExecutar({ prompt: url, modo: "scraper", params: { url } });
+    });
+
+    document.getElementById("btnCheckComfy").addEventListener("click", () => testHealth(false));
+
+    document.getElementById("btnCopyJson").addEventListener("click", () => {
+      navigator.clipboard.writeText(jsonOut.textContent || "");
+      toast("JSON copiado.");
+    });
+    document.getElementById("btnClearJson").addEventListener("click", () => showJson("{}"));
+
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) setApiBase(saved, false);
+    syncFromNtfy(true);
+    setInterval(() => syncFromNtfy(true), 8000);
   </script>
 </body>
 </html>
