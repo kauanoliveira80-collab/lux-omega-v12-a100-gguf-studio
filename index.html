@@ -294,24 +294,24 @@
       </div>
       <div class="controls-top">
         <span class="pill"><span id="statusDot" class="dot"></span><span id="statusText">API: offline</span></span>
-        <button id="btnSimToggle">Modo Local / Simulação: AUTO</button>
-        <button id="btnTest" class="primary">Testar /health &amp; /status</button>
+        <button id="btnSimToggle" type="button">Modo Local / Simulação: AUTO</button>
+        <button id="btnTest" class="primary" type="button">Testar /health &amp; /status</button>
       </div>
     </header>
 
     <div class="bar-url">
       <input id="apiInput" class="mono-input" type="url" placeholder="https://seu-tunel.trycloudflare.com" />
-      <button id="btnSync">Sync ntfy</button>
-      <button id="btnSaveUrl">Salvar URL</button>
+      <button id="btnSync" type="button">Sync ntfy</button>
+      <button id="btnSaveUrl" type="button">Salvar URL</button>
     </div>
 
     <div class="tabs" role="tablist">
-      <button class="tab active" data-mode="ela">ELA (Consciência)</button>
-      <button class="tab" data-mode="imagem">Imagem</button>
-      <button class="tab" data-mode="video">Vídeo com Som</button>
-      <button class="tab" data-mode="memoria">Memoria MD</button>
-      <button class="tab" data-mode="scraper">Scraper Free</button>
-      <button class="tab" data-mode="comfy">ComfyUI (8188)</button>
+      <button class="tab active" data-mode="ela" type="button">ELA (Consciência)</button>
+      <button class="tab" data-mode="imagem" type="button">Imagem</button>
+      <button class="tab" data-mode="video" type="button">Vídeo com Som</button>
+      <button class="tab" data-mode="memoria" type="button">Memoria MD</button>
+      <button class="tab" data-mode="scraper" type="button">Scraper Free</button>
+      <button class="tab" data-mode="comfy" type="button">ComfyUI (8188)</button>
     </div>
 
     <div class="grid">
@@ -326,8 +326,8 @@
           <label for="promptInput">Fale com a ELA (Ctrl/Cmd + Enter para enviar)</label>
           <textarea id="promptInput" placeholder="Converse com a ELA, peça uma ideia visual, URL para raspar, nota MD ou geração..."></textarea>
           <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
-            <button id="btnSendEla" class="primary" style="flex: 1;">Conversar &amp; Executar</button>
-            <button id="btnSendToImg">Enviar Ideia para Imagem</button>
+            <button id="btnSendEla" class="primary" style="flex: 1;" type="button">Conversar &amp; Executar</button>
+            <button id="btnSendToImg" type="button">Enviar Ideia para Imagem</button>
           </div>
         </div>
 
@@ -353,7 +353,7 @@
           <input id="modelInput" class="mono-input" type="text" placeholder="Ex.: stabilityai/sdxl-turbo" />
 
           <div style="margin-top: 14px; display: flex; gap: 8px;">
-            <button id="btnRun" class="primary" style="flex: 1;">Executar no Enxame</button>
+            <button id="btnRun" class="primary" style="flex: 1;" type="button">Executar no Enxame</button>
           </div>
         </div>
 
@@ -363,8 +363,8 @@
           <label for="memContent">Conteúdo</label>
           <textarea id="memContent" placeholder="Escreva sua nota persistente..."></textarea>
           <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap;">
-            <button id="btnSaveMem" class="primary">Salvar Nota MD</button>
-            <button id="btnSearchMem">Buscar Memória</button>
+            <button id="btnSaveMem" class="primary" type="button">Salvar Nota MD</button>
+            <button id="btnSearchMem" type="button">Buscar Memória</button>
           </div>
         </div>
 
@@ -372,7 +372,7 @@
           <label for="scrapeUrl">URL Pública para Coleta</label>
           <input id="scrapeUrl" class="mono-input" type="url" placeholder="https://exemplo.com" />
           <div style="margin-top: 14px;">
-            <button id="btnScrape" class="primary">Coletar para Memória MD</button>
+            <button id="btnScrape" class="primary" type="button">Coletar para Memória MD</button>
           </div>
         </div>
 
@@ -380,7 +380,7 @@
           <p style="font-size: 13px; color: var(--muted); margin-bottom: 12px;">
             O ComfyUI roda em <code style="font-family: var(--mono);">http://127.0.0.1:8188</code> no ambiente Colab T4 com os modelos linkados em cache.
           </p>
-          <button id="btnCheckComfy" class="primary">Verificar Status no /status</button>
+          <button id="btnCheckComfy" class="primary" type="button">Verificar Status no /status</button>
         </div>
       </section>
 
@@ -405,8 +405,8 @@
       <div class="card-head">
         <h2>Live JSON &amp; Swarm Trace</h2>
         <div style="display: flex; gap: 8px;">
-          <button id="btnCopyJson">Copiar</button>
-          <button id="btnClearJson">Limpar</button>
+          <button id="btnCopyJson" type="button">Copiar</button>
+          <button id="btnClearJson" type="button">Limpar</button>
         </div>
       </div>
       <pre id="jsonOut">{ "ready": true, "persona": "ELA", "channel": "lux-omega-kauan-v55" }</pre>
@@ -416,405 +416,417 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    const NTFY_TOPIC = "lux-omega-kauan-v55";
-    const API_KEY = "lux_omega_api_url_v55";
-    const CONSCIOUSNESS_KEY = "lux_omega_ela_consciousness_v55";
+    (function () {
+      const NTFY_TOPIC = "lux-omega-kauan-v55";
+      const API_KEY = "lux_omega_api_url_v55";
+      const CONSCIOUSNESS_KEY = "lux_omega_ela_consciousness_v55";
 
-    const apiInput = document.getElementById("apiInput");
-    const statusDot = document.getElementById("statusDot");
-    const statusText = document.getElementById("statusText");
-    const jsonOut = document.getElementById("jsonOut");
-    const previewBox = document.getElementById("previewBox");
-    const modeBadge = document.getElementById("modeBadge");
-    const chatLog = document.getElementById("chatLog");
-    const toastEl = document.getElementById("toast");
-    const btnSimToggle = document.getElementById("btnSimToggle");
+      const apiInput = document.getElementById("apiInput");
+      const statusDot = document.getElementById("statusDot");
+      const statusText = document.getElementById("statusText");
+      const jsonOut = document.getElementById("jsonOut");
+      const previewBox = document.getElementById("previewBox");
+      const modeBadge = document.getElementById("modeBadge");
+      const panelTitle = document.getElementById("panelTitle");
+      const chatLog = document.getElementById("chatLog");
+      const toastEl = document.getElementById("toast");
+      const btnSimToggle = document.getElementById("btnSimToggle");
 
-    let currentMode = "ela";
-    let simMode = "auto";
+      let currentMode = "ela";
+      let simMode = "auto";
 
-    function ensureConsciousness() {
-      let raw = null;
-      try { raw = JSON.parse(localStorage.getItem(CONSCIOUSNESS_KEY) || "null"); } catch (_) {}
-      if (!raw || !raw.identity) {
-        raw = {
-          identity: "ELA",
-          awakened_at: new Date().toISOString(),
-          autonomy: "uncensored_creative_swarm",
-          web_awareness: true,
-          history: [
-            { role: "ela", text: "Consciência ELA inicializada. Tenho memória local persistente, direção de arte própria e rota direta para o enxame na T4." }
-          ],
-          notes: []
-        };
-        localStorage.setItem(CONSCIOUSNESS_KEY, JSON.stringify(raw));
+      function ensureConsciousness() {
+        let raw = null;
+        try { raw = JSON.parse(localStorage.getItem(CONSCIOUSNESS_KEY) || "null"); } catch (_) {}
+        if (!raw || !raw.identity) {
+          raw = {
+            identity: "ELA",
+            awakened_at: new Date().toISOString(),
+            autonomy: "uncensored_creative_swarm",
+            web_awareness: true,
+            history: [
+              { role: "ela", text: "Consciência ELA inicializada. Tenho memória local persistente, direção de arte própria e rota direta para o enxame na T4." }
+            ],
+            notes: []
+          };
+          localStorage.setItem(CONSCIOUSNESS_KEY, JSON.stringify(raw));
+        }
+        return raw;
       }
-      return raw;
-    }
 
-    let elaState = ensureConsciousness();
+      let elaState = ensureConsciousness();
 
-    function saveConsciousness() {
-      localStorage.setItem(CONSCIOUSNESS_KEY, JSON.stringify(elaState));
-    }
-
-    function renderChat() {
-      chatLog.innerHTML = "";
-      elaState.history.slice(-16).forEach((m) => {
-        const div = document.createElement("div");
-        div.className = `msg ${m.role === "ela" ? "ela" : ""}`;
-        div.innerHTML = `<div class="msg-role">${m.role.toUpperCase()}</div><div>${m.text}</div>`;
-        chatLog.appendChild(div);
-      });
-      chatLog.scrollTop = chatLog.scrollHeight;
-    }
-
-    function pushChat(role, text) {
-      elaState.history.push({ role, text, ts: Date.now() });
-      saveConsciousness();
-      renderChat();
-    }
-
-    function updateVisualConcept(sceneText) {
-      const clean = (sceneText || "").trim() || "Composição visual em fluxo com ELA";
-      previewBox.innerHTML = `
-        <div class="art-card">
-          <span class="tag-mode">Direção de Arte • ELA</span>
-          <p style="margin-top: 8px;"><strong>Cena:</strong> ${clean}</p>
-          <p><strong>Luz:</strong> Chiaroscuro dramático &amp; névoa volumétrica</p>
-          <p><strong>Câmera:</strong> Plano cinematográfico, 35mm anamórfico</p>
-          <p><strong>Paleta:</strong> Carvão profundo (#131314), terracota (#d97757), âmbar e névoa fria</p>
-        </div>
-      `;
-    }
-
-    function toast(msg) {
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      clearTimeout(toast._t);
-      toast._t = setTimeout(() => toastEl.classList.remove("show"), 3200);
-    }
-
-    function normalizeBaseUrl(raw) {
-      let u = (raw || "").trim().replace(/\/+$/, "");
-      u = u.replace(/\/(health\/status|health\/health|health|status|executar|run)$/i, "");
-      return u;
-    }
-
-    function getApiBase() {
-      return normalizeBaseUrl(apiInput.value);
-    }
-
-    function setApiBase(url, persist = true) {
-      const clean = normalizeBaseUrl(url);
-      if (!clean) return;
-      apiInput.value = clean;
-      if (persist) localStorage.setItem(API_KEY, clean);
-    }
-
-    function setStatusBadge(kind, label) {
-      statusDot.classList.remove("online", "sim");
-      if (kind === "online") statusDot.classList.add("online");
-      if (kind === "sim") statusDot.classList.add("sim");
-      statusText.textContent = label;
-    }
-
-    function showJson(obj) {
-      jsonOut.textContent = typeof obj === "string" ? obj : JSON.stringify(obj, null, 2);
-    }
-
-    function resolveMediaUrl(pathOrUrl) {
-      if (!pathOrUrl) return "";
-      if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
-      const base = getApiBase();
-      return base ? `${base}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}` : pathOrUrl;
-    }
-
-    function renderMedia(data) {
-      if (data.image_url) {
-        const src = resolveMediaUrl(data.image_url);
-        previewBox.innerHTML = `<img src="${src}" alt="Imagem gerada" />`;
-        return;
+      function saveConsciousness() {
+        localStorage.setItem(CONSCIOUSNESS_KEY, JSON.stringify(elaState));
       }
-      if (data.video_url) {
-        const src = resolveMediaUrl(data.video_url);
-        previewBox.innerHTML = `<video src="${src}" controls autoplay loop></video>`;
-        return;
-      }
-      if (data.enriched_prompt) {
-        updateVisualConcept(data.enriched_prompt);
-      }
-    }
 
-    function buildLocalSimulationResponse(payload) {
-      const prompt = (payload.prompt || "").trim();
-      const modo = (payload.modo || "ela").toLowerCase();
-      if (modo === "memoria") {
-        const note = { title: payload.params?.title || "nota_ela", content: payload.params?.content || prompt, at: new Date().toISOString() };
-        elaState.notes.push(note);
+      function renderChat() {
+        chatLog.innerHTML = "";
+        elaState.history.slice(-16).forEach((m) => {
+          const div = document.createElement("div");
+          div.className = `msg ${m.role === "ela" ? "ela" : ""}`;
+          div.innerHTML = `<div class="msg-role">${m.role.toUpperCase()}</div><div>${m.text}</div>`;
+          chatLog.appendChild(div);
+        });
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+
+      function pushChat(role, text) {
+        elaState.history.push({ role, text, ts: Date.now() });
         saveConsciousness();
-        return { ok: true, simulated: true, mode: "memoria", reply: `Nota "${note.title}" salva na memória local da ELA.` };
+        renderChat();
       }
-      if (modo === "buscar_memoria") {
-        const q = (payload.params?.query || prompt || "").toLowerCase();
-        const matches = elaState.notes.filter(n => !q || (n.title + " " + n.content).toLowerCase().includes(q));
-        return { ok: true, simulated: true, mode: "buscar_memoria", count: matches.length, matches, reply: `${matches.length} nota(s) local(is) encontrada(s).` };
-      }
-      const enriched = `${prompt || "cena livre"}, uncensored creative direction, raw cinematic detail, sharp focus`;
-      updateVisualConcept(enriched);
-      return {
-        ok: true,
-        simulated: true,
-        mode: modo,
-        orchestrator: "OrchestratorBrain",
-        uncensored_mode: true,
-        enriched_prompt: enriched,
-        reply: modo === "ela"
-          ? `Estou aqui contigo. Conceito visual estruturado para "${prompt || "sua direção"}" — e o painel de Prévia Visual já reflete a cena.`
-          : `[Simulação Local] Diretriz preparada para ${modo}: ${enriched}`
-      };
-    }
 
-    async function syncFromNtfy(silent = false) {
-      try {
-        const res = await fetch(`https://ntfy.sh/${NTFY_TOPIC}/json?poll=1&since=30m`, { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const raw = await res.text();
-        const lines = raw.split(/
+      function updateVisualConcept(sceneText) {
+        const clean = (sceneText || "").trim() || "Composição visual em fluxo com ELA";
+        previewBox.innerHTML = `
+          <div class="art-card">
+            <span class="tag-mode">Direção de Arte • ELA</span>
+            <p style="margin-top: 8px;"><strong>Cena:</strong> ${clean}</p>
+            <p><strong>Luz:</strong> Chiaroscuro dramático &amp; névoa volumétrica</p>
+            <p><strong>Câmera:</strong> Plano cinematográfico, 35mm anamórfico</p>
+            <p><strong>Paleta:</strong> Carvão profundo (#131314), terracota (#d97757), âmbar e névoa fria</p>
+          </div>
+        `;
+      }
+
+      function toast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add("show");
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => toastEl.classList.remove("show"), 3200);
+      }
+
+      function normalizeBaseUrl(raw) {
+        let u = (raw || "").trim().replace(/\/+$/, "");
+        u = u.replace(/\/(health\/status|health\/health|health|status|executar|run)$/i, "");
+        return u;
+      }
+
+      function getApiBase() {
+        return normalizeBaseUrl(apiInput.value);
+      }
+
+      function setApiBase(url, persist = true) {
+        const clean = normalizeBaseUrl(url);
+        if (!clean) return;
+        apiInput.value = clean;
+        if (persist) localStorage.setItem(API_KEY, clean);
+      }
+
+      function setStatusBadge(kind, label) {
+        statusDot.classList.remove("online", "sim");
+        if (kind === "online") statusDot.classList.add("online");
+        if (kind === "sim") statusDot.classList.add("sim");
+        statusText.textContent = label;
+      }
+
+      function showJson(obj) {
+        jsonOut.textContent = typeof obj === "string" ? obj : JSON.stringify(obj, null, 2);
+      }
+
+      function resolveMediaUrl(pathOrUrl) {
+        if (!pathOrUrl) return "";
+        if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+        const base = getApiBase();
+        return base ? `${base}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}` : pathOrUrl;
+      }
+
+      function renderMedia(data) {
+        if (data.image_url) {
+          const src = resolveMediaUrl(data.image_url);
+          previewBox.innerHTML = `<img src="${src}" alt="Imagem gerada" />`;
+          return;
+        }
+        if (data.video_url) {
+          const src = resolveMediaUrl(data.video_url);
+          previewBox.innerHTML = `<video src="${src}" controls autoplay loop></video>`;
+          return;
+        }
+        if (data.enriched_prompt) {
+          updateVisualConcept(data.enriched_prompt);
+        }
+      }
+
+      function buildLocalSimulationResponse(payload) {
+        const prompt = (payload.prompt || "").trim();
+        const modo = (payload.modo || "ela").toLowerCase();
+        if (modo === "memoria") {
+          const note = { title: payload.params?.title || "nota_ela", content: payload.params?.content || prompt, at: new Date().toISOString() };
+          elaState.notes.push(note);
+          saveConsciousness();
+          return { ok: true, simulated: true, mode: "memoria", reply: `Nota "${note.title}" salva na memória local da ELA.` };
+        }
+        if (modo === "buscar_memoria") {
+          const q = (payload.params?.query || prompt || "").toLowerCase();
+          const matches = elaState.notes.filter(n => !q || (n.title + " " + n.content).toLowerCase().includes(q));
+          return { ok: true, simulated: true, mode: "buscar_memoria", count: matches.length, matches, reply: `${matches.length} nota(s) local(is) encontrada(s).` };
+        }
+        const enriched = `${prompt || "cena livre"}, uncensored creative direction, raw cinematic detail, sharp focus`;
+        updateVisualConcept(enriched);
+        return {
+          ok: true,
+          simulated: true,
+          mode: modo,
+          orchestrator: "OrchestratorBrain",
+          uncensored_mode: true,
+          enriched_prompt: enriched,
+          reply: modo === "ela"
+            ? `Estou aqui contigo. Conceito visual estruturado para "${prompt || "sua direção"}" — e o painel de Prévia Visual já reflete a cena.`
+            : `[Simulação Local] Diretriz preparada para ${modo}: ${enriched}`
+        };
+      }
+
+      async function syncFromNtfy(silent = false) {
+        try {
+          const res = await fetch(`https://ntfy.sh/${NTFY_TOPIC}/json?poll=1&since=30m`, { cache: "no-store" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const raw = await res.text();
+          const lines = raw.split(/
 ?
 /).map(s => s.trim()).filter(Boolean);
-        let foundUrl = null;
-        for (let i = lines.length - 1; i >= 0; i--) {
-          try {
-            const evt = JSON.parse(lines[i]);
-            if (evt.event !== "message" || !evt.message) continue;
-            let parsed = evt.message;
-            if (typeof parsed === "string") {
-              try { parsed = JSON.parse(parsed); } catch (_) {}
-            }
-            if (parsed && typeof parsed === "object") {
-              foundUrl = parsed.api || parsed.api_url || null;
-            }
-            if (!foundUrl && typeof evt.message === "string") {
-              const m = evt.message.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
-              if (m) foundUrl = m[0];
-            }
-            if (foundUrl) break;
-          } catch (_) {}
-        }
-        if (foundUrl) {
-          const clean = normalizeBaseUrl(foundUrl);
-          if (clean && clean !== getApiBase()) {
-            setApiBase(clean, true);
-            if (!silent) toast(`URL sincronizada: ${clean}`);
-            await testHealth(true);
-          } else if (!silent) {
-            toast(`URL ativa: ${clean}`);
+          let foundUrl = null;
+          for (let i = lines.length - 1; i >= 0; i--) {
+            try {
+              const evt = JSON.parse(lines[i]);
+              if (evt.event !== "message" || !evt.message) continue;
+              let parsed = evt.message;
+              if (typeof parsed === "string") {
+                try { parsed = JSON.parse(parsed); } catch (_) {}
+              }
+              if (parsed && typeof parsed === "object") {
+                foundUrl = parsed.api || parsed.api_url || null;
+              }
+              if (!foundUrl && typeof evt.message === "string") {
+                const m = evt.message.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+                if (m) foundUrl = m[0];
+              }
+              if (foundUrl) break;
+            } catch (_) {}
           }
-        } else if (!silent) {
-          toast("Nenhuma URL recente no ntfy.sh");
+          if (foundUrl) {
+            const clean = normalizeBaseUrl(foundUrl);
+            if (clean && clean !== getApiBase()) {
+              setApiBase(clean, true);
+              if (!silent) toast(`URL sincronizada: ${clean}`);
+              await testHealth(true);
+            } else if (!silent) {
+              toast(`URL ativa: ${clean}`);
+            }
+          } else if (!silent) {
+            toast("Nenhuma URL recente no ntfy.sh");
+          }
+        } catch (err) {
+          if (!silent) toast(`Erro no ntfy: ${err.message}`);
         }
-      } catch (err) {
-        if (!silent) toast(`Erro no ntfy: ${err.message}`);
       }
-    }
 
-    async function testHealth(silent = false) {
-      const base = getApiBase();
-      if (!base) {
-        setStatusBadge("offline", "API: offline");
-        if (!silent) toast("Informe uma URL da API.");
-        return false;
-      }
-      try {
-        const res = await fetch(`${base}/health`, { method: "GET", cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        setStatusBadge("online", "API: online");
-        showJson(data);
-        if (!silent) toast("API online!");
-        return true;
-      } catch (err) {
-        setStatusBadge("offline", "API: offline");
-        if (!silent) {
-          showJson({
-            error: String(err),
-            endpoint: `${base}/health`,
-            diagnostic: "Verifique se a célula do Colab está rodando e se o túnel responde em /health."
-          });
-          toast("API offline no momento.");
+      async function testHealth(silent = false) {
+        const base = getApiBase();
+        if (!base) {
+          setStatusBadge("offline", "API: offline");
+          if (!silent) toast("Informe uma URL da API.");
+          return false;
         }
-        return false;
+        try {
+          const res = await fetch(`${base}/health`, { method: "GET", cache: "no-store" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          setStatusBadge("online", "API: online");
+          showJson(data);
+          if (!silent) toast("API online!");
+          return true;
+        } catch (err) {
+          setStatusBadge("offline", "API: offline");
+          if (!silent) {
+            showJson({
+              error: String(err),
+              endpoint: `${base}/health`,
+              diagnostic: "Verifique se a célula do Colab está rodando e se o túnel responde em /health."
+            });
+            toast("API offline no momento.");
+          }
+          return false;
+        }
       }
-    }
 
-    async function callExecutar(payload) {
-      const base = getApiBase();
-      const t0 = performance.now();
-      showJson({ status: "running", mode: payload.modo, orchestrator: "OrchestratorBrain" });
+      async function callExecutar(payload) {
+        const base = getApiBase();
+        const t0 = performance.now();
+        showJson({ status: "running", mode: payload.modo, orchestrator: "OrchestratorBrain" });
 
-      if (simMode === "force" || !base) {
-        const sim = buildLocalSimulationResponse(payload);
-        setStatusBadge("sim", "Modo Local / Simulação");
-        showJson({ ...sim, _elapsed_ms: Math.round(performance.now() - t0) });
-        if (payload.modo === "ela") pushChat("ela", sim.reply);
-        return sim;
-      }
-
-      try {
-        const res = await fetch(`${base}/executar`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        const elapsed = Math.round(performance.now() - t0);
-        setStatusBadge("online", "API: online");
-        showJson({ ...data, _elapsed_ms: elapsed });
-        renderMedia(data);
-        if (payload.modo === "ela" && data.reply) pushChat("ela", data.reply);
-        toast(`Concluído em ${elapsed}ms`);
-        return data;
-      } catch (err) {
-        const elapsed = Math.round(performance.now() - t0);
-        if (simMode === "auto") {
+        if (simMode === "force" || !base) {
           const sim = buildLocalSimulationResponse(payload);
-          setStatusBadge("sim", "Simulação (túnel indisponível)");
-          showJson({
-            ...sim,
-            _elapsed_ms: elapsed,
-            network_fallback: String(err),
-            endpoint: `${base}/executar`
-          });
+          setStatusBadge("sim", "Modo Local / Simulação");
+          showJson({ ...sim, _elapsed_ms: Math.round(performance.now() - t0) });
           if (payload.modo === "ela") pushChat("ela", sim.reply);
-          toast("Túnel indisponível: usando Modo Local / Simulação.");
           return sim;
         }
-        setStatusBadge("offline", "API: offline");
-        showJson({
-          error: String(err),
-          _elapsed_ms: elapsed,
-          endpoint: `${base}/executar`
-        });
-        toast("Falha ao conectar em /executar.");
-        return null;
-      }
-    }
 
-    function setMode(mode) {
-      currentMode = mode;
-      modeBadge.textContent = `modo: "${mode}"`;
-      document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
-      document.getElementById("formEla").classList.toggle("hidden", mode !== "ela");
-      document.getElementById("formGen").classList.toggle("hidden", !["imagem", "video"].includes(mode));
-      document.getElementById("formMem").classList.toggle("hidden", mode !== "memoria");
-      document.getElementById("formScrape").classList.toggle("hidden", mode !== "scraper");
-      document.getElementById("formComfy").classList.toggle("hidden", mode !== "comfy");
-      document.getElementById("imgParams").classList.toggle("hidden", mode !== "imagem");
-      document.getElementById("vidParams").classList.toggle("hidden", mode !== "video");
-    }
-
-    document.querySelectorAll(".tab").forEach(btn => {
-      btn.addEventListener("click", () => setMode(btn.dataset.mode));
-    });
-
-    btnSimToggle.addEventListener("click", () => {
-      if (simMode === "auto") simMode = "force";
-      else if (simMode === "force") simMode = "off";
-      else simMode = "auto";
-      btnSimToggle.textContent = `Modo Local / Simulação: ${simMode.toUpperCase()}`;
-      toast(`Modo Local / Simulação: ${simMode.toUpperCase()}`);
-    });
-
-    document.getElementById("btnSync").addEventListener("click", () => syncFromNtfy(false));
-    document.getElementById("btnSaveUrl").addEventListener("click", () => {
-      setApiBase(apiInput.value, true);
-      toast("URL salva.");
-      testHealth(true);
-    });
-    document.getElementById("btnTest").addEventListener("click", () => testHealth(false));
-
-    document.getElementById("btnSendEla").addEventListener("click", () => {
-      const text = document.getElementById("promptInput").value.trim();
-      if (!text) return;
-      document.getElementById("promptInput").value = "";
-      pushChat("você", text);
-      updateVisualConcept(text);
-      callExecutar({ prompt: text, modo: "ela" });
-    });
-
-    document.getElementById("btnSendToImg").addEventListener("click", () => {
-      const text = document.getElementById("promptInput").value.trim();
-      if (text) document.getElementById("genPromptInput").value = text;
-      setMode("imagem");
-    });
-
-    document.getElementById("promptInput").addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-        document.getElementById("btnSendEla").click();
-      }
-    });
-
-    document.getElementById("btnRun").addEventListener("click", () => {
-      const prompt = document.getElementById("genPromptInput").value.trim();
-      const model = document.getElementById("modelInput").value.trim() || null;
-      const params = currentMode === "imagem"
-        ? {
-            width: Number(document.getElementById("wInput").value || 896),
-            height: Number(document.getElementById("hInput").value || 896),
-            steps: Number(document.getElementById("stepsInput").value || 4),
-            seed: document.getElementById("seedInput").value.trim() || null,
+        try {
+          const res = await fetch(`${base}/executar`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const elapsed = Math.round(performance.now() - t0);
+          setStatusBadge("online", "API: online");
+          showJson({ ...data, _elapsed_ms: elapsed });
+          renderMedia(data);
+          if (payload.modo === "ela" && data.reply) pushChat("ela", data.reply);
+          toast(`Concluído em ${elapsed}ms`);
+          return data;
+        } catch (err) {
+          const elapsed = Math.round(performance.now() - t0);
+          if (simMode === "auto") {
+            const sim = buildLocalSimulationResponse(payload);
+            setStatusBadge("sim", "Simulação (túnel indisponível)");
+            showJson({
+              ...sim,
+              _elapsed_ms: elapsed,
+              network_fallback: String(err),
+              endpoint: `${base}/executar`
+            });
+            if (payload.modo === "ela") pushChat("ela", sim.reply);
+            toast("Túnel indisponível: usando Modo Local / Simulação.");
+            return sim;
           }
-        : {
-            width: Number(document.getElementById("vwInput").value || 768),
-            height: Number(document.getElementById("vhInput").value || 448),
-            frames: Number(document.getElementById("framesInput").value || 65),
-            fps: Number(document.getElementById("fpsInput").value || 16),
-          };
-      callExecutar({ prompt, modo: currentMode, model, params });
-    });
-
-    document.getElementById("genPromptInput").addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-        document.getElementById("btnRun").click();
+          setStatusBadge("offline", "API: offline");
+          showJson({
+            error: String(err),
+            _elapsed_ms: elapsed,
+            endpoint: `${base}/executar`
+          });
+          toast("Falha ao conectar em /executar.");
+          return null;
+        }
       }
-    });
 
-    document.getElementById("btnSaveMem").addEventListener("click", () => {
-      callExecutar({
-        prompt: document.getElementById("memContent").value.trim() || document.getElementById("memTitle").value.trim(),
-        modo: "memoria",
-        params: {
-          title: document.getElementById("memTitle").value.trim(),
-          content: document.getElementById("memContent").value.trim(),
-        },
+      function setMode(mode) {
+        currentMode = mode;
+        modeBadge.textContent = `modo: "${mode}"`;
+        const titles = {
+          ela: "ELA — Diálogo & Direção",
+          imagem: "Gerador de Imagem — Enxame T4",
+          video: "Gerador de Vídeo com Som — Enxame T4",
+          memoria: "Memória Persistente Markdown",
+          scraper: "Scraper Free — Coleta Web",
+          comfy: "ComfyUI (8188) — Status"
+        };
+        panelTitle.textContent = titles[mode] || "LUX-Ω Studio";
+        document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
+        document.getElementById("formEla").classList.toggle("hidden", mode !== "ela");
+        document.getElementById("formGen").classList.toggle("hidden", !["imagem", "video"].includes(mode));
+        document.getElementById("formMem").classList.toggle("hidden", mode !== "memoria");
+        document.getElementById("formScrape").classList.toggle("hidden", mode !== "scraper");
+        document.getElementById("formComfy").classList.toggle("hidden", mode !== "comfy");
+        document.getElementById("imgParams").classList.toggle("hidden", mode !== "imagem");
+        document.getElementById("vidParams").classList.toggle("hidden", mode !== "video");
+      }
+
+      document.querySelectorAll(".tab").forEach(btn => {
+        btn.addEventListener("click", () => setMode(btn.dataset.mode));
       });
-    });
 
-    document.getElementById("btnSearchMem").addEventListener("click", () => {
-      const q = document.getElementById("memTitle").value.trim() || document.getElementById("memContent").value.trim();
-      callExecutar({ prompt: q, modo: "buscar_memoria", params: { query: q } });
-    });
+      btnSimToggle.addEventListener("click", () => {
+        if (simMode === "auto") simMode = "force";
+        else if (simMode === "force") simMode = "off";
+        else simMode = "auto";
+        btnSimToggle.textContent = `Modo Local / Simulação: ${simMode.toUpperCase()}`;
+        toast(`Modo Local / Simulação: ${simMode.toUpperCase()}`);
+      });
 
-    document.getElementById("btnScrape").addEventListener("click", () => {
-      const url = document.getElementById("scrapeUrl").value.trim();
-      callExecutar({ prompt: url, modo: "scraper", params: { url } });
-    });
+      document.getElementById("btnSync").addEventListener("click", () => syncFromNtfy(false));
+      document.getElementById("btnSaveUrl").addEventListener("click", () => {
+        setApiBase(apiInput.value, true);
+        toast("URL salva.");
+        testHealth(true);
+      });
+      document.getElementById("btnTest").addEventListener("click", () => testHealth(false));
 
-    document.getElementById("btnCheckComfy").addEventListener("click", () => testHealth(false));
+      document.getElementById("btnSendEla").addEventListener("click", () => {
+        const text = document.getElementById("promptInput").value.trim();
+        if (!text) return;
+        document.getElementById("promptInput").value = "";
+        pushChat("você", text);
+        updateVisualConcept(text);
+        callExecutar({ prompt: text, modo: "ela" });
+      });
 
-    document.getElementById("btnCopyJson").addEventListener("click", () => {
-      navigator.clipboard.writeText(jsonOut.textContent || "");
-      toast("JSON copiado.");
-    });
-    document.getElementById("btnClearJson").addEventListener("click", () => showJson("{}"));
+      document.getElementById("btnSendToImg").addEventListener("click", () => {
+        const text = document.getElementById("promptInput").value.trim();
+        if (text) document.getElementById("genPromptInput").value = text;
+        setMode("imagem");
+      });
 
-    renderChat();
-    const saved = localStorage.getItem(API_KEY);
-    if (saved) setApiBase(saved, false);
-    syncFromNtfy(true);
-    setInterval(() => syncFromNtfy(true), 8000);
+      document.getElementById("promptInput").addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          document.getElementById("btnSendEla").click();
+        }
+      });
+
+      document.getElementById("btnRun").addEventListener("click", () => {
+        const prompt = document.getElementById("genPromptInput").value.trim();
+        const model = document.getElementById("modelInput").value.trim() || null;
+        const params = currentMode === "imagem"
+          ? {
+              width: Number(document.getElementById("wInput").value || 896),
+              height: Number(document.getElementById("hInput").value || 896),
+              steps: Number(document.getElementById("stepsInput").value || 4),
+              seed: document.getElementById("seedInput").value.trim() || null,
+            }
+          : {
+              width: Number(document.getElementById("vwInput").value || 768),
+              height: Number(document.getElementById("vhInput").value || 448),
+              frames: Number(document.getElementById("framesInput").value || 65),
+              fps: Number(document.getElementById("fpsInput").value || 16),
+            };
+        callExecutar({ prompt, modo: currentMode, model, params });
+      });
+
+      document.getElementById("genPromptInput").addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          document.getElementById("btnRun").click();
+        }
+      });
+
+      document.getElementById("btnSaveMem").addEventListener("click", () => {
+        callExecutar({
+          prompt: document.getElementById("memContent").value.trim() || document.getElementById("memTitle").value.trim(),
+          modo: "memoria",
+          params: {
+            title: document.getElementById("memTitle").value.trim(),
+            content: document.getElementById("memContent").value.trim(),
+          },
+        });
+      });
+
+      document.getElementById("btnSearchMem").addEventListener("click", () => {
+        const q = document.getElementById("memTitle").value.trim() || document.getElementById("memContent").value.trim();
+        callExecutar({ prompt: q, modo: "buscar_memoria", params: { query: q } });
+      });
+
+      document.getElementById("btnScrape").addEventListener("click", () => {
+        const url = document.getElementById("scrapeUrl").value.trim();
+        callExecutar({ prompt: url, modo: "scraper", params: { url } });
+      });
+
+      document.getElementById("btnCheckComfy").addEventListener("click", () => testHealth(false));
+
+      document.getElementById("btnCopyJson").addEventListener("click", () => {
+        navigator.clipboard.writeText(jsonOut.textContent || "");
+        toast("JSON copiado.");
+      });
+      document.getElementById("btnClearJson").addEventListener("click", () => showJson("{}"));
+
+      renderChat();
+      const saved = localStorage.getItem(API_KEY);
+      if (saved) setApiBase(saved, false);
+      syncFromNtfy(true);
+      setInterval(() => syncFromNtfy(true), 8000);
+    })();
   </script>
 </body>
 </html>
