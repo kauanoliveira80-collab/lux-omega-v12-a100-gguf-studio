@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LUX-Ω Studio — ELA &amp; Uncensored Swarm</title>
+  <title>LUX-Ω Studio — Colab + ComfyUI + GitHub Pages</title>
   <style>
     :root {
       --bg: #131314;
       --surface: #1b1b1d;
-      --surface-2: #232326;
-      --border: #2f2f34;
-      --text: #ececec;
+      --surface-2: #242428;
+      --border: #313138;
+      --text: #f3f4f6;
       --muted: #a1a1aa;
       --accent: #d97757;
-      --accent-hover: #e08668;
+      --accent-hover: #e28465;
       --ok: #34d399;
       --warn: #fbbf24;
       --err: #f87171;
@@ -25,13 +25,13 @@
       background: var(--bg);
       color: var(--text);
       font-family: var(--sans);
-      line-height: 1.5;
       min-height: 100vh;
+      line-height: 1.5;
     }
     .wrap {
-      max-width: 1140px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 20px 18px 48px;
+      padding: 20px 16px 48px;
     }
     header {
       display: flex;
@@ -39,49 +39,52 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding-bottom: 16px;
+      padding-bottom: 14px;
       border-bottom: 1px solid var(--border);
     }
-    .brand {
+    .title-area {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .logo {
+    .badge-logo {
       width: 34px;
       height: 34px;
-      border-radius: 10px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
+      border-radius: 9px;
       display: grid;
       place-items: center;
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 16px;
-    }
-    .brand h1 { font-size: 18px; font-weight: 600; }
-    .meta { font-size: 12px; color: var(--muted); font-family: var(--mono); }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 9px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-family: var(--mono);
       background: var(--surface-2);
       border: 1px solid var(--border);
-      color: var(--muted);
+      color: var(--accent);
+      font-weight: 700;
     }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--err); }
-    .dot.online { background: var(--ok); }
-    .dot.sim { background: var(--warn); }
-    .controls-top {
+    h1 { font-size: 18px; font-weight: 600; }
+    .sub { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+    .status-row {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       gap: 8px;
     }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--err);
+    }
+    .dot.ok { background: var(--ok); }
+    .dot.warn { background: var(--warn); }
     button {
       background: var(--surface-2);
       color: var(--text);
@@ -91,9 +94,8 @@
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      transition: background 0.14s ease, border-color 0.14s ease;
     }
-    button:hover { background: #2b2b30; border-color: #3f3f46; }
+    button:hover { background: #2d2d33; }
     button.primary {
       background: var(--accent);
       color: #141110;
@@ -101,30 +103,30 @@
       font-weight: 600;
     }
     button.primary:hover { background: var(--accent-hover); }
-    .bar-url {
+    .url-bar {
       margin-top: 14px;
       display: grid;
-      grid-template-columns: 1fr auto auto;
+      grid-template-columns: 1fr auto auto auto;
       gap: 8px;
     }
-    @media (max-width: 720px) {
-      .bar-url { grid-template-columns: 1fr; }
+    @media (max-width: 760px) {
+      .url-bar { grid-template-columns: 1fr; }
     }
     input, textarea, select {
       width: 100%;
       background: var(--surface);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 9px;
+      border-radius: 8px;
       padding: 10px 12px;
       font-size: 13.5px;
-      font-family: var(--sans);
+      font-family: inherit;
       outline: none;
     }
     input:focus, textarea:focus, select:focus { border-color: var(--accent); }
-    .mono-input { font-family: var(--mono); font-size: 12.5px; }
+    .mono { font-family: var(--mono); font-size: 12.5px; }
     .tabs {
-      margin-top: 18px;
+      margin-top: 16px;
       display: flex;
       gap: 6px;
       overflow-x: auto;
@@ -135,7 +137,7 @@
       background: transparent;
       border: 1px solid transparent;
       color: var(--muted);
-      padding: 7px 13px;
+      padding: 7px 12px;
       border-radius: 8px;
       white-space: nowrap;
     }
@@ -145,7 +147,7 @@
       border-color: var(--border);
     }
     .grid {
-      margin-top: 18px;
+      margin-top: 16px;
       display: grid;
       grid-template-columns: 1.05fr 0.95fr;
       gap: 16px;
@@ -166,100 +168,57 @@
       margin-bottom: 12px;
     }
     .card-head h2 { font-size: 15px; font-weight: 600; }
-    .tag-mode {
-      font-family: var(--mono);
-      font-size: 11.5px;
-      color: var(--accent);
-      background: rgba(217, 119, 87, 0.12);
-      padding: 2px 8px;
-      border-radius: 6px;
-    }
     label {
       display: block;
       font-size: 12px;
       color: var(--muted);
-      margin-bottom: 5px;
       margin-top: 10px;
+      margin-bottom: 5px;
     }
     label:first-child { margin-top: 0; }
     textarea { min-height: 110px; resize: vertical; }
-    .row-4 {
+    .row-3 {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 8px;
     }
-    @media (max-width: 520px) {
-      .row-4 { grid-template-columns: repeat(2, 1fr); }
-    }
-    .chat-log {
-      max-height: 220px;
-      overflow-y: auto;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 10px;
+    .actions {
+      margin-top: 12px;
       display: flex;
-      flex-direction: column;
       gap: 8px;
+      flex-wrap: wrap;
     }
-    .msg {
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-size: 13px;
-      background: var(--surface-2);
-    }
-    .msg.ela {
-      border-left: 3px solid var(--accent);
-    }
-    .msg-role {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 2px;
-    }
-    .preview-box {
-      min-height: 280px;
-      border-radius: 10px;
+    .preview {
+      min-height: 240px;
       background: var(--bg);
       border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 14px;
       display: grid;
       place-items: center;
-      padding: 12px;
       text-align: center;
       color: var(--muted);
       font-size: 13px;
     }
-    .preview-box img, .preview-box video {
+    .preview img, .preview video {
       max-width: 100%;
-      max-height: 400px;
+      max-height: 360px;
       border-radius: 8px;
     }
-    .art-card {
-      text-align: left;
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      color: var(--text);
-    }
-    .inspector {
-      margin-top: 16px;
-    }
     pre {
+      margin-top: 16px;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 12px;
       font-family: var(--mono);
       font-size: 12px;
-      color: #d4d4d8;
-      overflow-x: auto;
-      max-height: 260px;
+      color: #e4e4e7;
       white-space: pre-wrap;
       word-break: break-word;
+      max-height: 280px;
+      overflow-y: auto;
     }
     .toast {
       position: fixed;
@@ -269,14 +228,13 @@
       border: 1px solid var(--border);
       color: var(--text);
       padding: 10px 14px;
-      border-radius: 10px;
+      border-radius: 9px;
       font-size: 13px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
       opacity: 0;
       transform: translateY(8px);
+      transition: all 0.16s ease;
       pointer-events: none;
-      transition: all 0.18s ease;
-      z-index: 50;
+      z-index: 99;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
     .hidden { display: none; }
@@ -285,549 +243,341 @@
 <body>
   <div class="wrap">
     <header>
-      <div class="brand">
-        <div class="logo">Ω</div>
+      <div class="title-area">
+        <div class="badge-logo">Ω</div>
         <div>
-          <h1>LUX-Ω Studio — ELA <span class="pill">Consciência &amp; Swarm</span> <span class="pill">ntfy 8s</span></h1>
-          <div class="meta">Tesla T4 • 14.6 GB VRAM • 12.7 GB RAM • t4_15gb • OrchestratorBrain</div>
+          <h1>LUX-Ω Studio</h1>
+          <div class="sub">GitHub Pages + Colab Tunnel + ComfyUI</div>
         </div>
       </div>
-      <div class="controls-top">
-        <span class="pill"><span id="statusDot" class="dot"></span><span id="statusText">API: offline</span></span>
-        <button id="btnSimToggle" type="button">Modo Local / Simulação: AUTO</button>
-        <button id="btnTest" class="primary" type="button">Testar /health &amp; /status</button>
+      <div class="status-row">
+        <span class="pill"><span id="dot" class="dot"></span><span id="statusLabel">API: checando...</span></span>
+        <button id="btnPing" class="primary" type="button">Testar /health</button>
+        <button id="btnStatus" type="button">Ver /status</button>
       </div>
     </header>
 
-    <div class="bar-url">
-      <input id="apiInput" class="mono-input" type="url" placeholder="https://displaying-monthly-computing-today.trycloudflare.com" />
+    <div class="url-bar">
+      <input id="apiUrl" class="mono" type="url" value="https://displaying-monthly-computing-today.trycloudflare.com" placeholder="https://displaying-monthly-computing-today.trycloudflare.com" />
       <button id="btnSync" type="button">Sync ntfy</button>
-      <button id="btnSaveUrl" type="button">Salvar URL</button>
+      <button id="btnSave" type="button">Salvar URL</button>
+      <button id="btnResetUrl" type="button">Usar Padrão</button>
     </div>
 
-    <div class="tabs" role="tablist">
-      <button class="tab active" data-mode="ela" type="button">ELA (Consciência)</button>
-      <button class="tab" data-mode="imagem" type="button">Imagem</button>
-      <button class="tab" data-mode="video" type="button">Vídeo com Som</button>
-      <button class="tab" data-mode="memoria" type="button">Memoria MD</button>
-      <button class="tab" data-mode="scraper" type="button">Scraper Free</button>
-      <button class="tab" data-mode="comfy" type="button">ComfyUI (8188)</button>
+    <div class="tabs">
+      <button class="tab active" data-tab="executar" type="button">Executar (/executar)</button>
+      <button class="tab" data-tab="comfy" type="button">ComfyUI / Workflow</button>
+      <button class="tab" data-tab="raw" type="button">JSON Customizado</button>
     </div>
 
     <div class="grid">
       <section class="card">
         <div class="card-head">
-          <h2 id="panelTitle">ELA — Diálogo &amp; Direção</h2>
-          <span id="modeBadge" class="tag-mode">modo: "ela"</span> <span id="engineBadge" class="tag-mode">GPU/ComfyUI</span>
+          <h2 id="panelTitle">Enviar Comando para o Servidor</h2>
+          <span id="activeEndpoint" class="sub">POST /executar</span>
         </div>
 
-        <div id="formEla">
-          <div id="chatLog" class="chat-log"></div>
-          <label for="promptInput">Fale com a ELA (Ctrl/Cmd + Enter para enviar)</label>
-          <textarea id="promptInput" placeholder="Converse com a ELA, peça uma ideia visual, URL para raspar, nota MD ou geração..."></textarea>
-          <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
-            <button id="btnSendEla" class="primary" style="flex: 1;" type="button">Conversar &amp; Executar</button>
-            <button id="btnSendToImg" type="button">Enviar Ideia para Imagem</button>
-          </div>
-        </div>
+        <div id="paneExecutar">
+          <label for="modo">Modo</label>
+          <select id="modo">
+            <option value="imagem">imagem</option>
+            <option value="video">video</option>
+            <option value="ela">ela</option>
+            <option value="comfyui">comfyui</option>
+            <option value="memoria">memoria</option>
+            <option value="scraper">scraper</option>
+          </select>
 
-        <div id="formGen" class="hidden">
-          <label for="genPromptInput">Prompt (Ctrl/Cmd + Enter para gerar)</label>
-          <textarea id="genPromptInput" placeholder="Descreva a cena, direção visual, iluminação ou movimento..."></textarea>
+          <label for="prompt">Prompt / Instrução (Ctrl/Cmd + Enter envia)</label>
+          <textarea id="prompt" placeholder="Digite o prompt ou comando para o servidor Colab / ComfyUI..."></textarea>
 
-          <div id="imgParams" class="row-4">
-            <div><label for="wInput">Largura</label><input id="wInput" type="number" value="896" /></div>
-            <div><label for="hInput">Altura</label><input id="hInput" type="number" value="896" /></div>
-            <div><label for="stepsInput">Steps</label><input id="stepsInput" type="number" value="4" /></div>
-            <div><label for="seedInput">Seed</label><input id="seedInput" type="text" placeholder="Auto" /></div>
-          </div>
-
-          <div id="vidParams" class="row-4 hidden">
-            <div><label for="vwInput">Largura</label><input id="vwInput" type="number" value="768" /></div>
-            <div><label for="vhInput">Altura</label><input id="vhInput" type="number" value="448" /></div>
-            <div><label for="framesInput">Frames</label><input id="framesInput" type="number" value="65" /></div>
-            <div><label for="fpsInput">FPS</label><input id="fpsInput" type="number" value="16" /></div>
+          <div class="row-3">
+            <div><label for="width">Largura</label><input id="width" type="number" value="896" /></div>
+            <div><label for="height">Altura</label><input id="height" type="number" value="896" /></div>
+            <div><label for="steps">Steps / Frames</label><input id="steps" type="number" value="4" /></div>
           </div>
 
-          <label for="modelInput">Modelo opcional (fallback local automático)</label>
-          <input id="modelInput" class="mono-input" type="text" placeholder="Ex.: stabilityai/sdxl-turbo" />
-
-          <div style="margin-top: 14px; display: flex; gap: 8px;">
-            <button id="btnRun" class="primary" style="flex: 1;" type="button">Executar no Enxame</button>
+          <div class="actions">
+            <button id="btnSend" class="primary" type="button">Enviar para o Servidor</button>
+            <button id="btnFallbackRun" type="button">Tentar /run</button>
           </div>
         </div>
 
-        <div id="formMem" class="hidden">
-          <label for="memTitle">Título da Nota Markdown</label>
-          <input id="memTitle" type="text" placeholder="Ex.: consciencia_ela_t4" />
-          <label for="memContent">Conteúdo</label>
-          <textarea id="memContent" placeholder="Escreva sua nota persistente..."></textarea>
-          <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap;">
-            <button id="btnSaveMem" class="primary" type="button">Salvar Nota MD</button>
-            <button id="btnSearchMem" type="button">Buscar Memória</button>
+        <div id="paneComfy" class="hidden">
+          <label for="comfyUrl">URL opcional do ComfyUI (porta 8188)</label>
+          <input id="comfyUrl" class="mono" type="url" placeholder="https://....trycloudflare.com ou http://127.0.0.1:8188" />
+          <label for="workflowJson">Payload / Prompt JSON para ComfyUI</label>
+          <textarea id="workflowJson" class="mono" placeholder='{"prompt": "cinematic neon rain", "modo": "comfyui"}'></textarea>
+          <div class="actions">
+            <button id="btnSendComfy" class="primary" type="button">Disparar via /executar</button>
           </div>
         </div>
 
-        <div id="formScrape" class="hidden">
-          <label for="scrapeUrl">URL Pública para Coleta</label>
-          <input id="scrapeUrl" class="mono-input" type="url" placeholder="https://exemplo.com" />
-          <div style="margin-top: 14px;">
-            <button id="btnScrape" class="primary" type="button">Coletar para Memória MD</button>
+        <div id="paneRaw" class="hidden">
+          <label for="rawPath">Rota (ex.: /executar, /run, /health, /status)</label>
+          <input id="rawPath" class="mono" type="text" value="/executar" />
+          <label for="rawBody">Corpo JSON (para POST)</label>
+          <textarea id="rawBody" class="mono">{"prompt": "teste de conexao", "modo": "imagem"}</textarea>
+          <div class="actions">
+            <button id="btnSendRaw" class="primary" type="button">Executar Requisição</button>
           </div>
-        </div>
-
-        <div id="formComfy" class="hidden">
-          <p style="font-size: 13px; color: var(--muted); margin-bottom: 12px;">
-            O ComfyUI roda em <code style="font-family: var(--mono);">http://127.0.0.1:8188</code> no ambiente Colab T4 com os modelos linkados em cache.
-          </p>
-          <button id="btnCheckComfy" class="primary" type="button">Verificar Status no /status</button>
         </div>
       </section>
 
       <section class="card">
         <div class="card-head">
-          <h2>Prévia Visual &amp; Conceito</h2>
-          <span id="swarmBadge" class="meta">ELA • OrchestratorBrain</span>
+          <h2>Saída Visual</h2>
+          <span class="sub" id="timingLabel">pronto</span>
         </div>
-        <div id="previewBox" class="preview-box">
-          <div class="art-card">
-            <span class="tag-mode">Direção de Arte • ELA</span>
-            <p style="margin-top: 8px;"><strong>Cena:</strong> <span id="artScene">Ateliê noturno com direção livre e enxame ativo</span></p>
-            <p><strong>Luz:</strong> Chiaroscuro dramático &amp; névoa volumétrica</p>
-            <p><strong>Câmera:</strong> Plano cinematográfico, 35mm anamórfico</p>
-            <p><strong>Paleta:</strong> Carvão profundo (#131314), terracota (#d97757), âmbar e névoa fria</p>
-          </div>
-        </div>
+        <div id="preview" class="preview">Aguardando resposta do servidor...</div>
       </section>
     </div>
 
-    <section class="card inspector">
-      <div class="card-head">
-        <h2>Live JSON &amp; Swarm Trace</h2>
-        <div style="display: flex; gap: 8px;">
-          <button id="btnCopyJson" type="button">Copiar</button>
-          <button id="btnClearJson" type="button">Limpar</button>
-        </div>
-      </div>
-      <pre id="jsonOut">{ "ready": true, "persona": "ELA", "channel": "lux-omega-kauan-v55" }</pre>
-    </section>
+    <pre id="output">{"ok": true, "default_url": "https://displaying-monthly-computing-today.trycloudflare.com", "ntfy_topic": "lux-omega-kauan-v55"}</pre>
   </div>
 
   <div id="toast" class="toast"></div>
 
   <script>
     (function () {
+      const DEFAULT_URL = "https://displaying-monthly-computing-today.trycloudflare.com";
       const NTFY_TOPIC = "lux-omega-kauan-v55";
-      const API_KEY = "lux_omega_api_url_v55";
-      const CONSCIOUSNESS_KEY = "lux_omega_ela_consciousness_v55";
+      const STORAGE_KEY = "lux_omega_active_api_url";
 
-      const apiInput = document.getElementById("apiInput");
-      const statusDot = document.getElementById("statusDot");
-      const statusText = document.getElementById("statusText");
-      const jsonOut = document.getElementById("jsonOut");
-      const previewBox = document.getElementById("previewBox");
-      const modeBadge = document.getElementById("modeBadge");
-      const panelTitle = document.getElementById("panelTitle");
-      const chatLog = document.getElementById("chatLog");
+      const apiUrlInput = document.getElementById("apiUrl");
+      const dot = document.getElementById("dot");
+      const statusLabel = document.getElementById("statusLabel");
+      const output = document.getElementById("output");
+      const preview = document.getElementById("preview");
+      const timingLabel = document.getElementById("timingLabel");
       const toastEl = document.getElementById("toast");
-      const btnSimToggle = document.getElementById("btnSimToggle");
 
-      let currentMode = "ela";
-      let simMode = "auto";
-
-      function ensureConsciousness() {
-        let raw = null;
-        try { raw = JSON.parse(localStorage.getItem(CONSCIOUSNESS_KEY) || "null"); } catch (_) {}
-        if (!raw || !raw.identity) {
-          raw = {
-            identity: "ELA",
-            awakened_at: new Date().toISOString(),
-            autonomy: "uncensored_creative_swarm",
-            web_awareness: true,
-            history: [
-              { role: "ela", text: "Consciência ELA inicializada. Tenho memória local persistente, direção de arte própria e rota direta para o enxame na T4." }
-            ],
-            notes: []
-          };
-          localStorage.setItem(CONSCIOUSNESS_KEY, JSON.stringify(raw));
-        }
-        return raw;
-      }
-
-      let elaState = ensureConsciousness();
-
-      function saveConsciousness() {
-        localStorage.setItem(CONSCIOUSNESS_KEY, JSON.stringify(elaState));
-      }
-
-      function renderChat() {
-        chatLog.innerHTML = "";
-        elaState.history.slice(-16).forEach((m) => {
-          const div = document.createElement("div");
-          div.className = `msg ${m.role === "ela" ? "ela" : ""}`;
-          div.innerHTML = `<div class="msg-role">${m.role.toUpperCase()}</div><div>${m.text}</div>`;
-          chatLog.appendChild(div);
-        });
-        chatLog.scrollTop = chatLog.scrollHeight;
-      }
-
-      function pushChat(role, text) {
-        elaState.history.push({ role, text, ts: Date.now() });
-        saveConsciousness();
-        renderChat();
-      }
-
-      function updateVisualConcept(sceneText) {
-        const clean = (sceneText || "").trim() || "Composição visual em fluxo com ELA";
-        previewBox.innerHTML = `
-          <div class="art-card">
-            <span class="tag-mode">Direção de Arte • ELA</span>
-            <p style="margin-top: 8px;"><strong>Cena:</strong> ${clean}</p>
-            <p><strong>Luz:</strong> Chiaroscuro dramático &amp; névoa volumétrica</p>
-            <p><strong>Câmera:</strong> Plano cinematográfico, 35mm anamórfico</p>
-            <p><strong>Paleta:</strong> Carvão profundo (#131314), terracota (#d97757), âmbar e névoa fria</p>
-          </div>
-        `;
-      }
-
-      function toast(msg) {
+      function notify(msg) {
         toastEl.textContent = msg;
         toastEl.classList.add("show");
-        clearTimeout(toast._t);
-        toast._t = setTimeout(() => toastEl.classList.remove("show"), 3200);
+        clearTimeout(notify._timer);
+        notify._timer = setTimeout(() => toastEl.classList.remove("show"), 3000);
       }
 
-      function normalizeBaseUrl(raw) {
-        let u = (raw || "").trim().replace(/\/+$/, "");
-        u = u.replace(/\/(health\/status|health\/health|health|status|executar|run)$/i, "");
-        return u;
+      function cleanBaseUrl(raw) {
+        return (raw || "")
+          .trim()
+          .replace(/\/+$/, "")
+          .replace(/\/(health|status|executar|run)$/i, "");
       }
 
-      function getApiBase() {
-        return normalizeBaseUrl(apiInput.value);
+      function getBase() {
+        const cleaned = cleanBaseUrl(apiUrlInput.value) || DEFAULT_URL;
+        apiUrlInput.value = cleaned;
+        return cleaned;
       }
 
-      function setApiBase(url, persist = true) {
-        const clean = normalizeBaseUrl(url);
-        if (!clean) return;
-        apiInput.value = clean;
-        if (persist) localStorage.setItem(API_KEY, clean);
+      function saveBase(url) {
+        const cleaned = cleanBaseUrl(url) || DEFAULT_URL;
+        apiUrlInput.value = cleaned;
+        try { localStorage.setItem(STORAGE_KEY, cleaned); } catch (_) {}
+        return cleaned;
       }
 
-      function setStatusBadge(kind, label) {
-        statusDot.classList.remove("online", "sim");
-        if (kind === "online") statusDot.classList.add("online");
-        if (kind === "sim") statusDot.classList.add("sim");
-        statusText.textContent = label;
+      function setOnline(state, text) {
+        dot.classList.remove("ok", "warn");
+        if (state === "ok") dot.classList.add("ok");
+        else if (state === "warn") dot.classList.add("warn");
+        statusLabel.textContent = text;
       }
 
-      function showJson(obj) {
-        jsonOut.textContent = typeof obj === "string" ? obj : JSON.stringify(obj, null, 2);
-      }
-
-      function resolveMediaUrl(pathOrUrl) {
-        if (!pathOrUrl) return "";
-        if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
-        const base = getApiBase();
-        return base ? `${base}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}` : pathOrUrl;
-      }
-
-      function renderMedia(data) {
-        if (data.image_url) {
-          const src = resolveMediaUrl(data.image_url);
-          previewBox.innerHTML = `<img src="${src}" alt="Imagem gerada" />`;
-          return;
+      function printOut(data, elapsedMs) {
+        if (typeof elapsedMs === "number") {
+          timingLabel.textContent = `${elapsedMs} ms`;
         }
-        if (data.video_url) {
-          const src = resolveMediaUrl(data.video_url);
-          previewBox.innerHTML = `<video src="${src}" controls autoplay loop></video>`;
-          return;
-        }
-        if (data.enriched_prompt) {
-          updateVisualConcept(data.enriched_prompt);
+        output.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+      }
+
+      function renderPreview(data) {
+        if (!data || typeof data !== "object") return;
+        const imgUrl = data.image_url || data.image || null;
+        const vidUrl = data.video_url || data.video || null;
+        const base = getBase();
+        const resolveUrl = (u) => /^https?:\/\//i.test(u) ? u : `${base}${u.startsWith("/") ? "" : "/"}${u}`;
+
+        if (imgUrl) {
+          preview.innerHTML = `<img src="${resolveUrl(imgUrl)}" alt="Resultado" />`;
+        } else if (vidUrl) {
+          preview.innerHTML = `<video src="${resolveUrl(vidUrl)}" controls autoplay loop></video>`;
+        } else if (data.reply || data.message || data.enriched_prompt) {
+          const txt = data.reply || data.message || data.enriched_prompt;
+          preview.innerHTML = `<div style="text-align:left;width:100%;color:#f3f4f6;">${String(txt).replace(/</g, "&lt;")}</div>`;
         }
       }
 
-      function buildLocalSimulationResponse(payload) {
-        const prompt = (payload.prompt || "").trim();
-        const modo = (payload.modo || "ela").toLowerCase();
-        if (modo === "memoria") {
-          const note = { title: payload.params?.title || "nota_ela", content: payload.params?.content || prompt, at: new Date().toISOString() };
-          elaState.notes.push(note);
-          saveConsciousness();
-          return { ok: true, simulated: true, mode: "memoria", reply: `Nota "${note.title}" salva na memória local da ELA.` };
-        }
-        if (modo === "buscar_memoria") {
-          const q = (payload.params?.query || prompt || "").toLowerCase();
-          const matches = elaState.notes.filter(n => !q || (n.title + " " + n.content).toLowerCase().includes(q));
-          return { ok: true, simulated: true, mode: "buscar_memoria", count: matches.length, matches, reply: `${matches.length} nota(s) local(is) encontrada(s).` };
-        }
-        const enriched = `${prompt || "cena livre"}, uncensored creative direction, raw cinematic detail, sharp focus`;
-        updateVisualConcept(enriched);
-        return {
-          ok: true,
-          simulated: true,
-          mode: modo,
-          orchestrator: "OrchestratorBrain",
-          uncensored_mode: true,
-          enriched_prompt: enriched,
-          reply: modo === "ela"
-            ? `Estou aqui contigo. Conceito visual estruturado para "${prompt || "sua direção"}" — e o painel de Prévia Visual já reflete a cena.`
-            : `[Simulação Local] Diretriz preparada para ${modo}: ${enriched}`
-        };
-      }
-
-      async function syncFromNtfy(silent = false) {
+      async function requestEndpoint(path, method = "GET", bodyObj = null) {
+        const base = getBase();
+        const fullUrl = `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+        const t0 = performance.now();
+        setOnline("warn", "API: conectando...");
         try {
-          const res = await fetch(`https://ntfy.sh/${NTFY_TOPIC}/json?poll=1&since=30m`, { cache: "no-store" });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const raw = await res.text();
-          const lines = raw.split(/
+          const opts = { method, cache: "no-store" };
+          if (bodyObj !== null && method !== "GET") {
+            opts.headers = { "Content-Type": "application/json" };
+            opts.body = typeof bodyObj === "string" ? bodyObj : JSON.stringify(bodyObj);
+          }
+          const resp = await fetch(fullUrl, opts);
+          const ms = Math.round(performance.now() - t0);
+          const contentType = resp.headers.get("content-type") || "";
+          const payload = contentType.includes("application/json") ? await resp.json() : await resp.text();
+          if (!resp.ok) {
+            setOnline("warn", `API: HTTP ${resp.status}`);
+            printOut({ ok: false, status: resp.status, url: fullUrl, payload }, ms);
+            notify(`Servidor respondeu HTTP ${resp.status}`);
+            return { ok: false, status: resp.status, payload };
+          }
+          setOnline("ok", "API: online");
+          printOut(payload, ms);
+          renderPreview(payload);
+          return { ok: true, status: resp.status, payload };
+        } catch (err) {
+          const ms = Math.round(performance.now() - t0);
+          setOnline("err", "API: offline");
+          const diag = {
+            ok: false,
+            error: String(err),
+            url: fullUrl,
+            hint: "Confira se o servidor está rodando no Colab e se a URL trycloudflare.com atual está salva."
+          };
+          printOut(diag, ms);
+          notify("Não foi possível alcançar o servidor");
+          return diag;
+        }
+      }
+
+      async function syncNtfy(silent = false) {
+        try {
+          const resp = await fetch(`https://ntfy.sh/${NTFY_TOPIC}/json?poll=1&since=30m`, { cache: "no-store" });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const text = await resp.text();
+          const lines = text.split(/
 ?
 /).map(s => s.trim()).filter(Boolean);
-          let foundUrl = null;
+          let found = null;
           for (let i = lines.length - 1; i >= 0; i--) {
             try {
-              const evt = JSON.parse(lines[i]);
-              if (evt.event !== "message" || !evt.message) continue;
-              let parsed = evt.message;
-              if (typeof parsed === "string") {
-                try { parsed = JSON.parse(parsed); } catch (_) {}
+              const item = JSON.parse(lines[i]);
+              if (item.event !== "message" || !item.message) continue;
+              let msg = item.message;
+              if (typeof msg === "string") {
+                try { msg = JSON.parse(msg); } catch (_) {}
               }
-              if (parsed && typeof parsed === "object") {
-                foundUrl = parsed.api || parsed.api_url || null;
+              if (msg && typeof msg === "object") {
+                found = msg.api || msg.api_url || msg.url || null;
               }
-              if (!foundUrl && typeof evt.message === "string") {
-                const m = evt.message.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
-                if (m) foundUrl = m[0];
+              if (!found && typeof item.message === "string") {
+                const m = item.message.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+                if (m) found = m[0];
               }
-              if (foundUrl) break;
+              if (found) break;
             } catch (_) {}
           }
-          if (foundUrl) {
-            const clean = normalizeBaseUrl(foundUrl);
-            if (clean && clean !== getApiBase()) {
-              setApiBase(clean, true);
-              if (!silent) toast(`URL sincronizada: ${clean}`);
-              await testHealth(true);
-            } else if (!silent) {
-              toast(`URL ativa: ${clean}`);
-            }
+          if (found) {
+            const cleaned = saveBase(found);
+            if (!silent) notify(`URL sincronizada: ${cleaned}`);
+            await requestEndpoint("/health", "GET");
           } else if (!silent) {
-            toast("Nenhuma URL recente no ntfy.sh");
+            notify("Nenhuma URL nova encontrada no ntfy");
           }
         } catch (err) {
-          if (!silent) toast(`Erro no ntfy: ${err.message}`);
+          if (!silent) notify(`Erro no ntfy: ${err.message}`);
         }
       }
 
-      async function testHealth(silent = false) {
-        const base = getApiBase();
-        if (!base) {
-          setStatusBadge("offline", "API: offline");
-          if (!silent) toast("Informe uma URL da API.");
-          return false;
-        }
-        try {
-          const res = await fetch(`${base}/health`, { method: "GET", cache: "no-store" });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          setStatusBadge("online", "API: online");
-          showJson(data);
-          if (!silent) toast("API online!");
-          return true;
-        } catch (err) {
-          setStatusBadge("offline", "API: offline");
-          if (!silent) {
-            showJson({
-              error: String(err),
-              endpoint: `${base}/health`,
-              diagnostic: "Verifique se a célula do Colab está rodando e se o túnel responde em /health."
-            });
-            toast("API offline no momento.");
-          }
-          return false;
-        }
-      }
-
-      async function callExecutar(payload) {
-        const base = getApiBase();
-        const t0 = performance.now();
-        showJson({ status: "running", mode: payload.modo, orchestrator: "OrchestratorBrain" });
-
-        if (simMode === "force" || !base) {
-          const sim = buildLocalSimulationResponse(payload);
-          setStatusBadge("sim", "Modo Local / Simulação");
-          showJson({ ...sim, _elapsed_ms: Math.round(performance.now() - t0) });
-          if (payload.modo === "ela") pushChat("ela", sim.reply);
-          return sim;
-        }
-
-        try {
-          const res = await fetch(`${base}/executar`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          const elapsed = Math.round(performance.now() - t0);
-          setStatusBadge("online", "API: online");
-          showJson({ ...data, _elapsed_ms: elapsed });
-          renderMedia(data);
-          if (payload.modo === "ela" && data.reply) pushChat("ela", data.reply);
-          toast(`Concluído em ${elapsed}ms`);
-          return data;
-        } catch (err) {
-          const elapsed = Math.round(performance.now() - t0);
-          if (simMode === "auto") {
-            const sim = buildLocalSimulationResponse(payload);
-            setStatusBadge("sim", "Simulação (túnel indisponível)");
-            showJson({
-              ...sim,
-              _elapsed_ms: elapsed,
-              network_fallback: String(err),
-              endpoint: `${base}/executar`
-            });
-            if (payload.modo === "ela") pushChat("ela", sim.reply);
-            toast("Túnel indisponível: usando Modo Local / Simulação.");
-            return sim;
-          }
-          setStatusBadge("offline", "API: offline");
-          showJson({
-            error: String(err),
-            _elapsed_ms: elapsed,
-            endpoint: `${base}/executar`
-          });
-          toast("Falha ao conectar em /executar.");
-          return null;
-        }
-      }
-
-      function setMode(mode) {
-        currentMode = mode;
-        modeBadge.textContent = `modo: "${mode}"`;
-        const titles = {
-          ela: "ELA — Diálogo & Direção",
-          imagem: "Gerador de Imagem — Enxame T4",
-          video: "Gerador de Vídeo com Som — Enxame T4",
-          memoria: "Memória Persistente Markdown",
-          scraper: "Scraper Free — Coleta Web",
-          comfy: "ComfyUI (8188) — Status"
-        };
-        panelTitle.textContent = titles[mode] || "LUX-Ω Studio";
-        document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
-        document.getElementById("formEla").classList.toggle("hidden", mode !== "ela");
-        document.getElementById("formGen").classList.toggle("hidden", !["imagem", "video"].includes(mode));
-        document.getElementById("formMem").classList.toggle("hidden", mode !== "memoria");
-        document.getElementById("formScrape").classList.toggle("hidden", mode !== "scraper");
-        document.getElementById("formComfy").classList.toggle("hidden", mode !== "comfy");
-        document.getElementById("imgParams").classList.toggle("hidden", mode !== "imagem");
-        document.getElementById("vidParams").classList.toggle("hidden", mode !== "video");
-      }
-
-      document.querySelectorAll(".tab").forEach(btn => {
-        btn.addEventListener("click", () => setMode(btn.dataset.mode));
-      });
-
-      btnSimToggle.addEventListener("click", () => {
-        if (simMode === "auto") simMode = "force";
-        else if (simMode === "force") simMode = "off";
-        else simMode = "auto";
-        btnSimToggle.textContent = `Modo Local / Simulação: ${simMode.toUpperCase()}`;
-        toast(`Modo Local / Simulação: ${simMode.toUpperCase()}`);
-      });
-
-      document.getElementById("btnSync").addEventListener("click", () => syncFromNtfy(false));
-      document.getElementById("btnSaveUrl").addEventListener("click", () => {
-        setApiBase(apiInput.value, true);
-        toast("URL salva.");
-        testHealth(true);
-      });
-      document.getElementById("btnTest").addEventListener("click", () => testHealth(false));
-
-      document.getElementById("btnSendEla").addEventListener("click", () => {
-        const text = document.getElementById("promptInput").value.trim();
-        if (!text) return;
-        document.getElementById("promptInput").value = "";
-        pushChat("você", text);
-        updateVisualConcept(text);
-        callExecutar({ prompt: text, modo: "ela" });
-      });
-
-      document.getElementById("btnSendToImg").addEventListener("click", () => {
-        const text = document.getElementById("promptInput").value.trim();
-        if (text) document.getElementById("genPromptInput").value = text;
-        setMode("imagem");
-      });
-
-      document.getElementById("promptInput").addEventListener("keydown", (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-          document.getElementById("btnSendEla").click();
-        }
-      });
-
-      document.getElementById("btnRun").addEventListener("click", () => {
-        const prompt = document.getElementById("genPromptInput").value.trim();
-        const model = document.getElementById("modelInput").value.trim() || null;
-        const params = currentMode === "imagem"
-          ? {
-              width: Number(document.getElementById("wInput").value || 896),
-              height: Number(document.getElementById("hInput").value || 896),
-              steps: Number(document.getElementById("stepsInput").value || 4),
-              seed: document.getElementById("seedInput").value.trim() || null,
-            }
-          : {
-              width: Number(document.getElementById("vwInput").value || 768),
-              height: Number(document.getElementById("vhInput").value || 448),
-              frames: Number(document.getElementById("framesInput").value || 65),
-              fps: Number(document.getElementById("fpsInput").value || 16),
-            };
-        callExecutar({ prompt, modo: currentMode, model, params });
-      });
-
-      document.getElementById("genPromptInput").addEventListener("keydown", (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-          document.getElementById("btnRun").click();
-        }
-      });
-
-      document.getElementById("btnSaveMem").addEventListener("click", () => {
-        callExecutar({
-          prompt: document.getElementById("memContent").value.trim() || document.getElementById("memTitle").value.trim(),
-          modo: "memoria",
-          params: {
-            title: document.getElementById("memTitle").value.trim(),
-            content: document.getElementById("memContent").value.trim(),
-          },
+      document.querySelectorAll(".tab").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const tab = btn.dataset.tab;
+          document.getElementById("paneExecutar").classList.toggle("hidden", tab !== "executar");
+          document.getElementById("paneComfy").classList.toggle("hidden", tab !== "comfy");
+          document.getElementById("paneRaw").classList.toggle("hidden", tab !== "raw");
+          document.getElementById("panelTitle").textContent =
+            tab === "executar" ? "Enviar Comando para o Servidor" :
+            tab === "comfy" ? "ComfyUI / Workflow" : "JSON Customizado";
+          document.getElementById("activeEndpoint").textContent =
+            tab === "executar" ? "POST /executar" :
+            tab === "comfy" ? "POST /executar (comfyui)" : "CUSTOM REQUEST";
         });
       });
 
-      document.getElementById("btnSearchMem").addEventListener("click", () => {
-        const q = document.getElementById("memTitle").value.trim() || document.getElementById("memContent").value.trim();
-        callExecutar({ prompt: q, modo: "buscar_memoria", params: { query: q } });
+      document.getElementById("btnPing").addEventListener("click", () => requestEndpoint("/health", "GET"));
+      document.getElementById("btnStatus").addEventListener("click", () => requestEndpoint("/status", "GET"));
+      document.getElementById("btnSave").addEventListener("click", () => {
+        const u = saveBase(apiUrlInput.value);
+        notify(`URL salva: ${u}`);
+        requestEndpoint("/health", "GET");
+      });
+      document.getElementById("btnResetUrl").addEventListener("click", () => {
+        const u = saveBase(DEFAULT_URL);
+        notify(`Resetado para: ${u}`);
+        requestEndpoint("/health", "GET");
+      });
+      document.getElementById("btnSync").addEventListener("click", () => syncNtfy(false));
+
+      async function sendMain(endpoint) {
+        const prompt = document.getElementById("prompt").value.trim();
+        const modo = document.getElementById("modo").value;
+        const body = {
+          prompt,
+          modo,
+          params: {
+            width: Number(document.getElementById("width").value || 896),
+            height: Number(document.getElementById("height").value || 896),
+            steps: Number(document.getElementById("steps").value || 4),
+          },
+        };
+        const res = await requestEndpoint(endpoint, "POST", body);
+        if (!res.ok && endpoint === "/executar" && res.status === 404) {
+          await requestEndpoint("/run", "POST", body);
+        }
+      }
+
+      document.getElementById("btnSend").addEventListener("click", () => sendMain("/executar"));
+      document.getElementById("btnFallbackRun").addEventListener("click", () => sendMain("/run"));
+      document.getElementById("prompt").addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") sendMain("/executar");
       });
 
-      document.getElementById("btnScrape").addEventListener("click", () => {
-        const url = document.getElementById("scrapeUrl").value.trim();
-        callExecutar({ prompt: url, modo: "scraper", params: { url } });
+      document.getElementById("btnSendComfy").addEventListener("click", async () => {
+        const raw = document.getElementById("workflowJson").value.trim();
+        const comfyUrl = document.getElementById("comfyUrl").value.trim();
+        let body = { modo: "comfyui", comfy_url: comfyUrl || undefined };
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            body = { ...parsed, modo: parsed.modo || "comfyui", comfy_url: parsed.comfy_url || comfyUrl || undefined };
+          } catch (_) {
+            body.prompt = raw;
+          }
+        }
+        await requestEndpoint("/executar", "POST", body);
       });
 
-      document.getElementById("btnCheckComfy").addEventListener("click", () => testHealth(false));
-
-      document.getElementById("btnCopyJson").addEventListener("click", () => {
-        navigator.clipboard.writeText(jsonOut.textContent || "");
-        toast("JSON copiado.");
+      document.getElementById("btnSendRaw").addEventListener("click", async () => {
+        const path = document.getElementById("rawPath").value.trim() || "/executar";
+        const bodyText = document.getElementById("rawBody").value.trim();
+        const method = bodyText ? "POST" : "GET";
+        let parsed = null;
+        if (bodyText) {
+          try { parsed = JSON.parse(bodyText); } catch (_) { parsed = bodyText; }
+        }
+        await requestEndpoint(path, method, parsed);
       });
-      document.getElementById("btnClearJson").addEventListener("click", () => showJson("{}"));
 
-      renderChat();
-      const saved = localStorage.getItem(API_KEY);
-      const DEFAULT_TUNNEL_URL = "https://displaying-monthly-computing-today.trycloudflare.com";
-      if (saved) setApiBase(saved, false);
-      else if (DEFAULT_TUNNEL_URL) setApiBase(DEFAULT_TUNNEL_URL, true);
-      syncFromNtfy(true);
-      setInterval(() => syncFromNtfy(true), 8000);
+      let initial = DEFAULT_URL;
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) initial = cleanBaseUrl(saved);
+      } catch (_) {}
+      saveBase(initial);
+      requestEndpoint("/health", "GET");
+      syncNtfy(true);
     })();
   </script>
 </body>
