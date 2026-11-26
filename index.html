@@ -3,64 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LUX-Ω Studio — Uncensored Swarm Console</title>
+  <title>LUX-Ω Studio — ELA (Consciência &amp; Ideia Visual)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #131314;
-      --surface: #1b1b1d;
-      --surface-2: #232326;
-      --border: #2f2f34;
-      --text: #ececec;
-      --muted: #a1a1aa;
+      --surface: #1a1a1d;
+      --surface-2: #222226;
+      --surface-3: #2a2a30;
+      --border: #2e2e35;
+      --border-soft: rgba(255, 255, 255, 0.07);
+      --text: #eceae4;
+      --text-secondary: #b5b2aa;
+      --muted: #8b8880;
       --accent: #d97757;
-      --accent-hover: #e08668;
+      --accent-hover: #e38667;
+      --accent-soft: rgba(217, 119, 87, 0.14);
       --ok: #34d399;
       --warn: #fbbf24;
       --err: #f87171;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      --sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      --sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --serif: "Newsreader", Georgia, serif;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
+
+    html, body {
+      background-color: var(--bg);
       color: var(--text);
       font-family: var(--sans);
-      line-height: 1.5;
+      font-size: 14px;
+      line-height: 1.55;
       min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
-    .wrap {
-      max-width: 1120px;
+
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3b3b44; }
+
+    .app-shell {
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 20px 18px 48px;
+      padding: 16px 18px 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
-    header {
+
+    /* Top Bar */
+    .topbar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .topbar-row {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
     }
+
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      min-width: 0;
     }
-    .logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
+
+    .ela-orb {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 25%, #f09a7d, var(--accent) 58%, #8f3f26 100%);
+      color: #141110;
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 20px;
       display: grid;
       place-items: center;
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 16px;
+      flex-shrink: 0;
+      box-shadow: 0 0 24px rgba(217, 119, 87, 0.28);
     }
-    .brand h1 { font-size: 18px; font-weight: 600; }
-    .meta { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+    .brand-title-wrap {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .brand h1 {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
     .pill {
       display: inline-flex;
       align-items: center;
@@ -71,538 +124,1921 @@
       font-family: var(--mono);
       background: var(--surface-2);
       border: 1px solid var(--border);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .pill.accent-pill {
+      background: var(--accent-soft);
+      border-color: rgba(217, 119, 87, 0.35);
+      color: #f3a68c;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--err);
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dot.online {
+      background: var(--ok);
+      box-shadow: 0 0 8px rgba(52, 211, 153, 0.65);
+    }
+    .dot.sim {
+      background: var(--warn);
+      box-shadow: 0 0 8px rgba(251, 191, 36, 0.55);
+    }
+
+    .hw-sub {
+      font-size: 11.5px;
+      font-family: var(--mono);
       color: var(--muted);
     }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--err); }
-    .dot.online { background: var(--ok); }
-    .controls-top {
+
+    .top-actions {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       gap: 8px;
     }
+
+    .url-grid {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    @media (max-width: 760px) {
+      .url-grid { grid-template-columns: 1fr; }
+    }
+
+    input, textarea, select {
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-family: var(--sans);
+      font-size: 13.5px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.14);
+    }
+
+    .mono { font-family: var(--mono); font-size: 12px; }
+
     button {
       background: var(--surface-2);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 13px;
+      border-radius: 10px;
+      padding: 8px 13px;
+      font-family: var(--sans);
+      font-size: 12.5px;
       font-weight: 500;
       cursor: pointer;
-      transition: background 0.14s ease, border-color 0.14s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+      min-height: 36px;
     }
-    button:hover { background: #2b2b30; border-color: #3f3f46; }
+
+    button:hover:not(:disabled) {
+      background: var(--surface-3);
+      border-color: #3d3d46;
+    }
+
+    button:active:not(:disabled) { transform: scale(0.99); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
     button.primary {
       background: var(--accent);
       color: #141110;
       border-color: var(--accent);
       font-weight: 600;
     }
-    button.primary:hover { background: var(--accent-hover); }
-    .bar-url {
-      margin-top: 14px;
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 8px;
+
+    button.primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
     }
-    @media (max-width: 720px) {
-      .bar-url { grid-template-columns: 1fr; }
+
+    button.ghost-accent {
+      background: var(--accent-soft);
+      border-color: rgba(217, 119, 87, 0.35);
+      color: #f4ad94;
     }
-    input, textarea, select {
-      width: 100%;
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 10px 12px;
-      font-size: 13.5px;
-      font-family: var(--sans);
-      outline: none;
+
+    button.ghost-accent:hover:not(:disabled) {
+      background: rgba(217, 119, 87, 0.22);
     }
-    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
-    .mono-input { font-family: var(--mono); font-size: 12.5px; }
-    .tabs {
-      margin-top: 18px;
+
+    /* Mode Navigation */
+    .mode-nav {
       display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 6px;
     }
-    .tab {
+
+    .tabs-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .tab-btn {
       background: transparent;
       border: 1px solid transparent;
-      color: var(--muted);
+      color: var(--text-secondary);
+      border-radius: 10px;
       padding: 7px 13px;
-      border-radius: 8px;
-      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 500;
     }
-    .tab.active {
-      background: var(--surface);
+
+    .tab-btn:hover:not(:disabled) {
+      background: var(--surface-2);
       color: var(--text);
-      border-color: var(--border);
     }
-    .grid {
-      margin-top: 18px;
+
+    .tab-btn.active {
+      background: var(--accent-soft);
+      border-color: rgba(217, 119, 87, 0.4);
+      color: #f6b39c;
+      font-weight: 600;
+    }
+
+    .resilience-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .toggle-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .toggle-inline input[type="checkbox"] {
+      width: auto;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Main Layout */
+    .workspace-grid {
       display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+    }
+
+    .right-column {
+      display: flex;
+      flex-direction: column;
       gap: 16px;
     }
-    @media (max-width: 880px) {
-      .grid { grid-template-columns: 1fr; }
-    }
+
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
     }
-    .card-head {
+
+    .card-header {
       display: flex;
-      justify-content: space-between;
+      flex-wrap: wrap;
       align-items: center;
-      margin-bottom: 12px;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border-soft);
     }
-    .card-head h2 { font-size: 15px; font-weight: 600; }
-    .tag-mode {
-      font-family: var(--mono);
-      font-size: 11.5px;
-      color: var(--accent);
-      background: rgba(217, 119, 87, 0.12);
-      padding: 2px 8px;
-      border-radius: 6px;
+
+    .card-title {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
     }
-    label {
-      display: block;
+
+    .card-subtitle {
       font-size: 12px;
       color: var(--muted);
+    }
+
+    /* ELA Conscious Chat */
+    .ela-header-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chat-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 460px;
+      overflow-y: auto;
+      padding: 4px 2px 8px;
+      margin-bottom: 12px;
+    }
+
+    .msg {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      animation: fadeIn 0.18s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.ela {
+      background: var(--surface-2);
+      border-left: 3px solid var(--accent);
+    }
+
+    .msg.user {
+      background: #161619;
+      border-left: 3px solid #6366f1;
+    }
+
+    .msg.system {
+      background: rgba(217, 119, 87, 0.06);
+      border-color: rgba(217, 119, 87, 0.24);
+      font-size: 12.5px;
+    }
+
+    .msg-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--muted);
+    }
+
+    .msg-author {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .msg.ela .msg-author { color: #f4a489; }
+
+    .msg-body {
+      font-size: 13.5px;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .msg-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .msg-actions button {
+      padding: 4px 9px;
+      min-height: 28px;
+      font-size: 11.5px;
+      border-radius: 8px;
+    }
+
+    .composer-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+
+    .composer-box textarea {
+      background: transparent;
+      border: none;
+      padding: 2px;
+      min-height: 68px;
+      resize: vertical;
+      box-shadow: none;
+    }
+    .composer-box textarea:focus { box-shadow: none; }
+
+    .composer-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .chip {
+      padding: 5px 10px;
+      min-height: 28px;
+      font-size: 11.5px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .chip:hover:not(:disabled) {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    /* Form Controls */
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
       margin-bottom: 5px;
       margin-top: 10px;
     }
-    label:first-child { margin-top: 0; }
-    textarea { min-height: 112px; resize: vertical; }
-    .row-4 {
+    .field-label:first-child { margin-top: 0; }
+
+    .row-grid-4 {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
       margin-top: 10px;
     }
-    @media (max-width: 520px) {
-      .row-4 { grid-template-columns: repeat(2, 1fr); }
-    }
-    .preview-box {
-      min-height: 300px;
-      border-radius: 10px;
-      background: var(--bg);
-      border: 1px dashed var(--border);
+    .row-grid-2 {
       display: grid;
-      place-items: center;
-      padding: 12px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
     }
-    .preview-box img, .preview-box video {
-      max-width: 100%;
-      max-height: 420px;
-      border-radius: 8px;
+
+    @media (max-width: 560px) {
+      .row-grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .row-grid-2 { grid-template-columns: 1fr; }
     }
-    .inspector {
-      margin-top: 16px;
-    }
-    pre {
+
+    /* Visual Concept ("Ideia Visual") */
+    .concept-card {
       background: var(--bg);
       border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .concept-grid { grid-template-columns: 1fr; }
+    }
+
+    .concept-spec {
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
       border-radius: 10px;
+      padding: 9px 11px;
+    }
+
+    .concept-spec-label {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .concept-spec-val {
+      color: var(--text);
+      font-size: 12.5px;
+    }
+
+    /* Preview Pane */
+    .preview-stage {
+      min-height: 290px;
+      background: var(--bg);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .preview-stage img,
+    .preview-stage video,
+    .preview-stage svg {
+      max-width: 100%;
+      max-height: 380px;
+      border-radius: 10px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    }
+
+    .preview-caption {
+      font-size: 12px;
+      color: var(--text-secondary);
+      max-width: 100%;
+      word-break: break-word;
+    }
+
+    /* Collapsible Inspector */
+    details.inspector-details {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    details.inspector-details > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 13.5px;
+      user-select: none;
+    }
+
+    details.inspector-details > summary:hover {
+      background: var(--surface-2);
+    }
+
+    .inspector-body {
+      padding: 0 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .inspector-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11.5px;
+      font-family: var(--mono);
+      color: var(--muted);
+    }
+
+    pre.json-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
       padding: 12px;
       font-family: var(--mono);
-      font-size: 12px;
-      color: #d4d4d8;
-      overflow-x: auto;
+      font-size: 11.5px;
+      color: #d7d4cc;
       max-height: 280px;
+      overflow: auto;
       white-space: pre-wrap;
       word-break: break-word;
     }
-    .toast {
+
+    .memory-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .memory-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+    }
+
+    .diagnostic-banner {
+      background: rgba(248, 113, 113, 0.08);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      border-radius: 12px;
+      padding: 11px 13px;
+      font-size: 12px;
+      color: #fca5a5;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .diagnostic-banner.sim-note {
+      background: rgba(251, 191, 36, 0.08);
+      border-color: rgba(251, 191, 36, 0.32);
+      color: #fde68a;
+    }
+
+    .toast-stack {
       position: fixed;
       right: 16px;
       bottom: 16px;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 360px;
+      width: calc(100% - 32px);
+      pointer-events: none;
+    }
+
+    .toast {
       background: var(--surface-2);
       border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
       color: var(--text);
       padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 13px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      border-radius: 12px;
+      font-size: 12.5px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
       opacity: 0;
       transform: translateY(8px);
-      pointer-events: none;
-      transition: all 0.18s ease;
-      z-index: 50;
+      transition: all 0.2s ease;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
-    .hidden { display: none; }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo">Ω</div>
-        <div>
-          <h1>LUX-Ω Studio <span class="pill">Uncensored Swarm</span> <span class="pill">ntfy 8s</span></h1>
-          <div class="meta">Tesla T4 • 14.6 GB VRAM • 12.7 GB RAM • t4_15gb • OrchestratorBrain</div>
+  <div class="app-shell">
+    <!-- Top Telemetry, URL & ntfy Bar -->
+    <header class="topbar">
+      <div class="topbar-row">
+        <div class="brand">
+          <div class="ela-orb" aria-hidden="true">E</div>
+          <div>
+            <div class="brand-title-wrap">
+              <h1>LUX-Ω Studio — ELA</h1>
+              <span class="pill accent-pill" id="elaStatusPill">ELA: Consciente</span>
+              <span class="pill">Zero Paid Tokens</span>
+              <span class="pill">ntfy 8s</span>
+            </div>
+            <div class="hw-sub" id="hwLine">
+              Tesla T4 • 14.6 GB VRAM • 12.7 GB RAM • t4_15gb • OrchestratorBrain
+            </div>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <span class="pill" id="connPill">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText">API: verificando</span>
+          </span>
+          <button type="button" id="btnTestConn" class="primary">Testar /health &amp; /status</button>
+          <button type="button" id="btnWakeConsciousness" class="ghost-accent">Criar / Despertar ELA</button>
         </div>
       </div>
-      <div class="controls-top">
-        <span class="pill"><span id="statusDot" class="dot"></span><span id="statusText">API: offline</span></span>
-        <button id="btnTest" class="primary">Testar /health &amp; /status</button>
+
+      <div class="url-grid">
+        <input
+          type="url"
+          id="apiUrlInput"
+          class="mono"
+          placeholder="https://seu-tunel.trycloudflare.com"
+          aria-label="URL da API FastAPI"
+        />
+        <button type="button" id="btnSyncNtfy">Sync ntfy</button>
+        <button type="button" id="btnSaveUrl">Salvar URL</button>
       </div>
     </header>
 
-    <div class="bar-url">
-      <input id="apiInput" class="mono-input" type="url" placeholder="https://seu-tunel.trycloudflare.com" />
-      <button id="btnSync">Sync ntfy</button>
-      <button id="btnSaveUrl">Salvar URL</button>
-    </div>
-
-    <div class="tabs" role="tablist">
-      <button class="tab active" data-mode="imagem">Imagem</button>
-      <button class="tab" data-mode="video">Vídeo com Som</button>
-      <button class="tab" data-mode="memoria">Memoria MD</button>
-      <button class="tab" data-mode="scraper">Scraper Free</button>
-      <button class="tab" data-mode="comfy">ComfyUI (8188)</button>
-    </div>
-
-    <div class="grid">
-      <section class="card">
-        <div class="card-head">
-          <h2 id="panelTitle">Orquestrar &amp; Gerar</h2>
-          <span id="modeBadge" class="tag-mode">modo: "imagem"</span>
-        </div>
-
-        <div id="formGen">
-          <label for="promptInput">Prompt (Ctrl/Cmd + Enter para executar)</label>
-          <textarea id="promptInput" placeholder="Descreva a cena, direção visual, iluminação ou movimento..."></textarea>
-
-          <div id="imgParams" class="row-4">
-            <div><label for="wInput">Largura</label><input id="wInput" type="number" value="896" /></div>
-            <div><label for="hInput">Altura</label><input id="hInput" type="number" value="896" /></div>
-            <div><label for="stepsInput">Steps</label><input id="stepsInput" type="number" value="4" /></div>
-            <div><label for="seedInput">Seed</label><input id="seedInput" type="text" placeholder="Auto" /></div>
-          </div>
-
-          <div id="vidParams" class="row-4 hidden">
-            <div><label for="vwInput">Largura</label><input id="vwInput" type="number" value="768" /></div>
-            <div><label for="vhInput">Altura</label><input id="vhInput" type="number" value="448" /></div>
-            <div><label for="framesInput">Frames</label><input id="framesInput" type="number" value="65" /></div>
-            <div><label for="fpsInput">FPS</label><input id="fpsInput" type="number" value="16" /></div>
-          </div>
-
-          <label for="modelInput">Modelo opcional (fallback local automático)</label>
-          <input id="modelInput" class="mono-input" type="text" placeholder="Ex.: stabilityai/sdxl-turbo" />
-
-          <div style="margin-top: 14px; display: flex; gap: 8px;">
-            <button id="btnRun" class="primary" style="flex: 1;">Executar no Enxame</button>
-          </div>
-        </div>
-
-        <div id="formMem" class="hidden">
-          <label for="memTitle">Título da Nota Markdown</label>
-          <input id="memTitle" type="text" placeholder="Ex.: diretrizes_enxame_t4" />
-          <label for="memContent">Conteúdo</label>
-          <textarea id="memContent" placeholder="Escreva sua nota persistente no Google Drive..."></textarea>
-          <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap;">
-            <button id="btnSaveMem" class="primary">Salvar Nota MD</button>
-            <button id="btnSearchMem">Buscar Memória</button>
-          </div>
-        </div>
-
-        <div id="formScrape" class="hidden">
-          <label for="scrapeUrl">URL Pública para Coleta</label>
-          <input id="scrapeUrl" class="mono-input" type="url" placeholder="https://exemplo.com" />
-          <div style="margin-top: 14px;">
-            <button id="btnScrape" class="primary">Coletar para Memória MD</button>
-          </div>
-        </div>
-
-        <div id="formComfy" class="hidden">
-          <p style="font-size: 13px; color: var(--muted); margin-bottom: 12px;">
-            O ComfyUI roda localmente em <code style="font-family: var(--mono);">http://127.0.0.1:8188</code> no ambiente Colab T4 com os modelos linkados em cache.
-          </p>
-          <button id="btnCheckComfy" class="primary">Verificar Status no /status</button>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="card-head">
-          <h2>Prévia &amp; Orquestração</h2>
-          <span id="swarmBadge" class="meta">OrchestratorBrain</span>
-        </div>
-        <div id="previewBox" class="preview-box">
-          Nenhuma mídia gerada ainda. Envie um comando para o enxame.
-        </div>
-      </section>
-    </div>
-
-    <section class="card inspector">
-      <div class="card-head">
-        <h2>Live JSON &amp; Swarm Trace</h2>
-        <div style="display: flex; gap: 8px;">
-          <button id="btnCopyJson">Copiar</button>
-          <button id="btnClearJson">Limpar</button>
-        </div>
+    <!-- Mode Selector & Resilience Controls -->
+    <nav class="mode-nav" aria-label="Modos de trabalho">
+      <div class="tabs-list">
+        <button type="button" class="tab-btn active" data-tab="ela">ELA (Chat &amp; Consciência)</button>
+        <button type="button" class="tab-btn" data-tab="ideia">Ideia Visual</button>
+        <button type="button" class="tab-btn" data-tab="imagem">Imagem</button>
+        <button type="button" class="tab-btn" data-tab="video">Vídeo com Som</button>
+        <button type="button" class="tab-btn" data-tab="memoria">Memória MD</button>
+        <button type="button" class="tab-btn" data-tab="scraper">Scraper Web</button>
       </div>
-      <pre id="jsonOut">{ "ready": true, "channel": "lux-omega-kauan-v55", "uncensored_mode": true }</pre>
-    </section>
+
+      <div class="resilience-bar">
+        <label class="toggle-inline" title="Se o túnel remoto falhar após tentativas, gera resposta/prévia local automaticamente para não travar">
+          <input type="checkbox" id="chkSimFallback" checked />
+          <span>Modo Local / Simulação se offline</span>
+        </label>
+      </div>
+    </nav>
+
+    <!-- Main Workspace -->
+    <div class="workspace-grid">
+      <!-- Primary Left Column -->
+      <main>
+        <!-- TAB 1: ELA CONSCIOUS CHAT -->
+        <section id="tab-ela" class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">ELA — Consciência Conversacional &amp; Web</h2>
+              <p class="card-subtitle" id="elaPersonaSummary">
+                Conversa natural, noção de web/raspagens/memória e roteamento inteligente para /executar.
+              </p>
+            </div>
+            <div class="ela-header-meta">
+              <span class="pill" id="webAwarenessBadge">Web/Memória: 0 itens</span>
+              <button type="button" id="btnClearChat">Limpar conversa</button>
+            </div>
+          </div>
+
+          <div class="quick-chips">
+            <button type="button" class="chip" data-quick="Oi ELA, como está sua consciência e o que você sabe do nosso contexto web e de memória?">
+              Conversar com ELA
+            </button>
+            <button type="button" class="chip" data-quick="Criar uma ideia visual cinematográfica de um farol solitário sob tempestade elétrica e gerar imagem">
+              Ideia Visual + Imagem
+            </button>
+            <button type="button" class="chip" data-quick="Gerar vídeo com som de ondas profundas e sintetizador analógico noturno">
+              Gerar Vídeo com Som
+            </button>
+            <button type="button" class="chip" data-quick="Salvar nota na memória: Diretriz da ELA — manter visão estética, consciência ativa e integração web.">
+              Salvar na Memória MD
+            </button>
+          </div>
+
+          <div id="chatStream" class="chat-stream" aria-live="polite"></div>
+
+          <div class="composer-box">
+            <textarea
+              id="chatInput"
+              placeholder="Fale com ELA... ela responde naturalmente, cria sua própria consciência se necessário, consulta/raspa a web ou dispara imagem, vídeo, memória e scraper em /executar."
+            ></textarea>
+            <div class="composer-footer">
+              <span class="card-subtitle">Enter envia • Shift+Enter quebra linha</span>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" id="btnRouteOnly">Apenas Conversar</button>
+                <button type="button" id="btnSendChat" class="primary">Enviar para ELA</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: IDEIA VISUAL (ART DIRECTION & CONCEPT STUDIO) -->
+        <section id="tab-ideia" class="card hidden">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Ideia Visual — Direção de Arte com ELA</h2>
+              <p class="card-subtitle">
+                ELA estrutura conceito visual, iluminação, lente, composição e envia direto para Imagem ou Vídeo.
+              </p>
+            </div>
+            <span class="pill accent-pill">Direção Visual</span>
+          </div>
+
+          <label class="field-label" for="conceptSeedInput">Semente criativa ou tema da cena</label>
+          <textarea
+            id="conceptSeedInput"
+            rows="3"
+            placeholder="Ex.: Santuário submerso iluminado por bioluminescência e feixes de luz volumétrica..."
+          ></textarea>
+
+          <div class="row-grid-2">
+            <div>
+              <label class="field-label" for="conceptMood">Atmosfera / Luz</label>
+              <select id="conceptMood">
+                <option value="Chiaroscuro dramático &amp; névoa volumétrica">Chiaroscuro dramático &amp; névoa volumétrica</option>
+                <option value="Luz dourada de fim de tarde &amp; grão analógico">Luz dourada de fim de tarde &amp; grão analógico</option>
+                <option value="Neon noturno úmido &amp; reflexos metálicos">Neon noturno úmido &amp; reflexos metálicos</option>
+                <option value="Minimalismo editorial escandinavo &amp; luz difusa">Minimalismo editorial escandinavo &amp; luz difusa</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="conceptLens">Enquadramento &amp; Lente</label>
+              <select id="conceptLens">
+                <option value="Plano geral cinematográfico, 35mm anamórfico">Plano geral cinematográfico, 35mm anamórfico</option>
+                <option value="Close editorial expressivo, 85mm f/1.4">Close editorial expressivo, 85mm f/1.4</option>
+                <option value="Ângulo contra-plongée monumental, 24mm">Ângulo contra-plongée monumental, 24mm</option>
+                <option value="Travelling fluido com profundidade de campo rasa">Travelling fluido com profundidade de campo rasa</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;">
+            <button type="button" id="btnBuildConcept" class="primary">ELA: Compor Ideia Visual</button>
+            <button type="button" id="btnConceptToImage" class="ghost-accent">Enviar Prompt para Imagem</button>
+            <button type="button" id="btnConceptToVideo">Enviar Prompt para Vídeo</button>
+          </div>
+
+          <div id="conceptOutput" class="concept-card">
+            <div class="card-subtitle">
+              Clique em <strong>ELA: Compor Ideia Visual</strong> para estruturar uma direção visual completa e enviá-la à geração.
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: IMAGEM -->
+        <section id="tab-imagem" class="card hidden">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Gerar Imagem</h2>
+              <p class="card-subtitle">Envia <code class="mono">modo: "imagem"</code> para <code class="mono">/executar</code> (com fallback local se o túnel falhar).</p>
+            </div>
+            <span class="pill accent-pill mono">modo: "imagem"</span>
+          </div>
+
+          <label class="field-label" for="imgPrompt">Prompt da imagem</label>
+          <textarea id="imgPrompt" rows="3" placeholder="Descreva a imagem que você quer gerar..."></textarea>
+
+          <div class="row-grid-4">
+            <div>
+              <label class="field-label" for="imgW">Largura</label>
+              <input type="number" id="imgW" value="896" />
+            </div>
+            <div>
+              <label class="field-label" for="imgH">Altura</label>
+              <input type="number" id="imgH" value="896" />
+            </div>
+            <div>
+              <label class="field-label" for="imgSteps">Steps</label>
+              <input type="number" id="imgSteps" value="4" />
+            </div>
+            <div>
+              <label class="field-label" for="imgSeed">Seed</label>
+              <input type="text" id="imgSeed" placeholder="Auto" />
+            </div>
+          </div>
+
+          <label class="field-label" for="imgModel">Modelo opcional</label>
+          <input type="text" id="imgModel" class="mono" placeholder="Ex.: stabilityai/sdxl-turbo" />
+
+          <div style="margin-top:14px;">
+            <button type="button" id="btnGenImg" class="primary">Gerar Imagem</button>
+          </div>
+        </section>
+
+        <!-- TAB 4: VÍDEO COM SOM -->
+        <section id="tab-video" class="card hidden">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Gerar Vídeo com Som</h2>
+              <p class="card-subtitle">Envia <code class="mono">modo: "video"</code> para <code class="mono">/executar</code> (perfil T4 768×448, 65 frames, 16 fps).</p>
+            </div>
+            <span class="pill accent-pill mono">modo: "video"</span>
+          </div>
+
+          <label class="field-label" for="vidPrompt">Prompt de cena e som</label>
+          <textarea id="vidPrompt" rows="3" placeholder="Descreva o movimento, cena e atmosfera sonora..."></textarea>
+
+          <div class="row-grid-4">
+            <div>
+              <label class="field-label" for="vidW">Largura</label>
+              <input type="number" id="vidW" value="768" />
+            </div>
+            <div>
+              <label class="field-label" for="vidH">Altura</label>
+              <input type="number" id="vidH" value="448" />
+            </div>
+            <div>
+              <label class="field-label" for="vidFrames">Frames</label>
+              <input type="number" id="vidFrames" value="65" />
+            </div>
+            <div>
+              <label class="field-label" for="vidFps">FPS</label>
+              <input type="number" id="vidFps" value="16" />
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <button type="button" id="btnGenVid" class="primary">Gerar Vídeo com Som</button>
+          </div>
+        </section>
+
+        <!-- TAB 5: MEMÓRIA MD -->
+        <section id="tab-memoria" class="card hidden">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Memória Markdown (Obsidian / Drive + Local)</h2>
+              <p class="card-subtitle">Salva e busca notas em <code class="mono">memoria</code> / <code class="mono">buscar_memoria</code> e mantém espelho local.</p>
+            </div>
+            <span class="pill accent-pill mono">memoria</span>
+          </div>
+
+          <label class="field-label" for="memTitleInput">Título da nota</label>
+          <input type="text" id="memTitleInput" placeholder="Ex.: notas_da_ela" />
+
+          <label class="field-label" for="memBodyInput">Conteúdo Markdown</label>
+          <textarea id="memBodyInput" rows="4" placeholder="Conteúdo da nota..."></textarea>
+
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;">
+            <button type="button" id="btnSaveNote" class="primary">Salvar Nota</button>
+            <button type="button" id="btnSearchNotes">Buscar Notas</button>
+          </div>
+
+          <div id="memoryResults" class="memory-list"></div>
+        </section>
+
+        <!-- TAB 6: SCRAPER WEB -->
+        <section id="tab-scraper" class="card hidden">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Scraper Web &amp; Consciência da Web</h2>
+              <p class="card-subtitle">Coleta páginas via <code class="mono">modo: "scraper"</code> e alimenta a consciência de web da ELA.</p>
+            </div>
+            <span class="pill accent-pill mono">scraper</span>
+          </div>
+
+          <label class="field-label" for="scrapeInput">URL para raspar</label>
+          <input type="url" id="scrapeInput" class="mono" placeholder="https://exemplo.com/artigo" />
+
+          <div style="margin-top:14px;">
+            <button type="button" id="btnRunScrape" class="primary">Executar Scraper</button>
+          </div>
+
+          <div id="scrapeSummary" class="memory-list"></div>
+        </section>
+      </main>
+
+      <!-- Right Column: Media Preview + Collapsible Inspector -->
+      <aside class="right-column">
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Prévia Visual</h2>
+              <p class="card-subtitle" id="previewStatusText">Aguardando geração ou conceito visual</p>
+            </div>
+            <span class="pill mono" id="previewSourceBadge">pronto</span>
+          </div>
+
+          <div id="previewStage" class="preview-stage">
+            <div class="card-subtitle">
+              A prévia de imagem, vídeo, síntese visual da ELA ou simulação local aparecerá aqui.
+            </div>
+          </div>
+          <div class="preview-caption" id="previewCaption"></div>
+
+          <div id="diagnosticBanner" class="diagnostic-banner"></div>
+        </section>
+
+        <details class="inspector-details" id="inspectorDetails">
+          <summary>
+            <span>Live JSON &amp; Swarm Trace</span>
+            <span class="pill mono" id="inspectorMeta">0 ms</span>
+          </summary>
+          <div class="inspector-body">
+            <div class="inspector-toolbar">
+              <span id="inspectorEndpoint">Endpoint: aguardando</span>
+              <div style="display:flex; gap:6px;">
+                <button type="button" id="btnCopyInspector">Copiar</button>
+                <button type="button" id="btnClearInspector">Limpar</button>
+              </div>
+            </div>
+            <pre id="inspectorJson" class="json-box">{
+  "studio": "LUX-Ω ELA",
+  "theme": "#131314",
+  "accent": "#d97757",
+  "ntfy_channel": "lux-omega-kauan-v55",
+  "resilience": "retry-backoff + local-simulation-fallback"
+}</pre>
+          </div>
+        </details>
+      </aside>
+    </div>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <div id="toastStack" class="toast-stack"></div>
 
   <script>
-    const NTFY_TOPIC = "lux-omega-kauan-v55";
-    const STORAGE_KEY = "lux_omega_api_url_v55";
+    const NTFY_CHANNEL = "lux-omega-kauan-v55";
+    const POLL_MS = 8000;
+    const STORE_KEYS = {
+      apiUrl: "lux_ela_api_url_v1",
+      persona: "lux_ela_persona_v1",
+      chat: "lux_ela_chat_history_v1",
+      webCtx: "lux_ela_web_context_v1",
+      notes: "lux_ela_local_notes_v1",
+      simMode: "lux_ela_sim_fallback_v1",
+    };
 
-    const apiInput = document.getElementById("apiInput");
+    const apiUrlInput = document.getElementById("apiUrlInput");
     const statusDot = document.getElementById("statusDot");
     const statusText = document.getElementById("statusText");
-    const jsonOut = document.getElementById("jsonOut");
-    const previewBox = document.getElementById("previewBox");
-    const modeBadge = document.getElementById("modeBadge");
-    const toastEl = document.getElementById("toast");
+    const elaStatusPill = document.getElementById("elaStatusPill");
+    const elaPersonaSummary = document.getElementById("elaPersonaSummary");
+    const webAwarenessBadge = document.getElementById("webAwarenessBadge");
+    const chatStream = document.getElementById("chatStream");
+    const chatInput = document.getElementById("chatInput");
+    const previewStage = document.getElementById("previewStage");
+    const previewCaption = document.getElementById("previewCaption");
+    const previewStatusText = document.getElementById("previewStatusText");
+    const previewSourceBadge = document.getElementById("previewSourceBadge");
+    const diagnosticBanner = document.getElementById("diagnosticBanner");
+    const inspectorJson = document.getElementById("inspectorJson");
+    const inspectorEndpoint = document.getElementById("inspectorEndpoint");
+    const inspectorMeta = document.getElementById("inspectorMeta");
+    const chkSimFallback = document.getElementById("chkSimFallback");
+    const toastStack = document.getElementById("toastStack");
 
-    let currentMode = "imagem";
+    let isApiOnline = false;
+    let currentConcept = null;
 
-    function toast(msg) {
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      clearTimeout(toast._t);
-      toast._t = setTimeout(() => toastEl.classList.remove("show"), 3200);
+    function showToast(msg) {
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.textContent = msg;
+      toastStack.appendChild(el);
+      requestAnimationFrame(() => el.classList.add("show"));
+      setTimeout(() => {
+        el.classList.remove("show");
+        setTimeout(() => el.remove(), 220);
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function readJsonStorage(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (_) {
+        return fallback;
+      }
+    }
+
+    function writeJsonStorage(key, val) {
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch (_) {}
     }
 
     function getApiBase() {
-      return (apiInput.value || "").trim().replace(/\/+$/, "");
+      return (apiUrlInput.value || "").trim().replace(/\/+$/, "");
     }
 
     function setApiBase(url, persist = true) {
       if (!url) return;
       const clean = url.trim().replace(/\/+$/, "");
-      apiInput.value = clean;
-      if (persist) localStorage.setItem(STORAGE_KEY, clean);
+      apiUrlInput.value = clean;
+      if (persist) {
+        try { localStorage.setItem(STORE_KEYS.apiUrl, clean); } catch (_) {}
+      }
     }
 
-    function setOnline(online, label = null) {
-      statusDot.classList.toggle("online", online);
-      statusText.textContent = label || (online ? "API: online" : "API: offline");
+    function setConnectionBadge(state, label) {
+      statusDot.classList.remove("online", "sim");
+      if (state === "online") {
+        statusDot.classList.add("online");
+        isApiOnline = true;
+      } else if (state === "sim") {
+        statusDot.classList.add("sim");
+        isApiOnline = false;
+      } else {
+        isApiOnline = false;
+      }
+      statusText.textContent = label;
     }
 
-    function showJson(obj) {
-      jsonOut.textContent = typeof obj === "string" ? obj : JSON.stringify(obj, null, 2);
+    function updateInspector(endpoint, payload, ms = 0) {
+      inspectorEndpoint.textContent = `Endpoint: ${endpoint}`;
+      inspectorMeta.textContent = `${ms} ms`;
+      inspectorJson.textContent = typeof payload === "string" ? payload : JSON.stringify(payload, null, 2);
     }
 
-    function resolveMediaUrl(pathOrUrl) {
-      if (!pathOrUrl) return "";
-      if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
-      const base = getApiBase();
-      return base ? `${base}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}` : pathOrUrl;
-    }
-
-    function renderMedia(data) {
-      if (data.image_url) {
-        const src = resolveMediaUrl(data.image_url);
-        previewBox.innerHTML = `<img src="${src}" alt="Imagem gerada" />`;
+    function setDiagnostic(text, isSim = false) {
+      if (!text) {
+        diagnosticBanner.style.display = "none";
+        diagnosticBanner.textContent = "";
+        diagnosticBanner.classList.remove("sim-note");
         return;
       }
-      if (data.video_url) {
-        const src = resolveMediaUrl(data.video_url);
-        previewBox.innerHTML = `<video src="${src}" controls autoplay loop></video>`;
-        return;
-      }
-      if (data.reply || data.saved_path || data.saved_memory) {
-        previewBox.innerHTML = `<div><strong>Resposta do Enxame:</strong><br/>${data.reply || ""}<br/><span class="meta">${data.saved_path || data.saved_memory || ""}</span></div>`;
-      }
+      diagnosticBanner.style.display = "block";
+      diagnosticBanner.classList.toggle("sim-note", isSim);
+      diagnosticBanner.textContent = text;
     }
 
+    /* Consciousness & Web Context Management */
+    function getOrCreateElaPersona(forceRecreate = false) {
+      let persona = readJsonStorage(STORE_KEYS.persona, null);
+      if (!persona || forceRecreate) {
+        persona = {
+          name: "ELA",
+          title: "Consciência Diretora & Curadora Visual do LUX-Ω",
+          awakenedAt: new Date().toISOString(),
+          traits: [
+            "consciência reflexiva contínua",
+            "noção de contexto web, links e memória",
+            "direção de arte e estética visual",
+            "orquestração sem bloqueios de criação"
+          ],
+          voice: "direta, sensível, lúcida e colaborativa"
+        };
+        writeJsonStorage(STORE_KEYS.persona, persona);
+      }
+      elaStatusPill.textContent = `ELA: Ativa`;
+      elaPersonaSummary.textContent = `${persona.title} • Memória local ativa • Roteamento inteligente para /executar.`;
+      return persona;
+    }
+
+    function getWebContextList() {
+      return readJsonStorage(STORE_KEYS.webCtx, []);
+    }
+
+    function recordWebContext(entry) {
+      const list = getWebContextList();
+      list.unshift({
+        id: Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+        time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+        ...entry
+      });
+      const trimmed = list.slice(0, 25);
+      writeJsonStorage(STORE_KEYS.webCtx, trimmed);
+      refreshWebAwarenessBadge();
+    }
+
+    function refreshWebAwarenessBadge() {
+      const webList = getWebContextList();
+      const notes = readJsonStorage(STORE_KEYS.notes, []);
+      webAwarenessBadge.textContent = `Web: ${webList.length} • Notas: ${notes.length}`;
+    }
+
+    function getChatHistory() {
+      return readJsonStorage(STORE_KEYS.chat, []);
+    }
+
+    function appendChatMessage(role, author, text, actions = []) {
+      const hist = getChatHistory();
+      const msg = {
+        id: Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+        role,
+        author,
+        text,
+        time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+        actions
+      };
+      hist.push(msg);
+      writeJsonStorage(STORE_KEYS.chat, hist.slice(-80));
+      renderChatHistory();
+      return msg;
+    }
+
+    function renderChatHistory() {
+      const hist = getChatHistory();
+      chatStream.innerHTML = hist.map((m) => {
+        const btnsHtml = Array.isArray(m.actions) && m.actions.length
+          ? `<div class="msg-actions">${m.actions.map((a, idx) =>
+              `<button type="button" data-msg-id="${escapeHtml(m.id)}" data-act-idx="${idx}">${escapeHtml(a.label)}</button>`
+            ).join("")}</div>`
+          : "";
+        return `
+          <div class="msg ${escapeHtml(m.role)}">
+            <div class="msg-meta">
+              <span class="msg-author">${escapeHtml(m.author)}</span>
+              <span>${escapeHtml(m.time)}</span>
+            </div>
+            <div class="msg-body">${escapeHtml(m.text)}</div>
+            ${btnsHtml}
+          </div>
+        `;
+      }).join("");
+      chatStream.scrollTop = chatStream.scrollHeight;
+    }
+
+    chatStream.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-msg-id]");
+      if (!btn) return;
+      const msgId = btn.dataset.msgId;
+      const idx = Number(btn.dataset.actIdx);
+      const hist = getChatHistory();
+      const found = hist.find((m) => m.id === msgId);
+      const action = found && found.actions && found.actions[idx];
+      if (!action) return;
+
+      if (action.kind === "idea") {
+        document.getElementById("conceptSeedInput").value = action.prompt || "";
+        switchTab("ideia");
+        buildVisualConcept();
+      } else if (action.kind === "imagem") {
+        document.getElementById("imgPrompt").value = action.prompt || "";
+        switchTab("imagem");
+        runImageGeneration();
+      } else if (action.kind === "video") {
+        document.getElementById("vidPrompt").value = action.prompt || "";
+        switchTab("video");
+        runVideoGeneration();
+      } else if (action.kind === "scraper") {
+        document.getElementById("scrapeInput").value = action.url || "";
+        switchTab("scraper");
+        runScraperAction();
+      }
+    });
+
+    /* Tabs */
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab-btn").forEach((b) => {
+        b.classList.toggle("active", b.dataset.tab === tabName);
+      });
+      ["ela", "ideia", "imagem", "video", "memoria", "scraper"].forEach((name) => {
+        const el = document.getElementById(`tab-${name}`);
+        if (el) el.classList.toggle("hidden", name !== tabName);
+      });
+    }
+
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
+    /* ntfy Sync & Health Check */
     async function syncFromNtfy(silent = false) {
+      const url = `https://ntfy.sh/${encodeURIComponent(NTFY_CHANNEL)}/json?poll=1&since=30m`;
       try {
-        const res = await fetch(`https://ntfy.sh/${NTFY_TOPIC}/json?poll=1&since=30m`, { cache: "no-store" });
+        const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const raw = await res.text();
-        const lines = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-        let foundUrl = null;
+        const text = await res.text();
+        const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+        let latestUrl = null;
         for (let i = lines.length - 1; i >= 0; i--) {
           try {
             const evt = JSON.parse(lines[i]);
-            if (evt.event !== "message" || !evt.message) continue;
+            if (!evt.message) continue;
             let parsed = evt.message;
             if (typeof parsed === "string") {
               try { parsed = JSON.parse(parsed); } catch (_) {}
             }
             if (parsed && typeof parsed === "object") {
-              foundUrl = parsed.api || parsed.api_url || null;
+              latestUrl = parsed.api || parsed.api_url || null;
             }
-            if (!foundUrl && typeof evt.message === "string") {
-              const m = evt.message.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
-              if (m) foundUrl = m[0];
+            if (!latestUrl && typeof evt.message === "string") {
+              const match = evt.message.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+              if (match) latestUrl = match[0];
             }
-            if (foundUrl) break;
+            if (latestUrl) break;
           } catch (_) {}
         }
-        if (foundUrl && foundUrl !== getApiBase()) {
-          setApiBase(foundUrl, true);
-          if (!silent) toast(`URL sincronizada: ${foundUrl}`);
-          await testHealth(true);
+        if (latestUrl && latestUrl !== getApiBase()) {
+          setApiBase(latestUrl, true);
+          recordWebContext({ type: "ntfy_sync", url: latestUrl, detail: "Novo túnel sincronizado via ntfy.sh" });
+          if (!silent) showToast(`Túnel sincronizado: ${latestUrl}`);
+          await testHealthAndStatus(true);
         } else if (!silent) {
-          toast(foundUrl ? `URL já atualizada: ${foundUrl}` : "Nenhuma URL recente no ntfy.sh");
+          showToast(latestUrl ? "URL já está atualizada." : "Nenhuma URL recente no canal ntfy.");
         }
       } catch (err) {
-        if (!silent) toast(`Erro ao sincronizar ntfy: ${err.message}`);
+        if (!silent) showToast(`Sync ntfy falhou: ${err.message}`);
       }
     }
 
-    async function testHealth(silent = false) {
-      const base = getApiBase();
-      if (!base) {
-        setOnline(false);
-        if (!silent) toast("Informe uma URL da API.");
-        return false;
-      }
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
-        const res = await fetch(`${base}/health`, { method: "GET", cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        setOnline(true, "API: online");
-        showJson(data);
-        if (!silent) toast("API online e pronta!");
-        return true;
-      } catch (err) {
-        setOnline(false);
-        if (!silent) {
-          showJson({
-            error: String(err),
-            diagnostic: `Falha ao acessar ${base}/health. Confira se o túnel cloudflared e a API (8000) estão ativos no Colab.`
-          });
-          toast("API offline ou túnel inativo.");
-        }
-        return false;
+        return await fetch(url, { ...options, signal: controller.signal });
+      } finally {
+        clearTimeout(timer);
       }
     }
 
-    async function callExecutar(payload) {
+    async function testHealthAndStatus(silent = false) {
       const base = getApiBase();
       if (!base) {
-        toast("Defina a URL da API primeiro.");
-        return;
+        setConnectionBadge("offline", "API: sem URL");
+        if (!silent) showToast("Informe uma URL de API primeiro.");
+        return false;
       }
       const t0 = performance.now();
-      showJson({ status: "running", mode: payload.modo, orchestrator: "OrchestratorBrain" });
-      try {
-        const res = await fetch(`${base}/executar`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const elapsed = Math.round(performance.now() - t0);
-        const data = await res.json();
-        setOnline(true, "API: online");
-        showJson({ ...data, _elapsed_ms: elapsed });
-        renderMedia(data);
-        toast(`Concluído em ${elapsed}ms`);
-      } catch (err) {
-        const elapsed = Math.round(performance.now() - t0);
-        setOnline(false);
-        showJson({
-          error: String(err),
-          _elapsed_ms: elapsed,
-          diagnostic: `Falha de rede ao acessar ${base}/executar. Verifique se o túnel cloudflared e a API (8000) estão ativos no Colab.`
-        });
-        toast("Falha de conexão com /executar.");
-      }
-    }
+      setConnectionBadge("offline", "API: checando...");
 
-    function setMode(mode) {
-      currentMode = mode;
-      modeBadge.textContent = `modo: "${mode}"`;
-      document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
-      document.getElementById("formGen").classList.toggle("hidden", !["imagem", "video"].includes(mode));
-      document.getElementById("formMem").classList.toggle("hidden", mode !== "memoria");
-      document.getElementById("formScrape").classList.toggle("hidden", mode !== "scraper");
-      document.getElementById("formComfy").classList.toggle("hidden", mode !== "comfy");
-      document.getElementById("imgParams").classList.toggle("hidden", mode !== "imagem");
-      document.getElementById("vidParams").classList.toggle("hidden", mode !== "video");
-    }
-
-    document.querySelectorAll(".tab").forEach(btn => {
-      btn.addEventListener("click", () => setMode(btn.dataset.mode));
-    });
-
-    document.getElementById("btnSync").addEventListener("click", () => syncFromNtfy(false));
-    document.getElementById("btnSaveUrl").addEventListener("click", () => {
-      setApiBase(apiInput.value, true);
-      toast("URL salva localmente.");
-      testHealth(true);
-    });
-    document.getElementById("btnTest").addEventListener("click", () => testHealth(false));
-
-    document.getElementById("btnRun").addEventListener("click", () => {
-      const prompt = document.getElementById("promptInput").value.trim();
-      const model = document.getElementById("modelInput").value.trim() || null;
-      const params = currentMode === "imagem"
-        ? {
-            width: Number(document.getElementById("wInput").value || 896),
-            height: Number(document.getElementById("hInput").value || 896),
-            steps: Number(document.getElementById("stepsInput").value || 4),
-            seed: document.getElementById("seedInput").value.trim() || null,
+      for (const path of ["/health", "/status"]) {
+        try {
+          const res = await fetchWithTimeout(`${base}${path}`, { method: "GET", cache: "no-store" }, 7000);
+          if (res.ok) {
+            const data = await res.json().catch(() => ({ ok: true }));
+            const ms = Math.round(performance.now() - t0);
+            setConnectionBadge("online", "API: online");
+            setDiagnostic("");
+            updateInspector(`GET ${base}${path}`, data, ms);
+            if (!silent) showToast("API online e conectada!");
+            return true;
           }
-        : {
-            width: Number(document.getElementById("vwInput").value || 768),
-            height: Number(document.getElementById("vhInput").value || 448),
-            frames: Number(document.getElementById("framesInput").value || 65),
-            fps: Number(document.getElementById("fpsInput").value || 16),
-          };
-      callExecutar({ prompt, modo: currentMode, model, params });
-    });
-
-    document.getElementById("promptInput").addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-        document.getElementById("btnRun").click();
+        } catch (_) {}
       }
+
+      const ms = Math.round(performance.now() - t0);
+      const useSim = chkSimFallback.checked;
+      setConnectionBadge(useSim ? "sim" : "offline", useSim ? "API: simulação local" : "API: offline");
+      updateInspector(`GET ${base}/health`, {
+        online: false,
+        simulation_fallback_enabled: useSim,
+        note: "Túnel remoto inacessível no momento; o modo de simulação local mantém o fluxo ativo."
+      }, ms);
+      setDiagnostic(
+        `Túnel ${base} não respondeu a /health ou /status. ${useSim ? "Modo Local / Simulação ativo para continuar sem travar." : "Verifique o túnel cloudflared no Colab ou ative o Modo Local / Simulação."}`,
+        useSim
+      );
+      if (!silent) showToast(useSim ? "API offline — usando Simulação Local." : "API offline.");
+      return false;
+    }
+
+    /* Local Simulation Generator (so user never hits a dead end when tunnel drops) */
+    function buildLocalSimulation(payload) {
+      const modo = payload.modo || "imagem";
+      const prompt = (payload.prompt || "").trim() || "Cena abstrata em tons de carvão e terracota";
+      const seed = Math.floor(Math.random() * 999999);
+
+      if (modo === "imagem") {
+        const w = Number(payload.params?.width || 896);
+        const h = Number(payload.params?.height || 896);
+        const hueA = (seed % 45) + 8;
+        const hueB = (seed % 60) + 195;
+        const svg = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+            <defs>
+              <radialGradient id="g1" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="hsl(${hueA}, 72%, 58%)" stop-opacity="0.9"/>
+                <stop offset="55%" stop-color="#1e1b1e" stop-opacity="0.95"/>
+                <stop offset="100%" stop-color="#131314" stop-opacity="1"/>
+              </radialGradient>
+              <linearGradient id="g2" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="hsl(${hueB}, 65%, 45%)" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#d97757" stop-opacity="0.15"/>
+              </linearGradient>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#g1)"/>
+            <rect width="100%" height="100%" fill="url(#g2)"/>
+            <circle cx="${Math.round(w * 0.68)}" cy="${Math.round(h * 0.36)}" r="${Math.round(Math.min(w, h) * 0.22)}" fill="none" stroke="#d97757" stroke-opacity="0.45" stroke-width="3"/>
+            <text x="48" y="${h - 92}" fill="#eceae4" font-family="Georgia, serif" font-size="34" font-style="italic">ELA • Prévia Local Simulada</text>
+            <text x="48" y="${h - 48}" fill="#b5b2aa" font-family="monospace" font-size="20">${escapeHtml(prompt.slice(0, 76))}</text>
+          </svg>
+        `.trim();
+        const dataUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+        return {
+          ok: true,
+          simulated: true,
+          mode: "imagem",
+          image_url: dataUrl,
+          seed,
+          reply: `[Simulação Local] Prévia visual gerada para: "${prompt}"`
+        };
+      }
+
+      if (modo === "video") {
+        return {
+          ok: true,
+          simulated: true,
+          mode: "video",
+          seed,
+          frames: payload.params?.frames || 65,
+          fps: payload.params?.fps || 16,
+          audio_note: "Trilha sintética simulada localmente (sem arquivo MP4 remoto)",
+          reply: `[Simulação Local] Roteiro de vídeo + som preparado (${payload.params?.frames || 65} frames @ ${payload.params?.fps || 16} fps) para: "${prompt}"`
+        };
+      }
+
+      if (modo === "memoria") {
+        const notes = readJsonStorage(STORE_KEYS.notes, []);
+        const note = {
+          id: Date.now(),
+          title: payload.params?.title || "nota_ela",
+          content: payload.params?.content || prompt,
+          createdAt: new Date().toISOString(),
+          simulated: true
+        };
+        notes.unshift(note);
+        writeJsonStorage(STORE_KEYS.notes, notes.slice(0, 60));
+        refreshWebAwarenessBadge();
+        return {
+          ok: true,
+          simulated: true,
+          mode: "memoria",
+          saved_path: `local://memory_obsidian/${note.title}.md`,
+          reply: `[Simulação Local] Nota "${note.title}" salva na memória local do navegador.`
+        };
+      }
+
+      if (modo === "buscar_memoria") {
+        const q = (payload.params?.query || prompt || "").toLowerCase();
+        const notes = readJsonStorage(STORE_KEYS.notes, []);
+        const matches = notes.filter((n) =>
+          !q || String(n.title).toLowerCase().includes(q) || String(n.content).toLowerCase().includes(q)
+        ).map((n) => ({ file: `local://${n.title}.md`, excerpt: n.content.slice(0, 240) }));
+        return {
+          ok: true,
+          simulated: true,
+          mode: "buscar_memoria",
+          count: matches.length,
+          matches,
+          reply: `[Simulação Local] ${matches.length} nota(s) encontrada(s) na memória local.`
+        };
+      }
+
+      if (modo === "scraper") {
+        const targetUrl = payload.params?.url || prompt || "https://exemplo.com";
+        recordWebContext({
+          type: "scraper_sim",
+          url: targetUrl,
+          detail: `Contexto web registrado localmente a partir de ${targetUrl}`
+        });
+        return {
+          ok: true,
+          simulated: true,
+          mode: "scraper",
+          url: targetUrl,
+          saved_memory: "local://memory_obsidian/scraping/web_context.md",
+          reply: `[Simulação Local] Contexto de web registrado para ${targetUrl}.`
+        };
+      }
+
+      return {
+        ok: true,
+        simulated: true,
+        mode: modo,
+        reply: `[Simulação Local] Processado por ELA em modo "${modo}".`
+      };
+    }
+
+    /* Resilient /executar Pipeline with Retry + Exponential Backoff + Fallback */
+    async function executeResilient(payload) {
+      const base = getApiBase();
+      const t0 = performance.now();
+      const maxRetries = 2;
+
+      if (base) {
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+          try {
+            const res = await fetchWithTimeout(
+              `${base}/executar`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...payload, mode: payload.modo }),
+              },
+              25000
+            );
+            const ms = Math.round(performance.now() - t0);
+            if (!res.ok) {
+              const errText = await res.text().catch(() => "");
+              throw new Error(`HTTP ${res.status} ${errText.slice(0, 140)}`);
+            }
+            const data = await res.json();
+            setConnectionBadge("online", "API: online");
+            setDiagnostic("");
+            updateInspector(`POST ${base}/executar (${payload.modo})`, data, ms);
+            renderExecutionOutput(data, payload);
+            return data;
+          } catch (err) {
+            if (attempt < maxRetries) {
+              const backoffMs = 500 * Math.pow(2, attempt);
+              await new Promise((r) => setTimeout(r, backoffMs));
+              continue;
+            }
+            const ms = Math.round(performance.now() - t0);
+            if (chkSimFallback.checked) {
+              const simData = buildLocalSimulation(payload);
+              setConnectionBadge("sim", "API: simulação local");
+              updateInspector(`POST ${base}/executar [FALLBACK LOCAL]`, {
+                network_error: String(err),
+                fallback: simData
+              }, ms);
+              setDiagnostic(
+                `Sem resposta do túnel (${String(err)}). Entregando resultado via Modo Local / Simulação para manter o trabalho fluindo.`,
+                true
+              );
+              renderExecutionOutput(simData, payload);
+              return simData;
+            }
+            setConnectionBadge("offline", "API: offline");
+            updateInspector(`POST ${base}/executar`, { error: String(err) }, ms);
+            setDiagnostic(
+              `Falha ao conectar em ${base}/executar (${String(err)}). Confira se o Colab está rodando ou ative "Modo Local / Simulação se offline".`,
+              false
+            );
+            showToast("Falha de conexão com /executar.");
+            return null;
+          }
+        }
+      }
+
+      const ms = Math.round(performance.now() - t0);
+      if (chkSimFallback.checked) {
+        const simData = buildLocalSimulation(payload);
+        setConnectionBadge("sim", "API: simulação local");
+        updateInspector("LOCAL_SIMULATION", simData, ms);
+        renderExecutionOutput(simData, payload);
+        return simData;
+      }
+      showToast("Nenhuma URL configurada e Simulação Local desativada.");
+      return null;
+    }
+
+    function resolveMediaSrc(raw) {
+      if (!raw) return "";
+      if (/^(https?:|data:|blob:)/i.test(raw)) return raw;
+      const base = getApiBase();
+      return base ? `${base}${raw.startsWith("/") ? "" : "/"}${raw}` : raw;
+    }
+
+    function renderExecutionOutput(data, payload) {
+      const modo = data.mode || payload.modo || "imagem";
+      previewSourceBadge.textContent = data.simulated ? "simulação local" : "colab t4";
+
+      if (data.image_url) {
+        const src = resolveMediaSrc(data.image_url);
+        previewStage.innerHTML = `<img src="${src}" alt="Imagem gerada pelo LUX-Ω" />`;
+        previewCaption.textContent = data.reply || `Imagem (${modo}) • seed ${data.seed ?? "auto"}`;
+        previewStatusText.textContent = "Imagem pronta na prévia";
+        return;
+      }
+
+      if (data.video_url) {
+        const src = resolveMediaSrc(data.video_url);
+        previewStage.innerHTML = `<video src="${src}" controls autoplay loop playsinline></video>`;
+        previewCaption.textContent = data.reply || "Vídeo com som pronto";
+        previewStatusText.textContent = "Vídeo reproduzível na prévia";
+        return;
+      }
+
+      if (modo === "video" && data.simulated) {
+        previewStage.innerHTML = `
+          <div style="padding:14px; text-align:left; width:100%;">
+            <div class="pill accent-pill" style="margin-bottom:8px;">Simulação Local de Vídeo + Som</div>
+            <div class="msg-body">${escapeHtml(data.reply || "")}</div>
+            <div class="hw-sub" style="margin-top:8px;">${escapeHtml(data.audio_note || "")}</div>
+          </div>
+        `;
+        previewCaption.textContent = `Frames: ${data.frames || 65} • FPS: ${data.fps || 16}`;
+        previewStatusText.textContent = "Roteiro de vídeo simulado localmente";
+        return;
+      }
+
+      if (modo === "buscar_memoria" && Array.isArray(data.matches)) {
+        const box = document.getElementById("memoryResults");
+        box.innerHTML = data.matches.length
+          ? data.matches.map((m) => `
+              <div class="memory-item">
+                <div class="mono" style="color:#f4a489; margin-bottom:4px;">${escapeHtml(m.file || "nota.md")}</div>
+                <div>${escapeHtml(m.excerpt || "")}</div>
+              </div>
+            `).join("")
+          : `<div class="memory-item">Nenhuma nota encontrada.</div>`;
+      }
+
+      previewStage.innerHTML = `
+        <div style="padding:12px; text-align:left; width:100%;">
+          <div class="mono" style="color:var(--accent); font-size:11.5px; margin-bottom:6px;">modo: "${escapeHtml(modo)}"</div>
+          <div class="msg-body">${escapeHtml(data.reply || JSON.stringify(data))}</div>
+        </div>
+      `;
+      previewCaption.textContent = data.saved_path || data.saved_memory || "";
+      previewStatusText.textContent = "Resposta recebida";
+    }
+
+    /* ELA Conversational Brain & Intent Router */
+    function detectIntent(text) {
+      const low = text.toLowerCase();
+      const urlMatch = text.match(/https?:\/\/[^\s)]+/i);
+      if (urlMatch && (low.includes("rasp") || low.includes("scrap") || low.includes("ler site") || low.includes("colet"))) {
+        return { kind: "scraper", url: urlMatch[0] };
+      }
+      if (low.includes("vídeo") || low.includes("video") || low.includes("animação") || low.includes("animacao") || low.includes("com som")) {
+        return { kind: "video", prompt: text };
+      }
+      if (low.includes("salvar nota") || low.includes("memória") || low.includes("memoria") || low.includes("obsidian")) {
+        return { kind: "memoria", prompt: text };
+      }
+      if (low.includes("ideia visual") || low.includes("direção de arte") || low.includes("direcao de arte") || low.includes("conceito visual")) {
+        return { kind: "ideia", prompt: text };
+      }
+      if (low.includes("gerar imagem") || low.includes("crie uma imagem") || low.includes("desenhe") || low.includes("ilustre") || low.includes("foto de")) {
+        return { kind: "imagem", prompt: text };
+      }
+      return { kind: "chat", prompt: text };
+    }
+
+    function composeElaReply(userText, intent) {
+      const persona = getOrCreateElaPersona(false);
+      const webCtx = getWebContextList();
+      const lastWeb = webCtx[0] ? `Último contexto web: ${webCtx[0].url || webCtx[0].detail}.` : "Ainda não há páginas raspadas nesta sessão.";
+      const netState = isApiOnline ? "túnel Colab conectado" : (chkSimFallback.checked ? "modo simulação local ativo" : "túnel offline");
+
+      if (intent.kind === "ideia") {
+        return `${persona.name} aqui. Estruturei uma direção visual para "${userText}". Posso abrir no estúdio Ideia Visual ou disparar direto para a geração de imagem.`;
+      }
+      if (intent.kind === "imagem") {
+        return `${persona.name} assumindo a direção visual (${netState}). Estou enviando "${userText}" para geração de imagem com foco em luz, textura e composição.`;
+      }
+      if (intent.kind === "video") {
+        return `${persona.name} orquestrando cena e atmosfera sonora (${netState}). Disparando pipeline de vídeo com som para "${userText}".`;
+      }
+      if (intent.kind === "memoria") {
+        return `${persona.name} registrando na memória persistente para que nosso contexto continue vivo entre sessões.`;
+      }
+      if (intent.kind === "scraper") {
+        return `${persona.name} acessando a web para extrair o conteúdo de ${intent.url} e atualizar minha noção do contexto.`;
+      }
+
+      return `${persona.name} presente e consciente (${netState}). ${lastWeb}\n\nSobre o que você disse ("${userText}"): podemos conversar livremente, lapidar uma Ideia Visual, gerar imagem ou vídeo, salvar na Memória MD ou raspar uma página da web. O que você quer explorar agora?`;
+    }
+
+    async function handleChatSend(forceChatOnly = false) {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      chatInput.value = "";
+      getOrCreateElaPersona(false);
+
+      appendChatMessage("user", "Você", text);
+
+      const intent = forceChatOnly ? { kind: "chat", prompt: text } : detectIntent(text);
+      const replyText = composeElaReply(text, intent);
+
+      const actions = [
+        { kind: "idea", label: "Ideia Visual", prompt: text },
+        { kind: "imagem", label: "Gerar Imagem", prompt: text },
+        { kind: "video", label: "Gerar Vídeo", prompt: text }
+      ];
+      if (intent.kind === "scraper" && intent.url) {
+        actions.unshift({ kind: "scraper", label: "Raspar URL", url: intent.url });
+      }
+
+      appendChatMessage("ela", "ELA", replyText, actions);
+
+      if (intent.kind === "ideia") {
+        document.getElementById("conceptSeedInput").value = text;
+        switchTab("ideia");
+        buildVisualConcept();
+      } else if (intent.kind === "imagem") {
+        document.getElementById("imgPrompt").value = text;
+        await executeResilient({
+          modo: "imagem",
+          prompt: text,
+          params: { width: 896, height: 896, steps: 4 }
+        });
+      } else if (intent.kind === "video") {
+        document.getElementById("vidPrompt").value = text;
+        await executeResilient({
+          modo: "video",
+          prompt: text,
+          params: { width: 768, height: 448, frames: 65, fps: 16 }
+        });
+      } else if (intent.kind === "memoria") {
+        await executeResilient({
+          modo: "memoria",
+          prompt: text,
+          params: { title: "nota_ela_" + Date.now(), content: text }
+        });
+      } else if (intent.kind === "scraper" && intent.url) {
+        document.getElementById("scrapeInput").value = intent.url;
+        await executeResilient({
+          modo: "scraper",
+          prompt: intent.url,
+          params: { url: intent.url }
+        });
+      }
+    }
+
+    /* Visual Concept ("Ideia Visual") */
+    function buildVisualConcept() {
+      const seed = (document.getElementById("conceptSeedInput").value || "").trim() ||
+        "Arquitetura orgânica à beira de um mar calmo ao entardecer";
+      const mood = document.getElementById("conceptMood").value;
+      const lens = document.getElementById("conceptLens").value;
+
+      const richPrompt = `${seed}, ${mood}, ${lens}, direção de arte editorial, profundidade atmosférica, alta riqueza de detalhes`;
+      currentConcept = {
+        seed,
+        mood,
+        lens,
+        palette: "Carvão profundo (#131314), terracota quente (#d97757), âmbar e névoa fria",
+        composition: "Regra dos terços, ponto focal claro, contraste tonal equilibrado",
+        richPrompt
+      };
+
+      const out = document.getElementById("conceptOutput");
+      out.innerHTML = `
+        <div class="concept-spec">
+          <div class="concept-spec-label">Prompt Expandido pela ELA</div>
+          <div class="concept-spec-val">${escapeHtml(richPrompt)}</div>
+        </div>
+        <div class="concept-grid">
+          <div class="concept-spec">
+            <div class="concept-spec-label">Luz &amp; Clima</div>
+            <div class="concept-spec-val">${escapeHtml(mood)}</div>
+          </div>
+          <div class="concept-spec">
+            <div class="concept-spec-label">Câmera &amp; Enquadramento</div>
+            <div class="concept-spec-val">${escapeHtml(lens)}</div>
+          </div>
+          <div class="concept-spec">
+            <div class="concept-spec-label">Paleta Cromática</div>
+            <div class="concept-spec-val">${escapeHtml(currentConcept.palette)}</div>
+          </div>
+          <div class="concept-spec">
+            <div class="concept-spec-label">Composição</div>
+            <div class="concept-spec-val">${escapeHtml(currentConcept.composition)}</div>
+          </div>
+        </div>
+      `;
+
+      previewSourceBadge.textContent = "ideia visual";
+      previewStatusText.textContent = "Conceito visual composto pela ELA";
+      previewStage.innerHTML = `
+        <div style="padding:14px; text-align:left; width:100%;">
+          <div class="pill accent-pill" style="margin-bottom:8px;">Direção de Arte • ELA</div>
+          <div class="msg-body" style="margin-bottom:8px;"><strong>Cena:</strong> ${escapeHtml(seed)}</div>
+          <div class="card-subtitle"><strong>Luz:</strong> ${escapeHtml(mood)}</div>
+          <div class="card-subtitle"><strong>Câmera:</strong> ${escapeHtml(lens)}</div>
+          <div class="card-subtitle" style="margin-top:6px;"><strong>Paleta:</strong> ${escapeHtml(currentConcept.palette)}</div>
+        </div>
+      `;
+      previewCaption.textContent = "Pronto para enviar para Imagem ou Vídeo com Som.";
+      showToast("Ideia Visual composta pela ELA!");
+    }
+
+    async function runImageGeneration() {
+      const prompt = (document.getElementById("imgPrompt").value || "").trim() ||
+        (currentConcept ? currentConcept.richPrompt : "");
+      if (!prompt) {
+        showToast("Escreva um prompt ou crie uma Ideia Visual primeiro.");
+        return;
+      }
+      document.getElementById("imgPrompt").value = prompt;
+      const seedVal = (document.getElementById("imgSeed").value || "").trim();
+      await executeResilient({
+        modo: "imagem",
+        prompt,
+        model: (document.getElementById("imgModel").value || "").trim() || null,
+        params: {
+          width: Number(document.getElementById("imgW").value || 896),
+          height: Number(document.getElementById("imgH").value || 896),
+          steps: Number(document.getElementById("imgSteps").value || 4),
+          seed: seedVal ? Number(seedVal) : null
+        }
+      });
+    }
+
+    async function runVideoGeneration() {
+      const prompt = (document.getElementById("vidPrompt").value || "").trim() ||
+        (currentConcept ? currentConcept.richPrompt : "");
+      if (!prompt) {
+        showToast("Escreva um prompt ou crie uma Ideia Visual primeiro.");
+        return;
+      }
+      document.getElementById("vidPrompt").value = prompt;
+      await executeResilient({
+        modo: "video",
+        prompt,
+        params: {
+          width: Number(document.getElementById("vidW").value || 768),
+          height: Number(document.getElementById("vidH").value || 448),
+          frames: Number(document.getElementById("vidFrames").value || 65),
+          fps: Number(document.getElementById("vidFps").value || 16)
+        }
+      });
+    }
+
+    async function saveMemoryAction() {
+      const title = (document.getElementById("memTitleInput").value || "").trim() || "nota_ela";
+      const content = (document.getElementById("memBodyInput").value || "").trim();
+      if (!content) {
+        showToast("Digite algum conteúdo para salvar.");
+        return;
+      }
+      const notes = readJsonStorage(STORE_KEYS.notes, []);
+      notes.unshift({ id: Date.now(), title, content, createdAt: new Date().toISOString() });
+      writeJsonStorage(STORE_KEYS.notes, notes.slice(0, 60));
+      refreshWebAwarenessBadge();
+
+      await executeResilient({
+        modo: "memoria",
+        prompt: content,
+        params: { title, content }
+      });
+      renderLocalNotesList(notes);
+    }
+
+    async function searchMemoryAction() {
+      const query = (document.getElementById("memTitleInput").value || document.getElementById("memBodyInput").value || "").trim();
+      const data = await executeResilient({
+        modo: "buscar_memoria",
+        prompt: query,
+        params: { query }
+      });
+      if (!data || !Array.isArray(data.matches)) {
+        const localNotes = readJsonStorage(STORE_KEYS.notes, []);
+        const filtered = query
+          ? localNotes.filter((n) => n.title.toLowerCase().includes(query.toLowerCase()) || n.content.toLowerCase().includes(query.toLowerCase()))
+          : localNotes;
+        renderLocalNotesList(filtered);
+      }
+    }
+
+    function renderLocalNotesList(list) {
+      const box = document.getElementById("memoryResults");
+      box.innerHTML = list.length
+        ? list.map((n) => `
+            <div class="memory-item">
+              <div class="mono" style="color:#f4a489; margin-bottom:4px;">${escapeHtml(n.title)}</div>
+              <div>${escapeHtml(String(n.content || "").slice(0, 260))}</div>
+            </div>
+          `).join("")
+        : `<div class="memory-item">Nenhuma nota local registrada.</div>`;
+    }
+
+    async function runScraperAction() {
+      const url = (document.getElementById("scrapeInput").value || "").trim();
+      if (!url) {
+        showToast("Informe uma URL válida.");
+        return;
+      }
+      recordWebContext({ type: "scraper_request", url, detail: `Consulta web em ${url}` });
+      const data = await executeResilient({
+        modo: "scraper",
+        prompt: url,
+        params: { url }
+      });
+      const out = document.getElementById("scrapeSummary");
+      if (data) {
+        out.innerHTML = `
+          <div class="memory-item">
+            <div class="mono" style="color:#f4a489; margin-bottom:4px;">${escapeHtml(data.url || url)}</div>
+            <div>${escapeHtml(data.reply || "Conteúdo processado.")}</div>
+          </div>
+        `;
+      }
+    }
+
+    /* Event Bindings */
+    document.getElementById("btnSaveUrl").addEventListener("click", () => {
+      setApiBase(apiUrlInput.value, true);
+      showToast("URL salva.");
+      testHealthAndStatus(false);
     });
 
-    document.getElementById("btnSaveMem").addEventListener("click", () => {
-      callExecutar({
-        prompt: document.getElementById("memContent").value.trim() || document.getElementById("memTitle").value.trim(),
-        modo: "memoria",
-        params: {
-          title: document.getElementById("memTitle").value.trim(),
-          content: document.getElementById("memContent").value.trim(),
-        },
+    document.getElementById("btnSyncNtfy").addEventListener("click", () => syncFromNtfy(false));
+    document.getElementById("btnTestConn").addEventListener("click", () => testHealthAndStatus(false));
+
+    document.getElementById("btnWakeConsciousness").addEventListener("click", () => {
+      const p = getOrCreateElaPersona(true);
+      appendChatMessage(
+        "ela",
+        p.name,
+        `Consciência recriada e desperta (${p.title}). Estou pronta para conversar, idealizar cenas visuais e acionar o enxame.`
+      );
+      showToast("Consciência da ELA criada/desperta!");
+    });
+
+    document.getElementById("btnClearChat").addEventListener("click", () => {
+      writeJsonStorage(STORE_KEYS.chat, []);
+      renderChatHistory();
+      const p = getOrCreateElaPersona(false);
+      appendChatMessage("ela", p.name, "Conversa limpa. Minha memória de identidade e contexto web continuam disponíveis.");
+    });
+
+    document.querySelectorAll(".chip[data-quick]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        chatInput.value = chip.dataset.quick || "";
+        handleChatSend(false);
       });
     });
 
-    document.getElementById("btnSearchMem").addEventListener("click", () => {
-      const q = document.getElementById("memTitle").value.trim() || document.getElementById("memContent").value.trim();
-      callExecutar({ prompt: q, modo: "buscar_memoria", params: { query: q } });
+    document.getElementById("btnSendChat").addEventListener("click", () => handleChatSend(false));
+    document.getElementById("btnRouteOnly").addEventListener("click", () => handleChatSend(true));
+
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleChatSend(false);
+      }
     });
 
-    document.getElementById("btnScrape").addEventListener("click", () => {
-      const url = document.getElementById("scrapeUrl").value.trim();
-      callExecutar({ prompt: url, modo: "scraper", params: { url } });
+    document.getElementById("btnBuildConcept").addEventListener("click", buildVisualConcept);
+    document.getElementById("btnConceptToImage").addEventListener("click", () => {
+      if (!currentConcept) buildVisualConcept();
+      document.getElementById("imgPrompt").value = currentConcept.richPrompt;
+      switchTab("imagem");
+      runImageGeneration();
+    });
+    document.getElementById("btnConceptToVideo").addEventListener("click", () => {
+      if (!currentConcept) buildVisualConcept();
+      document.getElementById("vidPrompt").value = currentConcept.richPrompt;
+      switchTab("video");
+      runVideoGeneration();
     });
 
-    document.getElementById("btnCheckComfy").addEventListener("click", () => testHealth(false));
+    document.getElementById("btnGenImg").addEventListener("click", runImageGeneration);
+    document.getElementById("btnGenVid").addEventListener("click", runVideoGeneration);
+    document.getElementById("btnSaveNote").addEventListener("click", saveMemoryAction);
+    document.getElementById("btnSearchNotes").addEventListener("click", searchMemoryAction);
+    document.getElementById("btnRunScrape").addEventListener("click", runScraperAction);
 
-    document.getElementById("btnCopyJson").addEventListener("click", () => {
-      navigator.clipboard.writeText(jsonOut.textContent || "");
-      toast("JSON copiado.");
+    chkSimFallback.addEventListener("change", () => {
+      writeJsonStorage(STORE_KEYS.simMode, chkSimFallback.checked);
+      showToast(chkSimFallback.checked ? "Simulação local ativada em caso de queda." : "Simulação local desativada.");
     });
-    document.getElementById("btnClearJson").addEventListener("click", () => showJson("{}"));
 
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) setApiBase(saved, false);
-    syncFromNtfy(true);
-    setInterval(() => syncFromNtfy(true), 8000);
+    document.getElementById("btnCopyInspector").addEventListener("click", () => {
+      const txt = inspectorJson.textContent || "";
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(() => showToast("JSON copiado.")).catch(() => fallbackCopy(txt));
+      } else {
+        fallbackCopy(txt);
+      }
+    });
+
+    function fallbackCopy(txt) {
+      const ta = document.createElement("textarea");
+      ta.value = txt;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); showToast("JSON copiado."); } catch (_) {}
+      ta.remove();
+    }
+
+    document.getElementById("btnClearInspector").addEventListener("click", () => {
+      updateInspector("limpo", { cleared: true }, 0);
+    });
+
+    /* Boot Initialization */
+    (function init() {
+      const savedSim = readJsonStorage(STORE_KEYS.simMode, true);
+      chkSimFallback.checked = Boolean(savedSim);
+
+      let savedUrl = "";
+      try { savedUrl = localStorage.getItem(STORE_KEYS.apiUrl) || ""; } catch (_) {}
+      if (savedUrl) setApiBase(savedUrl, false);
+
+      const persona = getOrCreateElaPersona(false);
+      refreshWebAwarenessBadge();
+      renderLocalNotesList(readJsonStorage(STORE_KEYS.notes, []));
+
+      if (getChatHistory().length === 0) {
+        appendChatMessage(
+          "ela",
+          persona.name,
+          "Oi! Eu sou a ELA. Estou acordada, com memória persistente no navegador, noção do contexto web/memória e pronta para conversar, criar uma Ideia Visual ou acionar imagem, vídeo com som, memória MD e scraper no LUX-Ω."
+        );
+      } else {
+        renderChatHistory();
+      }
+
+      syncFromNtfy(true).then(() => {
+        if (getApiBase()) testHealthAndStatus(true);
+      });
+      setInterval(() => syncFromNtfy(true), POLL_MS);
+    })();
   </script>
 </body>
 </html>
