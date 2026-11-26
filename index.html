@@ -19,12 +19,12 @@
           },
           colors: {
             obsidian: {
-              950: '#07080b',
-              900: '#0c0e14',
-              850: '#12151e',
-              800: '#171b27',
-              700: '#22283a',
-              600: '#2f374f',
+              950: '#131314',
+              900: '#18181b',
+              850: '#1e1f22',
+              800: '#24262b',
+              700: '#2f323a',
+              600: '#3f4450',
             },
             accent: {
               indigo: '#6366f1',
@@ -39,13 +39,13 @@
     };
   </script>
   <style>
-    /* Custom scrollbar and dark obsidian theme styling */
+    /* Custom scrollbar and subtle obsidian surface details */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #0c0e14; }
-    ::-webkit-scrollbar-thumb { background: #22283a; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #2f374f; }
+    ::-webkit-scrollbar-track { background: #18181b; }
+    ::-webkit-scrollbar-thumb { background: #2f323a; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f4450; }
     body {
-      background-color: #07080b;
+      background-color: #131314;
       color: #f1f5f9;
       font-family: 'Inter', system-ui, sans-serif;
     }
@@ -553,12 +553,12 @@
     const DEFAULTS = {
       apiUrl: 'https://ultimate-showers-operator-aquarium.trycloudflare.com',
       comfyUrl: 'http://127.0.0.1:8188',
+      creativefieldUrl: '',
       ntfyChannel: 'lux-omega-kauan-v55',
-      creativefieldUrl: null,
       activeTab: 'imagem',
     };
 
-    const STORAGE_KEY = 'lux_omega_console_settings_v1';
+    const STORAGE_KEY = 'lux_omega_t4_console_v1';
     let currentTab = 'imagem';
 
     function showToast(message, type = 'info') {
@@ -590,18 +590,18 @@
     function saveSettings(extra = {}) {
       const prev = readSavedSettings();
       const cfg = {
-        ...DEFAULTS,
-        ...prev,
-        apiUrl: (document.getElementById('cfg-api-url').value || '').trim() || DEFAULTS.apiUrl,
-        comfyUrl: (document.getElementById('cfg-comfy-url').value || '').trim() || DEFAULTS.comfyUrl,
-        ntfyChannel: (document.getElementById('cfg-ntfy-channel').value || '').trim() || DEFAULTS.ntfyChannel,
+    function saveSettings() {
+      const cfg = {
+        apiUrl: document.getElementById('cfg-api-url').value.trim() || DEFAULTS.apiUrl,
+        comfyUrl: document.getElementById('cfg-comfy-url').value.trim() || DEFAULTS.comfyUrl,
+        creativefieldUrl: document.getElementById('cfg-api-url').dataset.creativefieldUrl || DEFAULTS.creativefieldUrl,
+        ntfyChannel: document.getElementById('cfg-ntfy-channel').value.trim() || DEFAULTS.ntfyChannel,
         activeTab: currentTab,
-        ...extra,
       };
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
       } catch (_) {}
-      updateComfyLink(cfg.comfyUrl);
+      updateComfyExternalLink(cfg.comfyUrl);
       return cfg;
     }
 
@@ -747,16 +747,16 @@
           } catch (_) {}
         }
 
-        setInspector(`GET ${pollUrl}`, found || { channel, messages: lines.length }, elapsed);
-
-        if (found) {
-          const nextApi = found.api_url || found.api;
-          const nextComfy = found.comfy_url || found.comfyui;
-          const nextCreative = found.creativefield_url || found.creativefield || null;
-
-          if (nextApi) document.getElementById('cfg-api-url').value = nextApi;
-          if (nextComfy) document.getElementById('cfg-comfy-url').value = nextComfy;
-          saveSettings({ creativefieldUrl: nextCreative });
+        if (latestPayload) {
+          const newApi = latestPayload.api_url || latestPayload.api;
+          const newComfy = latestPayload.comfy_url || latestPayload.comfyui;
+          const newCreativeField = latestPayload.creativefield_url || latestPayload.creativefield;
+          if (newApi) document.getElementById('cfg-api-url').value = newApi;
+          if (newComfy) document.getElementById('cfg-comfy-url').value = newComfy;
+          if (newCreativeField) {
+            document.getElementById('cfg-api-url').dataset.creativefieldUrl = newCreativeField;
+          }
+          saveSettings();
           showToast('URLs sincronizadas via ntfy.sh!', 'success');
         } else {
           showToast('Nenhuma publicação de URLs encontrada nas últimas 24h.', 'info');
@@ -988,6 +988,9 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       loadSettings();
+      syncFromNtfy().finally(() => {
+        testConnection();
+      });
     });
   </script>
 </body>
